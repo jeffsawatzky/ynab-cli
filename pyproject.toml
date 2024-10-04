@@ -1,0 +1,86 @@
+[tool.poetry]
+name = "ynab-cli"
+version = "0.1.0"
+description = ""
+authors = ["Jeff Sawatzky"]
+readme = "README.md"
+packages = [
+  {include = "ynab_cli", from = "src"},
+]
+
+[tool.poetry.scripts]
+ynab = "ynab_cli.host.cli.application:main"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+aiohttp = "^3.10.8"
+aiohttp-retry = "^2.8.3"
+click = "^8.1.7"
+pydantic = "^2.9.2"
+python-dateutil = "^2.9.0.post0"
+rapidfuzz = "^3.10.0"
+urllib3 = "^2.2.3"
+python-dotenv = "^1.0.1"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.11.2"
+pytest = "^8.3.3"
+pytest-cov = "^5.0.0"
+pytest-randomly = "^3.15.0"
+ruff = "^0.6.8"
+types-python-dateutil = "^2.9.0.20241003"
+
+
+[tool.mypy]
+python_version = "3.11"
+plugins = [
+  "pydantic.mypy",
+]
+pretty = true
+show_column_numbers = true
+show_error_codes = true
+show_error_context = true
+strict = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = []
+ignore_missing_imports = true
+
+
+[tool.ruff]
+fix = true
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+extend-select = [
+    "W",   # warnings
+    "I",   # isort
+    "C90", # mccabe
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "S",   # flake8-bandit
+    "B",   # flake8-bugbear
+    "A",   # flake8-builtins
+    "DTZ", # flake8-datetimez
+    "PT",  # flake8-pytest-style
+    "TID", # flake8-tidy-imports
+    "RUF", # ruff specific rules
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ynab_cli", "tests"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 40
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["type"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
