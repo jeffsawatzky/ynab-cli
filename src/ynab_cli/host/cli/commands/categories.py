@@ -18,6 +18,18 @@ def list_unused(ctx: click.Context) -> None:
     )
 
 
+@click.command()
+@click.pass_context
+def list_all(ctx: click.Context) -> None:
+    ctx.ensure_object(dict)
+    asyncio.run(
+        use_cases.list_all(
+            ctx.obj[CONTEXT_KEY_ACCESS_TOKEN],
+            ctx.obj[CONTEXT_KEY_BUDGET_ID],
+        )
+    )
+
+
 @click.group()
 @click.pass_context
 def categories(ctx: click.Context) -> None:
@@ -25,3 +37,4 @@ def categories(ctx: click.Context) -> None:
 
 
 categories.add_command(list_unused)
+categories.add_command(list_all)

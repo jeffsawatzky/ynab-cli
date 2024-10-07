@@ -19,9 +19,7 @@ async def list_unused(access_token: str, budget_id: str) -> None:
 
     async with ynab.ApiClient(configuration) as api_client:
         try:
-            categories_response: models.CategoriesResponse = await api.CategoriesApi(api_client).get_categories(
-                budget_id
-            )
+            categories_response = await api.CategoriesApi(api_client).get_categories(budget_id)
             category_groups = categories_response.data.category_groups
 
             for category_group in category_groups:
@@ -49,6 +47,34 @@ async def list_unused(access_token: str, budget_id: str) -> None:
                     # List unused category if no transactions
                     if not num_transactions:
                         print(f"{category_group.id}, {category.id}: {category_group.name}, {category.name}")
+
+        except ynab.ApiError as e:
+            if e.status == 429:
+                print("API rate limit exceeded. Try again later, or get a new access token.")
+            else:
+                print(f"Exception when calling YNAB: {e}\n")
+
+
+async def list_all(access_token: str, budget_id: str) -> None:
+    configuration = ynab.Configuration(
+        host=YNAB_API_URL,
+        access_token=access_token,
+    )
+
+    async with ynab.ApiClient(configuration) as api_client:
+        try:
+            categories_response = await api.CategoriesApi(api_client).get_categories(budget_id)
+            category_groups = categories_response.data.category_groups
+
+            for category_group in category_groups:
+                if should_skip_category_or_group(category_or_group=category_group):
+                    continue
+
+                for category in category_group.categories:
+                    if should_skip_category_or_group(category_or_group=category):
+                        continue
+
+                    print(f"{category_group.id}, {category.id}: {category_group.name}, {category.name}")
 
         except ynab.ApiError as e:
             if e.status == 429:

@@ -36,7 +36,7 @@ async def normalize_names(access_token: str, budget_id: str, dry_run: bool) -> N
 
     async with ynab.ApiClient(configuration) as api_client:
         try:
-            payees_response: models.PayeesResponse = await api.PayeesApi(api_client).get_payees(budget_id)
+            payees_response = await api.PayeesApi(api_client).get_payees(budget_id)
             payees = payees_response.data.payees
 
             for payee in payees:

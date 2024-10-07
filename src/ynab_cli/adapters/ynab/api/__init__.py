@@ -1,5 +1,3 @@
-# flake8: noqa
-
 # import apis into api package
 from ynab_cli.adapters.ynab.api.accounts_api import AccountsApi
 from ynab_cli.adapters.ynab.api.budgets_api import BudgetsApi

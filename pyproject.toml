@@ -18,14 +18,17 @@ aiohttp-retry = "^2.8.3"
 click = "^8.1.7"
 pydantic = "^2.9.2"
 python-dateutil = "^2.9.0.post0"
-rapidfuzz = "^3.10.0"
-urllib3 = "^2.2.3"
 python-dotenv = "^1.0.1"
+rapidfuzz = "^3.10.0"
+rule-engine = "^4.5.0"
+urllib3 = "^2.2.3"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.2"
+factory-boy = "^3.3.1"
 pytest = "^8.3.3"
 pytest-cov = "^5.0.0"
+pytest-factoryboy = "^2.7.0"
 pytest-randomly = "^3.15.0"
 ruff = "^0.6.8"
 types-python-dateutil = "^2.9.0.20241003"
@@ -44,7 +47,10 @@ strict = true
 warn_unreachable = true
 
 [[tool.mypy.overrides]]
-module = []
+module = [
+  "factory.*",
+  "rule_engine.*",
+]
 ignore_missing_imports = true
 
 
