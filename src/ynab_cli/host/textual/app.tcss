@@ -1,0 +1,27 @@
+Screen {
+    & CommandTabs {
+        margin-top: 1;
+
+        & TransactionsTabs, CategoriesTabs, PayeesTabs, AmazonTabs {
+            margin-top: 1;
+            border: solid $primary;
+            height: 1fr;
+
+            & DataTable {
+                border: solid $secondary;
+                height: 3fr;
+            }
+            & Log {
+                border: solid $secondary;
+                height: 1fr;
+            }
+
+        }
+    }
+}
+
+IOScreen {
+    & Label {
+        margin: 1;
+    }
+}

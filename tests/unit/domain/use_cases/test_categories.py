@@ -4,7 +4,7 @@ from ynab_cli.domain.use_cases import categories as use_cases
 
 def test_should_skip_category_or_group__with_category() -> None:
     assert (
-        use_cases.should_skip_category_or_group(
+        use_cases._should_skip_category_or_group(
             category_or_group=models.Category(
                 id="",
                 category_group_id="",
@@ -20,7 +20,7 @@ def test_should_skip_category_or_group__with_category() -> None:
     )
 
     assert (
-        use_cases.should_skip_category_or_group(
+        use_cases._should_skip_category_or_group(
             category_or_group=models.Category(
                 id="",
                 category_group_id="",
@@ -38,7 +38,7 @@ def test_should_skip_category_or_group__with_category() -> None:
 
 def test_should_skip_category_or_group__with_category_group() -> None:
     assert (
-        use_cases.should_skip_category_or_group(
+        use_cases._should_skip_category_or_group(
             category_or_group=models.CategoryGroupWithCategories(
                 id="",
                 name="Category",
@@ -51,7 +51,7 @@ def test_should_skip_category_or_group__with_category_group() -> None:
     )
 
     assert (
-        use_cases.should_skip_category_or_group(
+        use_cases._should_skip_category_or_group(
             category_or_group=models.CategoryGroupWithCategories(
                 id="",
                 name="Category",

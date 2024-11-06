@@ -1,83 +1,104 @@
-from getpass import getpass
+import logging
+from collections.abc import AsyncIterator
+from typing import TypedDict
 
 from ynab_cli.adapters import ynab
-from ynab_cli.adapters.ynab import api, models
-from ynab_cli.host.cli.constants import YNAB_API_URL
+from ynab_cli.adapters.ynab import api as ynab_api
+from ynab_cli.adapters.ynab import models as ynab_models
+from ynab_cli.domain import ports
+from ynab_cli.domain.settings import Settings
+from ynab_cli.domain.use_cases.constants import YNAB_API_URL
+
+log = logging.getLogger(__name__)
 
 
-def should_skip_category_or_group(category_or_group: models.Category | models.CategoryGroupWithCategories) -> bool:
+def _should_skip_category_or_group(
+    category_or_group: ynab_models.Category | ynab_models.CategoryGroupWithCategories,
+) -> bool:
     if category_or_group.deleted:
         return True
     return False
 
 
-async def list_unused(access_token: str, budget_id: str) -> None:
+class ListUnusedParams(TypedDict):
+    pass
+
+
+async def list_unused(
+    settings: Settings, io: ports.IO, params: ListUnusedParams
+) -> AsyncIterator[ynab_models.Category]:
     configuration = ynab.Configuration(
         host=YNAB_API_URL,
-        access_token=access_token,
+        access_token=settings.ynab.access_token,
     )
 
     async with ynab.ApiClient(configuration) as api_client:
         try:
-            categories_response = await api.CategoriesApi(api_client).get_categories(budget_id)
+            categories_response = await ynab_api.CategoriesApi(api_client).get_categories(settings.ynab.budget_id)
             category_groups = categories_response.data.category_groups
 
             for category_group in category_groups:
-                if should_skip_category_or_group(category_or_group=category_group):
+                if _should_skip_category_or_group(category_or_group=category_group):
                     continue
 
                 for category in category_group.categories:
-                    if should_skip_category_or_group(category_or_group=category):
+                    if _should_skip_category_or_group(category_or_group=category):
                         continue
                     try:
-                        category_transactions_response = await api.TransactionsApi(
+                        category_transactions_response = await ynab_api.TransactionsApi(
                             api_client
-                        ).get_transactions_by_category(budget_id, category.id)
+                        ).get_transactions_by_category(settings.ynab.budget_id, category.id)
                     except ynab.ApiError as e:
                         if e.status == 429:
-                            new_access_token = getpass(prompt="API rate limit exceeded. Enter a new access token: ")
+                            new_access_token = await io.prompt(
+                                prompt="API rate limit exceeded. Enter a new access token", password=True
+                            )
                             api_client.configuration.access_token = new_access_token
-                            category_transactions_response = await api.TransactionsApi(
+                            category_transactions_response = await ynab_api.TransactionsApi(
                                 api_client
-                            ).get_transactions_by_category(budget_id, category.id)
+                            ).get_transactions_by_category(settings.ynab.budget_id, category.id)
                         else:
                             raise e
                     num_transactions = len(category_transactions_response.data.transactions)
 
                     # List unused category if no transactions
                     if not num_transactions:
-                        print(f"{category_group.id}, {category.id}: {category_group.name}, {category.name}")
+                        yield category
 
         except ynab.ApiError as e:
             if e.status == 429:
-                print("API rate limit exceeded. Try again later, or get a new access token.")
+                await io.print("API rate limit exceeded. Try again later, or get a new access token.")
             else:
-                print(f"Exception when calling YNAB: {e}\n")
+                await io.print(f"Exception when calling YNAB: {e}\n")
 
 
-async def list_all(access_token: str, budget_id: str) -> None:
+class ListAllParams(TypedDict):
+    pass
+
+
+async def list_all(settings: Settings, io: ports.IO, params: ListAllParams) -> AsyncIterator[ynab_models.Category]:
     configuration = ynab.Configuration(
         host=YNAB_API_URL,
-        access_token=access_token,
+        access_token=settings.ynab.access_token,
     )
 
     async with ynab.ApiClient(configuration) as api_client:
         try:
-            categories_response = await api.CategoriesApi(api_client).get_categories(budget_id)
+            categories_response = await ynab_api.CategoriesApi(api_client).get_categories(settings.ynab.budget_id)
             category_groups = categories_response.data.category_groups
 
             for category_group in category_groups:
-                if should_skip_category_or_group(category_or_group=category_group):
+                if _should_skip_category_or_group(category_or_group=category_group):
                     continue
 
                 for category in category_group.categories:
-                    if should_skip_category_or_group(category_or_group=category):
+                    if _should_skip_category_or_group(category_or_group=category):
                         continue
 
-                    print(f"{category_group.id}, {category.id}: {category_group.name}, {category.name}")
+                    yield category
 
         except ynab.ApiError as e:
             if e.status == 429:
-                print("API rate limit exceeded. Try again later, or get a new access token.")
+                await io.print("API rate limit exceeded. Try again later, or get a new access token.")
             else:
-                print(f"Exception when calling YNAB: {e}\n")
+                await io.print(f"Exception when calling YNAB: {e}\n")

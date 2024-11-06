@@ -18,5 +18,5 @@ lint: .venv
 	uv run ruff check .
 	uv run mypy .
 
-test: .venv
+test: .venv lint
 	uv run pytest --cov=src tests
