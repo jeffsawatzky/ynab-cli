@@ -1,6 +1,14 @@
-from os.path import dirname, join
+import os
 
 from dotenv import load_dotenv
 
-dotenv_path = join(dirname(__file__), "..", "..", ".env")
-load_dotenv(dotenv_path)
+cwd = os.getcwd()
+dot_env_path = os.path.join(cwd, ".env")
+
+
+def setup_env() -> None:
+    if os.path.exists(dot_env_path):
+        load_dotenv(dot_env_path)
+
+
+setup_env()

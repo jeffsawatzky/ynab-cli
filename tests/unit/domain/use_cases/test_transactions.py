@@ -5,9 +5,9 @@ from ynab_cli.domain.use_cases import transactions as use_cases
 
 def test_should_skip_transaction(transaction_detail: models.TransactionDetail) -> None:
     transaction_detail.deleted = False
-    assert use_cases.should_skip_transaction(transaction=transaction_detail) is False
+    assert use_cases._should_skip_transaction(transaction=transaction_detail) is False
     transaction_detail.deleted = True
-    assert use_cases.should_skip_transaction(transaction=transaction_detail) is True
+    assert use_cases._should_skip_transaction(transaction=transaction_detail) is True
 
 
 def test_get_save_transaction__no_rule_match(transaction_detail: models.TransactionDetail) -> None:
@@ -26,7 +26,7 @@ def test_get_save_transaction__no_rule_match(transaction_detail: models.Transact
 
     transaction_detail.payee_name = "Not Insurance"
     transaction_detail.category_id = None
-    result = use_cases.get_save_transaction(transaction_detail=transaction_detail, transaction_rules=transaction_rules)
+    result = use_cases._get_save_transaction(transaction_detail=transaction_detail, transaction_rules=transaction_rules)
     assert result is None
 
 
@@ -46,7 +46,7 @@ def test_get_save_transaction__match_payee_name(transaction_detail: models.Trans
 
     transaction_detail.payee_name = "Insurance"
     transaction_detail.category_id = None
-    result = use_cases.get_save_transaction(transaction_detail=transaction_detail, transaction_rules=transaction_rules)
+    result = use_cases._get_save_transaction(transaction_detail=transaction_detail, transaction_rules=transaction_rules)
     assert result == models.SaveTransactionWithIdOrImportId(
         id=transaction_detail.id,
         import_id=transaction_detail.import_id,
@@ -85,7 +85,7 @@ def test_get_save_transaction__set_split(transaction_detail: models.TransactionD
 
     transaction_detail.payee_name = "Insurance"
     transaction_detail.category_id = None
-    result = use_cases.get_save_transaction(transaction_detail=transaction_detail, transaction_rules=transaction_rules)
+    result = use_cases._get_save_transaction(transaction_detail=transaction_detail, transaction_rules=transaction_rules)
     assert result == models.SaveTransactionWithIdOrImportId(
         id=transaction_detail.id,
         import_id=transaction_detail.import_id,

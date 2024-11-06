@@ -1,34 +1,34 @@
-from datetime import date
-
-import factory
+from factory.base import Factory
+from factory.declarations import LazyFunction
+from factory.faker import Faker
 
 from ynab_cli.adapters.ynab import models
 
 
-class TransactionDetailFactory(factory.Factory):  # type: ignore[misc]
+class TransactionDetailFactory(Factory[models.TransactionDetail]):
     class Meta:
         model = models.TransactionDetail
 
-    id: str = factory.Faker("uuid4")
-    var_date: date = factory.Faker("date_this_year")
-    amount: int = factory.Faker("random_int", min=1, max=100000)
-    memo: str | None = None
-    cleared: models.TransactionClearedStatus = models.TransactionClearedStatus.CLEARED
-    approved: bool = True
-    flag_color: models.TransactionFlagColor | None = None
-    flag_name: str | None = None
-    account_id: str = factory.Faker("uuid4")
-    payee_id: str | None = None
-    category_id: str | None = None
-    transfer_account_id: str | None = None
-    transfer_transaction_id: str | None = None
-    matched_transaction_id: str | None = None
-    import_id: str | None = None
-    import_payee_name: str | None = None
-    import_payee_name_original: str | None = None
-    debt_transaction_type: str | None = None
-    deleted: bool = factory.Faker("boolean")
-    account_name: str = factory.Faker("word")
-    payee_name: str | None = None
-    category_name: str | None = None
-    subtransactions: list[models.SubTransaction] = factory.LazyFunction(list)
+    id = Faker("uuid4")  # type: ignore[no-untyped-call]
+    var_date = Faker("date_this_year")  # type: ignore[no-untyped-call]
+    amount = Faker("random_int", min=1, max=100000)  # type: ignore[no-untyped-call]
+    memo = None
+    cleared = models.TransactionClearedStatus.CLEARED
+    approved = True
+    flag_color = None
+    flag_name = None
+    account_id = Faker("uuid4")  # type: ignore[no-untyped-call]
+    payee_id = None
+    category_id = None
+    transfer_account_id = None
+    transfer_transaction_id = None
+    matched_transaction_id = None
+    import_id = None
+    import_payee_name = None
+    import_payee_name_original = None
+    debt_transaction_type = None
+    deleted = Faker("boolean")  # type: ignore[no-untyped-call]
+    account_name = Faker("word")  # type: ignore[no-untyped-call]
+    payee_name = None
+    category_name = None
+    subtransactions = LazyFunction(list)  # type: ignore[no-untyped-call]
