@@ -97,8 +97,8 @@ async def list_duplicates(access_token: str, budget_id: str) -> None:
                     if should_skip_payee(payee=filtered_payee):
                         continue
 
-                    normalized_payee_name = _normalize_name(payee.name).lower()
-                    normalized_filtered_payee_name = _normalize_name(filtered_payee.name).lower()
+                    normalized_payee_name = normalize_name(payee.name).lower()
+                    normalized_filtered_payee_name = normalize_name(filtered_payee.name).lower()
                     if fuzz.ratio(normalized_payee_name, normalized_filtered_payee_name) > 70:
                         # Check to see if we already tracked this possible duplicate in the other direction
                         existing_possible_duplicates = possible_duplicates.get((filtered_payee.id, filtered_payee.name))

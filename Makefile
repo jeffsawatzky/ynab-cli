@@ -10,13 +10,13 @@ clean:
 	find . -type d -name .pytest_cache | xargs rm -rf
 
 .venv: pyproject.toml
-	poetry install --sync
+	uv sync
 	touch .venv
 
 lint: .venv
-	poetry run ruff format .
-	poetry run ruff check .
-	poetry run mypy .
+	uv run ruff format .
+	uv run ruff check .
+	uv run mypy .
 
-test: .venv # lint
-	poetry run pytest --cov=src tests
+test: .venv
+	uv run pytest --cov=src tests

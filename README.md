@@ -1,7 +1,7 @@
 # Requirements
 
 - Python 3.11+
-- Poetry
+- [uv](https://docs.astral.sh/uv/)
 - Your [YNAB developer access token](https://api.ynab.com/#personal-access-tokens)
 - Your YNAB budget ID. You can get this from your browser URL while you have your budget open. For example, if the URL looks like `https://app.ynab.com/aaaaaaaa-1111-bbbb-2222-ddddddd` then the budget ID is `aaaaaaaa-1111-bbbb-2222-ddddddd`.
 
@@ -9,14 +9,10 @@
 ```bash
 $ git clone https://github.com/jeffsawatzky/ynab-cli.git
 $ cd ynab-cli
-$ poetry install --sync
+$ uv sync
 ```
 
 # Usage
-You need to be in a Poetry shell first.
-```bash
-$ poetry shell
-```
 > [!WARNING]
 > Developer access tokens are rate limited to 200 requests per hour. Some of the commands below will provide you an opportunity to enter a new developer access token when the current one has exceeded it's limit. It also seems like there is a limit to how many developer access tokens you can create from the developer settings UI.
 
@@ -27,7 +23,7 @@ Then you can run the individual commands. Note that for each command you will be
 
 ## List Unused Payees
 ```bash
-$ ynab payees list-unused
+$ uv run ynab payees list-unused
 ```
 > [!NOTE]
 > This will make 1 API call to get the list of payees, and then 1 API call *for each* payee to get the list of transactions. If you have more than 200 payees then you will hit your rate limit for the access token and will be asked to enter in a new one when this happens.
@@ -36,7 +32,7 @@ You can now go into YNAB and delete the ones you think you don't need.
 
 ## List Duplicate Payees
 ```bash
-$ ynab payees list-duplicates
+$ uv run ynab payees list-duplicates
 ```
 > [!NOTE]
 > This will make 1 API call to get the list of payees, and then go through them all, comparing them to eachother with a fuzzy match to see which ones *might* be duplicates. You will probably get some false positives, but I prefer this over missing some.
@@ -45,13 +41,13 @@ You can now go into YNAB and combine the ones you think are duplicates.
 
 ## Normalize Payee Names
 ```bash
-$ ynab payees normalize-names
+$ uv run ynab payees normalize-names
 ```
 > [!WARNING]
 > This will update the payees in place. You can also specify `--dry-run` to see what changes would be made.
 
 ```bash
-$ ynab --dry-run payees normalize-names
+$ uv run ynab --dry-run payees normalize-names
 ```
 
 > [!NOTE]
@@ -61,7 +57,7 @@ To normalize a payee name, it converts the name to Title Case and applies some e
 
 ## List Unused Categories
 ```bash
-$ ynab categories list-unused
+$ uv run ynab categories list-unused
 ```
 > [!NOTE]
 > This will make 1 API call to get the list of categories, and then 1 API call *for each* category to get the list of transactions. If you have more than 200 categories then you will hit your rate limit for the access token and will be asked to enter in a new one when this happens.
@@ -70,20 +66,20 @@ You can now go into YNAB and delete the ones you think you don't need.
 
 ## List All Categories
 ```bash
-$ ynab categories list-all
+$ uv run ynab categories list-all
 ```
 
 You can use this to list the IDs for all your categories which you can then use in your transaction rules.
 
 ## Apply Transaction Rules
 ```bash
-$ ynab transactions apply-rules rules.json
+$ uv run ynab transactions apply-rules rules.json
 ```
 > [!WARNING]
 > This will update the transactions in place. You can also specify `--dry-run` to see what changes would be made.
 
 ```bash
-$ ynab --dry-run transactions apply-rules rules.json
+$ uv run ynab --dry-run transactions apply-rules rules.json
 ```
 This assumes you have a `rules.json` file with your rules to apply. It could look something like this:
 ```json
@@ -122,7 +118,7 @@ This assumes you have a `rules.json` file with your rules to apply. It could loo
 > Amounts are in milliunits and can be either positive or negative depending on if they are inflow or outflow.
 
 > [!NOTE]
-> To get the category IDs you can use the `ynab categories list-all` command listed above.
+> To get the category IDs you can use the `uv run ynab categories list-all` command listed above.
 
 The rules use the [rule-engine](https://zerosteiner.github.io/rule-engine/getting_started.html) library, so read that documentation to figure out how to write the rules. If ANY of the rules in the `rules` list match a transaction then it will be updated with the `patch` details.
 The rules are supplied an instance of a `TransactionDetail`, and the `patch` needs to be an instance of a `SaveTransactionWithIdOrImportId`. Read the [YNAB API documention](https://api.ynab.com/v1) to see what properties are available to base your rules on and update.

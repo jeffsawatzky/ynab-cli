@@ -1,5 +1,6 @@
 import asyncio
 import json
+from typing import IO, Any
 
 import click
 
@@ -11,7 +12,7 @@ from ynab_cli.host.cli.constants import CONTEXT_KEY_ACCESS_TOKEN, CONTEXT_KEY_BU
 @click.command()
 @click.argument("rules-file", type=click.File())
 @click.pass_context
-def apply_rules(ctx: click.Context, rules_file: click.File) -> None:
+def apply_rules(ctx: click.Context, rules_file: IO[Any]) -> None:
     ctx.ensure_object(dict)
 
     transaction_rules = rules.TransactionRules.model_validate(json.load(rules_file))

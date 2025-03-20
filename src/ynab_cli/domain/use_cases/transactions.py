@@ -58,7 +58,7 @@ async def apply_rules(
                 )
                 if save_transaction:
                     print(
-                        f"{transaction.id}: ({(transaction.payee_name,transaction.category_name,transaction.amount)}) -> {save_transaction.to_dict()}"
+                        f"{transaction.id}: ({(transaction.payee_name, transaction.category_name, transaction.amount)}) -> {save_transaction.to_dict()}"
                     )
 
                     if not dry_run:

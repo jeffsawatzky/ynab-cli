@@ -1,37 +1,39 @@
-[tool.poetry]
+[project]
 name = "ynab-cli"
 version = "0.1.0"
-description = ""
-authors = ["Jeff Sawatzky"]
+description = "YNAB Command Line Interface"
 readme = "README.md"
-packages = [
-  {include = "ynab_cli", from = "src"},
+authors = [
+    { name = "Jeff Sawatzky", email = "jeff.sawatzky@me.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "aiohttp-retry~=2.9.1",
+    "aiohttp~=3.11.14",
+    "click~=8.1.8",
+    "pydantic~=2.10.6",
+    "python-dateutil~=2.9.0.post0",
+    "python-dotenv~=1.0.1",
+    "rapidfuzz~=3.12.2",
+    "rule-engine~=4.5.3",
+    "urllib3~=2.3.0",
 ]
 
-[tool.poetry.scripts]
+[project.scripts]
 ynab = "ynab_cli.host.cli.application:main"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-aiohttp = "^3.10.8"
-aiohttp-retry = "^2.8.3"
-click = "^8.1.7"
-pydantic = "^2.9.2"
-python-dateutil = "^2.9.0.post0"
-python-dotenv = "^1.0.1"
-rapidfuzz = "^3.10.0"
-rule-engine = "^4.5.0"
-urllib3 = "^2.2.3"
 
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.11.2"
-factory-boy = "^3.3.1"
-pytest = "^8.3.3"
-pytest-cov = "^5.0.0"
-pytest-factoryboy = "^2.7.0"
-pytest-randomly = "^3.15.0"
-ruff = "^0.6.8"
-types-python-dateutil = "^2.9.0.20241003"
+[dependency-groups]
+dev = [
+    "factory-boy>=3.3.3",
+    "mypy>=1.15.0",
+    "pytest-cov>=6.0.0",
+    "pytest-factoryboy>=2.7.0",
+    "pytest-randomly>=3.16.0",
+    "pytest>=8.3.5",
+    "ruff>=0.11.0",
+    "types-python-dateutil>=2.9.0.20241206",
+]
 
 
 [tool.mypy]
@@ -39,12 +41,19 @@ python_version = "3.11"
 plugins = [
   "pydantic.mypy",
 ]
+exclude = [
+  '^src/ynab_cli/adapters/ynab/.*\.py$',
+  '^tests/.*\.py$'
+]
 pretty = true
 show_column_numbers = true
 show_error_codes = true
 show_error_context = true
 strict = true
 warn_unreachable = true
+enable_error_code = [
+  "explicit-override",
+]
 
 [[tool.mypy.overrides]]
 module = [
@@ -87,6 +96,7 @@ max-complexity = 40
 [tool.ruff.lint.flake8-builtins]
 builtins-ignorelist = ["type"]
 
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
