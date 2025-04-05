@@ -8,15 +8,15 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "aiohttp-retry~=2.9.1",
-    "aiohttp~=3.11.14",
-    "click~=8.1.8",
-    "pydantic~=2.10.6",
-    "python-dateutil~=2.9.0.post0",
-    "python-dotenv~=1.0.1",
-    "rapidfuzz~=3.12.2",
-    "rule-engine~=4.5.3",
-    "urllib3~=2.3.0",
+    "aiohttp-retry~=2.9",
+    "aiohttp~=3.11",
+    "click~=8.1",
+    "pydantic~=2.11",
+    "python-dateutil~=2.9",
+    "python-dotenv~=1.1",
+    "rapidfuzz~=3.13",
+    "rule-engine~=4.5",
+    "urllib3~=2.3",
 ]
 
 [project.scripts]
@@ -27,11 +27,11 @@ ynab = "ynab_cli.host.cli.application:main"
 dev = [
     "factory-boy>=3.3.3",
     "mypy>=1.15.0",
-    "pytest-cov>=6.0.0",
+    "pytest-cov>=6.1.1",
     "pytest-factoryboy>=2.7.0",
     "pytest-randomly>=3.16.0",
     "pytest>=8.3.5",
-    "ruff>=0.11.0",
+    "ruff>=0.11.4",
     "types-python-dateutil>=2.9.0.20241206",
 ]
 
