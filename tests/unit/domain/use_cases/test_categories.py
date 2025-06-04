@@ -8,7 +8,7 @@ uuid = UUID("00000000-0000-0000-0000-000000000000")
 
 def test_should_skip_category_or_group__with_category() -> None:
     assert (
-        use_cases.should_skip_category_or_group(
+        use_cases._should_skip_category_or_group(
             category_or_group=models.Category(
                 id=uuid,
                 category_group_id=uuid,
@@ -24,7 +24,7 @@ def test_should_skip_category_or_group__with_category() -> None:
     )
 
     assert (
-        use_cases.should_skip_category_or_group(
+        use_cases._should_skip_category_or_group(
             category_or_group=models.Category(
                 id=uuid,
                 category_group_id=uuid,
@@ -42,7 +42,7 @@ def test_should_skip_category_or_group__with_category() -> None:
 
 def test_should_skip_category_or_group__with_category_group() -> None:
     assert (
-        use_cases.should_skip_category_or_group(
+        use_cases._should_skip_category_or_group(
             category_or_group=models.CategoryGroupWithCategories(
                 id=uuid,
                 name="Category",
@@ -55,7 +55,7 @@ def test_should_skip_category_or_group__with_category_group() -> None:
     )
 
     assert (
-        use_cases.should_skip_category_or_group(
+        use_cases._should_skip_category_or_group(
             category_or_group=models.CategoryGroupWithCategories(
                 id=uuid,
                 name="Category",
