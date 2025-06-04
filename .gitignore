@@ -1,5 +1,6 @@
 .coverage
 .env
+rules.json
 
 __pycache__/
 .my_cache/
@@ -7,3 +8,5 @@ __pycache__/
 .ruff_cache/
 .venv/
 .vscode/
+dist/
+site/

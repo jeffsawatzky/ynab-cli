@@ -1,0 +1,24 @@
+name: pr
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: latest
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync --locked                # abort if the lockfile changes
+      - run: uv run ruff format --check .    # check formatting is correct
+      - run: uv run ruff check --no-fix .    # and linting
+      - run: uv run mypy .                   # typecheck too
+      - run: uv run pytest tests             # then run your tests!
+      - run: uv build                        # make sure the package builds
+      - run: uv run mkdocs build             # make sure the docs build
