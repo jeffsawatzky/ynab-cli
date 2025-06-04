@@ -13,12 +13,13 @@ dependencies = [
     "httpx~=0.28",
     "python-dotenv~=1.1",
     "rapidfuzz~=3.13",
+    "rich~=14.0",
     "rule-engine~=4.5",
     "typing-extensions~=4.14",
 ]
 
 [project.scripts]
-ynab = "ynab_cli.host.cli.application:main"
+ynab = "ynab_cli.host.click.application:main"
 
 
 [dependency-groups]
