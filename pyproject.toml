@@ -1,0 +1,108 @@
+[project]
+name = "ynab-cli"
+version = "0.1.0"
+description = "YNAB Command Line Interface"
+readme = "README.md"
+authors = [
+    { name = "Jeff Sawatzky" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "attrs~=25.3",
+    "click~=8.2",
+    "httpx~=0.28",
+    "python-dotenv~=1.1",
+    "rapidfuzz~=3.13",
+    "rule-engine~=4.5",
+    "typing-extensions~=4.14",
+]
+
+[project.scripts]
+ynab = "ynab_cli.host.cli.application:main"
+
+
+[dependency-groups]
+dev = [
+    "factory-boy>=3.3.3",
+    "mypy>=1.16.0",
+    "pytest-cov>=6.1.1",
+    "pytest-factoryboy>=2.7.0",
+    "pytest-randomly>=3.16.0",
+    "pytest>=8.4.0",
+    "ruff>=0.11.12",
+    "types-python-dateutil>=2.9.0.20250516",
+]
+
+
+[tool.mypy]
+python_version = "3.11"
+exclude = [
+  '^tests/.*\.py$'
+]
+pretty = true
+show_column_numbers = true
+show_error_codes = true
+show_error_context = true
+strict = true
+warn_unreachable = true
+enable_error_code = [
+  "explicit-override",
+]
+
+[[tool.mypy.overrides]]
+module = [
+  "factory.*",
+  "rule_engine.*",
+]
+ignore_missing_imports = true
+
+
+[tool.ruff]
+fix = true
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+extend-select = [
+    "W",   # warnings
+    "I",   # isort
+    "C90", # mccabe
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "S",   # flake8-bandit
+    "B",   # flake8-bugbear
+    "A",   # flake8-builtins
+    "DTZ", # flake8-datetimez
+    "PT",  # flake8-pytest-style
+    "TID", # flake8-tidy-imports
+    "RUF", # ruff specific rules
+]
+extend-ignore = [
+    "S110",   # `try`-`except`-`pass` detected
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ynab_cli", "tests"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 70
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["type", "id"]
+
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "pep440"
+version_provider = "uv"
+update_changelog_on_bump = true
+major_version_zero = true
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

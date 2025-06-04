@@ -1,0 +1,21 @@
+name: pr
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.5.14"
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync --locked                # abort if the lockfile changes
+      - run: uv run ruff format --check .    # check formatting is correct
+      - run: uv run ruff check --no-fix .    # and linting
+      - run: uv run mypy .                   # typecheck too
+      - run: uv run pytest tests             # then run your tests!
