@@ -10,9 +10,7 @@ from ynab_cli.domain.models import rules
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import transactions as use_cases
 from ynab_cli.host.click.commands.rich.progress_table import ProgressTable
-from ynab_cli.host.click.constants import (
-    CONTEXT_KEY_SETTINGS,
-)
+from ynab_cli.host.constants import CONTEXT_KEY_SETTINGS
 
 
 async def _apply_rules(settings: Settings, transaction_rules: rules.TransactionRules) -> None:
@@ -59,7 +57,7 @@ def apply_rules(ctx: click.Context, rules_file: IO[Any]) -> None:
 
     transaction_rules = rules.TransactionRules.from_dict(json.load(rules_file))
 
-    asyncio.run(_apply_rules(ctx.obj[CONTEXT_KEY_SETTINGS], transaction_rules))
+    asyncio.run(_apply_rules(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()), transaction_rules))
 
 
 @click.group()

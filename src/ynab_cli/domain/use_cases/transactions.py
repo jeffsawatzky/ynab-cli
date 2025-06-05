@@ -85,7 +85,7 @@ async def apply_rules(
                 except util.ApiError as e:
                     if e.status_code == 429:
                         new_access_token = await io.prompt(
-                            prompt="API rate limit exceeded. Enter a new access token: ", password=True
+                            prompt="API rate limit exceeded. Enter a new access token", password=True
                         )
                         client.token = new_access_token
                         util.ensure_success(

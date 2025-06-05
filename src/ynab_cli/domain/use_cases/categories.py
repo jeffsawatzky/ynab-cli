@@ -51,7 +51,7 @@ async def list_unused(settings: Settings, io: ports.IO, params: ListUnusedParams
                     except util.ApiError as e:
                         if e.status_code == 429:
                             new_access_token = await io.prompt(
-                                prompt="API rate limit exceeded. Enter a new access token: ", password=True
+                                prompt="API rate limit exceeded. Enter a new access token", password=True
                             )
                             client.token = new_access_token
                             get_transactions_by_category_response = await get_transactions_by_category.asyncio_detailed(
