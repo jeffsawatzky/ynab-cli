@@ -11,5 +11,6 @@ class YnabSettings:
 @_attrs_define
 class Settings:
     dry_run: bool = False
+    debug: bool = False
 
     ynab: YnabSettings = field(factory=YnabSettings)

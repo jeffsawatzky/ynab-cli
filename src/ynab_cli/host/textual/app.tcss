@@ -1,0 +1,47 @@
+Screen {
+    Vertical#settings {
+        margin-top: 1;
+        height: auto;
+        border: solid $primary;
+
+        Horizontal {
+            height: auto;
+
+            Vertical {
+                height: auto;
+
+                Input {
+                    border: solid $secondary;
+                }
+            }
+        }
+    }
+    Vertical#main {
+        margin-top: 1;
+        margin-bottom: 1;
+        
+        CommandTabs {
+            height: 1fr;
+            TransactionsTabs, CategoriesTabs, PayeesTabs {
+                padding-top: 1;
+                border: solid $primary;
+                height: 1fr;
+
+                DataTable {
+                    border: solid $secondary;
+                    height: 3fr;
+                }
+                Log {
+                    border: solid $secondary;
+                    height: 1fr;
+                }
+            }
+        }
+    }
+}
+
+IOScreen {
+    Label {
+        margin: 1;
+    }
+}

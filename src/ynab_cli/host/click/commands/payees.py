@@ -7,7 +7,7 @@ from ynab_cli.adapters.rich import io
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import payees as use_cases
 from ynab_cli.host.click.commands.rich.progress_table import ProgressTable
-from ynab_cli.host.click.constants import CONTEXT_KEY_SETTINGS
+from ynab_cli.host.constants import CONTEXT_KEY_SETTINGS
 
 
 async def _normalize_names(settings: Settings) -> None:
@@ -86,21 +86,21 @@ async def _list_unused(settings: Settings) -> None:
 @click.pass_context
 def normalize_names(ctx: click.Context) -> None:
     ctx.ensure_object(dict)
-    asyncio.run(_normalize_names(ctx.obj[CONTEXT_KEY_SETTINGS]))
+    asyncio.run(_normalize_names(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
 
 
 @click.command()
 @click.pass_context
 def list_duplicates(ctx: click.Context) -> None:
     ctx.ensure_object(dict)
-    asyncio.run(_list_duplicates(ctx.obj[CONTEXT_KEY_SETTINGS]))
+    asyncio.run(_list_duplicates(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
 
 
 @click.command()
 @click.pass_context
 def list_unused(ctx: click.Context) -> None:
     ctx.ensure_object(dict)
-    asyncio.run(_list_unused(ctx.obj[CONTEXT_KEY_SETTINGS]))
+    asyncio.run(_list_unused(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
 
 
 @click.group()

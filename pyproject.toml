@@ -10,16 +10,18 @@ requires-python = ">=3.11"
 dependencies = [
     "attrs~=25.3",
     "click~=8.2",
+    "click-default-group>=1.2.4",
     "httpx~=0.28",
     "python-dotenv~=1.1",
     "rapidfuzz~=3.13",
     "rich~=14.0",
     "rule-engine~=4.5",
+    "textual>=3.3.0",
     "typing-extensions~=4.14",
 ]
 
 [project.scripts]
-ynab = "ynab_cli.host.click.application:main"
+ynab = "ynab_cli.host.cli:main"
 
 
 [dependency-groups]
@@ -31,6 +33,7 @@ dev = [
     "pytest-randomly>=3.16.0",
     "pytest>=8.4.0",
     "ruff>=0.11.12",
+    "textual-dev>=1.7.0",
     "types-python-dateutil>=2.9.0.20250516",
 ]
 
@@ -52,6 +55,7 @@ enable_error_code = [
 
 [[tool.mypy.overrides]]
 module = [
+  "click_default_group.*",
   "factory.*",
   "rule_engine.*",
 ]
