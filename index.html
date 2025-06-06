@@ -277,15 +277,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#usage" class="md-nav__link">
     <span class="md-ellipsis">
       Usage
@@ -360,15 +351,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#usage" class="md-nav__link">
     <span class="md-ellipsis">
       Usage
@@ -400,33 +382,34 @@
 <p>This is a simple cli/tui application written in python to help manage your YNAB data.</p>
 <h2 id="requirements">Requirements</h2>
 <ul>
-<li>Python 3.11+</li>
-<li><a href="https://docs.astral.sh/uv/">uv</a></li>
-<li>Your <a href="https://api.ynab.com/#personal-access-tokens">YNAB developer access token</a></li>
-<li>Your YNAB budget ID. You can get this from your browser URL while you have your budget open. For example, if the URL looks like <code>https://app.ynab.com/aaaaaaaa-1111-bbbb-2222-ddddddd</code> then the budget ID is <code>aaaaaaaa-1111-bbbb-2222-ddddddd</code>.</li>
+<li><a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> which allows you to easily run python applications.</li>
+<li>Your <a href="https://api.ynab.com/#personal-access-tokens">YNAB developer access token</a>.</li>
 </ul>
-<h2 id="installation">Installation</h2>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/jeffsawatzky/ynab-cli.git
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>ynab-cli
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>$<span class="w"> </span>uv<span class="w"> </span>sync
-</span></code></pre></div>
-<h2 id="usage">Usage</h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Developer access tokens are rate limited to 200 requests per hour. Some of the commands below will provide you an opportunity to enter a new developer access token when the current one has exceeded it's limit. It also seems like there is a limit to how many developer access tokens you can create from the developer settings UI.</p>
 </div>
+<ul>
+<li>Your YNAB budget ID. Once you have <code>uv</code> and your <code>access token</code> you can list your budgets by running:
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>uvx<span class="w"> </span>ynab-cli<span class="w"> </span>run<span class="w"> </span>--access-token<span class="w"> </span>your_access_token<span class="w"> </span>budgets<span class="w"> </span>list-all
+</span></code></pre></div></li>
+</ul>
+<h2 id="usage">Usage</h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>YNAB CLI supports environment variables and dotenv (<code>.env</code>) files for specifying options. See the <code>.env-sample</code> file for some examples. It looks for the <code>.env</code> file in current working directory.</p>
+<p>YNAB CLI supports environment variables and dotenv (<code>.env</code>) files for specifying options. See the <code>.env-sample</code> file for some examples. YNAB CLI looks for the <code>.env</code> file in current working directory. If you create a <code>.env</code> file with the following information you won't need to keep entering it on the command line.</p>
+<div class="language-text highlight"><span class="filename">.env</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>YNAB_CLI_ACCESS_TOKEN=your_access_token
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>YNAB_CLI_BUDGET_ID=your_budget_id
+</span></code></pre></div>
 </div>
 <p>To run the text ui, execute the following command:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>ynab-cli
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>uvx<span class="w"> </span>ynab-cli
 </span></code></pre></div>
-<p>Full command line usage is below.</p>
+<p>The individual CLI commands can be similarily run using <code>uvx</code>. Full command line usage is below.</p>
 <h1 id="ynab-cli">ynab-cli</h1>
 <p>Main entrypoint.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ynab-cli [OPTIONS] COMMAND [ARGS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ynab-cli [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -467,7 +450,7 @@
 <h2 id="ynab-cli-run">ynab-cli run</h2>
 <p>Main entrypoint for YNAB CLI commands.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ynab-cli run [OPTIONS] COMMAND [ARGS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ynab-cli run [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -487,12 +470,6 @@
 <td>None</td>
 </tr>
 <tr>
-<td><code>--budget-id</code></td>
-<td>text</td>
-<td>YNAB budget ID.</td>
-<td>None</td>
-</tr>
-<tr>
 <td><code>--help</code></td>
 <td>boolean</td>
 <td>Show this message and exit.</td>
@@ -502,14 +479,15 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
+<li><em><a href="#ynab-cli-run-budgets">budgets</a></em>: Manage YNAB budgets in YNAB.</li>
 <li><em><a href="#ynab-cli-run-categories">categories</a></em>: Manage YNAB categories in the YNAB budget.</li>
 <li><em><a href="#ynab-cli-run-payees">payees</a></em>: Manage payees in the YNAB budget.</li>
 <li><em><a href="#ynab-cli-run-transactions">transactions</a></em>: Manage transactions in the YNAB budget.</li>
 </ul>
-<h3 id="ynab-cli-run-categories">ynab-cli run categories</h3>
-<p>Manage YNAB categories in the YNAB budget.</p>
+<h3 id="ynab-cli-run-budgets">ynab-cli run budgets</h3>
+<p>Manage YNAB budgets in YNAB.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ynab-cli run categories [OPTIONS] COMMAND [ARGS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ynab-cli run budgets [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -532,13 +510,71 @@
 </table>
 <p><strong>Subcommands</strong></p>
 <ul>
+<li><em><a href="#ynab-cli-run-budgets-list-all">list-all</a></em>: List all budgets in YNAB.</li>
+</ul>
+<h4 id="ynab-cli-run-budgets-list-all">ynab-cli run budgets list-all</h4>
+<p>List all budgets in YNAB.</p>
+<p><strong>Usage:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ynab-cli run budgets list-all [OPTIONS]
+</span></code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ynab-cli-run-categories">ynab-cli run categories</h3>
+<p>Manage YNAB categories in the YNAB budget.</p>
+<p><strong>Usage:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>ynab-cli run categories [OPTIONS] COMMAND [ARGS]...
+</span></code></pre></div>
+<p><strong>Options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--budget-id</code></td>
+<td>text</td>
+<td>YNAB budget ID.</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>boolean</td>
+<td>Show this message and exit.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Subcommands</strong></p>
+<ul>
 <li><em><a href="#ynab-cli-run-categories-list-all">list-all</a></em>: List all categories in the YNAB budget.</li>
 <li><em><a href="#ynab-cli-run-categories-list-unused">list-unused</a></em>: List unused categories in the YNAB budget.</li>
 </ul>
 <h4 id="ynab-cli-run-categories-list-all">ynab-cli run categories list-all</h4>
 <p>List all categories in the YNAB budget.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ynab-cli run categories list-all [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>ynab-cli run categories list-all [OPTIONS]
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -562,7 +598,7 @@
 <h4 id="ynab-cli-run-categories-list-unused">ynab-cli run categories list-unused</h4>
 <p>List unused categories in the YNAB budget.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ynab-cli run categories list-unused [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ynab-cli run categories list-unused [OPTIONS]
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -586,7 +622,7 @@
 <h3 id="ynab-cli-run-payees">ynab-cli run payees</h3>
 <p>Manage payees in the YNAB budget.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>ynab-cli run payees [OPTIONS] COMMAND [ARGS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>ynab-cli run payees [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -599,6 +635,12 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--budget-id</code></td>
+<td>text</td>
+<td>YNAB budget ID.</td>
+<td>None</td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
@@ -617,7 +659,7 @@
 <h4 id="ynab-cli-run-payees-list-all">ynab-cli run payees list-all</h4>
 <p>List all payees in the YNAB budget.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>ynab-cli run payees list-all [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>ynab-cli run payees list-all [OPTIONS]
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -641,7 +683,7 @@
 <h4 id="ynab-cli-run-payees-list-duplicates">ynab-cli run payees list-duplicates</h4>
 <p>List duplicate payees in the YNAB budget.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ynab-cli run payees list-duplicates [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ynab-cli run payees list-duplicates [OPTIONS]
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -665,7 +707,7 @@
 <h4 id="ynab-cli-run-payees-list-unused">ynab-cli run payees list-unused</h4>
 <p>List unused payees in the YNAB budget.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>ynab-cli run payees list-unused [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ynab-cli run payees list-unused [OPTIONS]
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -695,7 +737,7 @@
 <h4 id="ynab-cli-run-payees-normalize-names">ynab-cli run payees normalize-names</h4>
 <p>Normalize payee names in the YNAB budget.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>ynab-cli run payees normalize-names [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>ynab-cli run payees normalize-names [OPTIONS]
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -719,7 +761,7 @@
 <h3 id="ynab-cli-run-transactions">ynab-cli run transactions</h3>
 <p>Manage transactions in the YNAB budget.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ynab-cli run transactions [OPTIONS] COMMAND [ARGS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>ynab-cli run transactions [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -732,6 +774,12 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--budget-id</code></td>
+<td>text</td>
+<td>YNAB budget ID.</td>
+<td>None</td>
+</tr>
 <tr>
 <td><code>--help</code></td>
 <td>boolean</td>
@@ -748,7 +796,7 @@
 <p>Apply transaction rules from a JSON RULES_FILE to transactions in the YNAB budget.</p>
 <p>RULES_FILE should be a JSON file containing transaction rules.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ynab-cli run transactions apply-rules [OPTIONS] RULES_FILE
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>ynab-cli run transactions apply-rules [OPTIONS] RULES_FILE
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
@@ -772,7 +820,7 @@
 <h2 id="ynab-cli-tui">ynab-cli tui</h2>
 <p>Run the Textual User Interface (TUI) for YNAB CLI.</p>
 <p><strong>Usage:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>ynab-cli tui [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>ynab-cli tui [OPTIONS]
 </span></code></pre></div>
 <p><strong>Options:</strong></p>
 <table>
