@@ -16,6 +16,7 @@ clean:
 	rm -f .coverage
 	rm -rf dist
 	rm -rf htmlcov
+	rm -rf site
 	find . -type f -name .DS_Store | xargs rm -rf
 	find . -type d -name __pycache__ | xargs rm -rf
 	find . -type d -name .mypy_cache | xargs rm -rf

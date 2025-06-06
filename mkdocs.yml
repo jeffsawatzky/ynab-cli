@@ -9,7 +9,6 @@ theme:
 
 plugins:
   - search
-  - mkdocstrings
 
 markdown_extensions:
     - admonition

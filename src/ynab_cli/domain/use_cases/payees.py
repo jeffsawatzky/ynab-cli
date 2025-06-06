@@ -10,12 +10,18 @@ from ynab_cli.adapters.ynab import models, util
 from ynab_cli.adapters.ynab.api.payees import get_payees, update_payee
 from ynab_cli.adapters.ynab.api.transactions import get_transactions_by_payee
 from ynab_cli.domain import ports
-from ynab_cli.domain.constants import YNAB_API_URL
+from ynab_cli.domain.constants import UNUSED_PREFIX, YNAB_API_URL
 from ynab_cli.domain.settings import Settings
 
 
 def _should_skip_payee(payee: models.Payee) -> bool:
-    if payee.deleted or payee.name.startswith("Transfer : ") or payee.name in ["Starting Balance"]:
+    if (
+        payee.deleted
+        or (payee.transfer_account_id and isinstance(payee.transfer_account_id, str))
+        or payee.name.startswith("Transfer : ")
+        or payee.name.startswith(UNUSED_PREFIX)
+        or payee.name in ["Starting Balance"]
+    ):
         return True
     return False
 
@@ -39,9 +45,12 @@ class NormalizeNamesParams(TypedDict):
 
 
 async def normalize_names(
-    settings: Settings, io: ports.IO, params: NormalizeNamesParams
+    settings: Settings, io: ports.IO, params: NormalizeNamesParams, *, client: ynab.AuthenticatedClient | None = None
 ) -> AsyncIterator[tuple[models.Payee, str]]:
-    async with ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token) as client:
+    if client is None:
+        client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
+
+    async with client:
         try:
             get_payees_response = await get_payees.asyncio_detailed(
                 settings.ynab.budget_id,
@@ -99,9 +108,12 @@ class ListDuplicatesParams(TypedDict):
 
 
 async def list_duplicates(
-    settings: Settings, io: ports.IO, params: ListDuplicatesParams
+    settings: Settings, io: ports.IO, params: ListDuplicatesParams, *, client: ynab.AuthenticatedClient | None = None
 ) -> AsyncIterator[tuple[models.Payee, models.Payee]]:
-    async with ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token) as client:
+    if client is None:
+        client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
+
+    async with client:
         try:
             possible_duplicates: dict[tuple[UUID, str], list[tuple[UUID, str]]] = {}
 
@@ -149,11 +161,16 @@ async def list_duplicates(
 
 
 class ListUnusedParams(TypedDict):
-    pass
+    prefix_unused: bool
 
 
-async def list_unused(settings: Settings, io: ports.IO, params: ListUnusedParams) -> AsyncIterator[models.Payee]:
-    async with ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token) as client:
+async def list_unused(
+    settings: Settings, io: ports.IO, params: ListUnusedParams, *, client: ynab.AuthenticatedClient | None = None
+) -> AsyncIterator[models.Payee]:
+    if client is None:
+        client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
+
+    async with client:
         try:
             get_payees_response = await get_payees.asyncio_detailed(
                 settings.ynab.budget_id,
@@ -198,6 +215,68 @@ async def list_unused(settings: Settings, io: ports.IO, params: ListUnusedParams
                 # List unused payee if no transactions
                 if not num_transactions:
                     yield payee
+
+                    if not settings.dry_run and params.get("prefix_unused", False):
+                        try:
+                            new_name = f"{UNUSED_PREFIX} {payee.name}"
+                            util.ensure_success(
+                                await update_payee.asyncio_detailed(
+                                    settings.ynab.budget_id,
+                                    str(payee.id),
+                                    client=client,
+                                    body=models.PatchPayeeWrapper(payee=models.SavePayee(name=new_name)),
+                                )
+                            )
+                        except util.ApiError as e:
+                            if e.status_code == 429:
+                                new_access_token = await io.prompt(
+                                    prompt="API rate limit exceeded. Enter a new access token", password=True
+                                )
+                                client.token = new_access_token
+                                util.ensure_success(
+                                    await update_payee.asyncio_detailed(
+                                        settings.ynab.budget_id,
+                                        str(payee.id),
+                                        client=client,
+                                        body=models.PatchPayeeWrapper(payee=models.SavePayee(name=new_name)),
+                                    )
+                                )
+                            else:
+                                raise e
+
+        except util.ApiError as e:
+            if e.status_code == 429:
+                await io.print("API rate limit exceeded. Try again later, or get a new access token.")
+            else:
+                await io.print(f"Exception when calling YNAB: {e}\n")
+
+
+class ListAllParams(TypedDict):
+    pass
+
+
+async def list_all(
+    settings: Settings, io: ports.IO, params: ListAllParams, *, client: ynab.AuthenticatedClient | None = None
+) -> AsyncIterator[models.Payee]:
+    if client is None:
+        client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
+
+    async with client:
+        try:
+            get_payees_response = await get_payees.asyncio_detailed(
+                settings.ynab.budget_id,
+                client=client,
+            )
+            payees = util.get_ynab_model(get_payees_response, models.PayeesResponse).data.payees
+
+            progress_total = len(payees)
+            for payee in payees:
+                await io.progress.update(total=progress_total, advance=1)
+
+                if _should_skip_payee(payee=payee):
+                    continue
+
+                yield payee
 
         except util.ApiError as e:
             if e.status_code == 429:

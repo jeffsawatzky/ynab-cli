@@ -31,7 +31,7 @@ async def _list_unused(settings: Settings) -> None:
                 str(category.id),
                 str(category.name),
             )
-            progress.refresh()
+
     if console:
         console.print(table)
 
@@ -57,7 +57,7 @@ async def _list_all(settings: Settings) -> None:
                 str(category.id),
                 str(category.name),
             )
-            progress.refresh()
+
     if console:
         console.print(table)
 

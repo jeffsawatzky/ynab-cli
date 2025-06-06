@@ -12,7 +12,7 @@ class ProgressTable(rich_progress.Progress):
         self,
         table: rich_table.Table,
         *columns: str | rich_progress.ProgressColumn,
-        auto_refresh: bool = False,
+        auto_refresh: bool = True,
         transient: bool = True,
         **kwargs: Any,
     ) -> None:
