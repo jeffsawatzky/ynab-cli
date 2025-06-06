@@ -7,7 +7,7 @@ from ynab_cli.adapters.rich import io
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import payees as use_cases
 from ynab_cli.host.click.commands.rich.progress_table import ProgressTable
-from ynab_cli.host.constants import CONTEXT_KEY_SETTINGS
+from ynab_cli.host.constants import CONTEXT_KEY_SETTINGS, ENV_PREFIX
 
 
 async def _normalize_names(settings: Settings) -> None:
@@ -144,14 +144,18 @@ def list_all(ctx: click.Context) -> None:
 
 
 @click.group()
+@click.option("--budget-id", prompt=True, envvar=f"{ENV_PREFIX}_BUDGET_ID", show_envvar=True, help="YNAB budget ID.")
 @click.pass_context
-def payees(ctx: click.Context) -> None:
+def payees(ctx: click.Context, budget_id: str) -> None:
     """Manage payees in the YNAB budget."""
 
     ctx.ensure_object(dict)
+    settings: Settings = ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())
+    settings.ynab.budget_id = budget_id
+    ctx.obj[CONTEXT_KEY_SETTINGS] = settings
 
 
-payees.add_command(normalize_names)
+payees.add_command(list_all)
 payees.add_command(list_duplicates)
 payees.add_command(list_unused)
-payees.add_command(list_all)
+payees.add_command(normalize_names)

@@ -61,7 +61,7 @@ class BudgetSummaryResponseData:
 
         _default_budget = d.pop("default_budget", UNSET)
         default_budget: Unset | BudgetSummary
-        if isinstance(_default_budget, Unset):
+        if not _default_budget or isinstance(_default_budget, Unset):
             default_budget = UNSET
         else:
             default_budget = BudgetSummary.from_dict(_default_budget)
