@@ -23,10 +23,12 @@ class ListUnusedParams(TypedDict):
 async def list_unused(settings: Settings, io: ports.IO, params: ListUnusedParams) -> AsyncIterator[models.Category]:
     async with ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token) as client:
         try:
-            get_categories_response = await get_categories.asyncio_detailed(settings.ynab.budget_id, client=client)
-            category_groups = util.get_ynab_model(
-                get_categories_response, models.CategoriesResponse
+            category_groups = (
+                await util.get_asyncio_detailed(
+                    io, get_categories.asyncio_detailed, settings.ynab.budget_id, client=client
+                )
             ).data.category_groups
+            category_groups.sort(key=lambda cg: cg.name)
 
             progress_total = len(category_groups)
             for category_group in category_groups:
@@ -36,32 +38,22 @@ async def list_unused(settings: Settings, io: ports.IO, params: ListUnusedParams
                     continue
 
                 progress_total += len(category_group.categories)
+                category_group.categories.sort(key=lambda c: c.name)
                 for category in category_group.categories:
                     await io.progress.update(total=progress_total, advance=1)
 
                     if _should_skip_category_or_group(category_or_group=category):
                         continue
-                    try:
-                        get_transactions_by_category_response = await get_transactions_by_category.asyncio_detailed(
-                            settings.ynab.budget_id, str(category.id), client=client
+
+                    transactions = (
+                        await util.get_asyncio_detailed(
+                            io,
+                            get_transactions_by_category.asyncio_detailed,
+                            settings.ynab.budget_id,
+                            str(category.id),
+                            client=client,
                         )
-                        transactions = util.get_ynab_model(
-                            get_transactions_by_category_response, models.HybridTransactionsResponse
-                        ).data.transactions
-                    except util.ApiError as e:
-                        if e.status_code == 429:
-                            new_access_token = await io.prompt(
-                                prompt="API rate limit exceeded. Enter a new access token", password=True
-                            )
-                            client.token = new_access_token
-                            get_transactions_by_category_response = await get_transactions_by_category.asyncio_detailed(
-                                settings.ynab.budget_id, str(category.id), client=client
-                            )
-                            transactions = util.get_ynab_model(
-                                get_transactions_by_category_response, models.HybridTransactionsResponse
-                            ).data.transactions
-                        else:
-                            raise e
+                    ).data.transactions
                     num_transactions = len(transactions)
 
                     # List unused category if no transactions
@@ -82,10 +74,12 @@ class ListAllParams(TypedDict):
 async def list_all(settings: Settings, io: ports.IO, params: ListAllParams) -> AsyncIterator[models.Category]:
     async with ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token) as client:
         try:
-            get_categories_response = await get_categories.asyncio_detailed(settings.ynab.budget_id, client=client)
-            category_groups = util.get_ynab_model(
-                get_categories_response, models.CategoriesResponse
+            category_groups = (
+                await util.get_asyncio_detailed(
+                    io, get_categories.asyncio_detailed, settings.ynab.budget_id, client=client
+                )
             ).data.category_groups
+            category_groups.sort(key=lambda cg: cg.name)
 
             progress_total = len(category_groups)
             for category_group in category_groups:
@@ -95,6 +89,7 @@ async def list_all(settings: Settings, io: ports.IO, params: ListAllParams) -> A
                     continue
 
                 progress_total += len(category_group.categories)
+                category_group.categories.sort(key=lambda c: c.name)
                 for category in category_group.categories:
                     await io.progress.update(total=progress_total, advance=1)
 

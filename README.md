@@ -22,20 +22,20 @@ Full user documentation available [here](http://jeffsawatzky.github.io/ynab-cli)
 
 Clone the repository:
 ```sh
-git clone https://github.com/jeffsawatzky/ynab-cli.git
-cd ynab-cli
+$ git clone https://github.com/jeffsawatzky/ynab-cli.git
+$ cd ynab-cli
 ```
 
 Install dependencies with uv:
 ```sh
-uv sync
+$ uv sync
 ```
 
 ### Running the CLI
 
 With uv:
 ```sh
-uv run ynab-cli --help
+$ uv run ynab-cli --help
 ```
 
 ## Development
@@ -47,13 +47,13 @@ uv run ynab-cli --help
 ### Linting & Formatting
 
 ```sh
-make lint
+$ make lint
 ```
 
 ### Running Tests
 
 ```sh
-make test
+$ make test
 ```
 Or directly with pytest:
 ```sh
@@ -65,14 +65,14 @@ uv run pytest
 - Docs are in `docs/` and built with MkDocs.
 - To serve docs locally:
 ```sh
-uv run mkdocs serve
+$ uv run mkdocs serve
 ```
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes
+3. Commit your changes. Commits should follow conventional commits. The repo is configured with [commitizen](https://commitizen-tools.github.io/commitizen/)
 4. Push to your fork and open a pull request
 
 Please include tests for new features and bug fixes.

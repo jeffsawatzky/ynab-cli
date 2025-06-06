@@ -1,9 +1,14 @@
-from typing import Any, TypeVar
+from collections.abc import Callable, Coroutine
+from typing import Any, ParamSpec, TypeVar
+
+from ynab_cli.adapters.ynab import AuthenticatedClient
+from ynab_cli.domain.ports.io import IO
 
 from .models import ErrorDetail, ErrorResponse
 from .types import Response
 
-M = TypeVar("M")
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 class ApiError(Exception):
@@ -16,7 +21,7 @@ class ApiError(Exception):
         super().__init__(f"Unexpected status code: {status_code}")
 
 
-def ensure_success(response: Response[Any]) -> None:
+def get_parsed_response_data(response: Response[ErrorResponse | R]) -> R | None:
     parsed = response.parsed
 
     if isinstance(parsed, ErrorResponse):
@@ -31,15 +36,43 @@ def ensure_success(response: Response[Any]) -> None:
         )
         raise ApiError(status_code=response.status_code, error_detail=error_detail)
 
-    return
-
-
-def get_ynab_model(response: Response[Any], type_: type[M]) -> M:
-    parsed = response.parsed
-
-    ensure_success(response)
-
-    if not isinstance(parsed, type_):
-        raise TypeError(f"Expected response to be of type {type_.__name__}, but got {type(parsed).__name__}")
-
     return parsed
+
+
+async def run_asyncio_detailed(
+    io: IO,
+    asyncio_detailed: Callable[P, Coroutine[Any, Any, Response[ErrorResponse | R]]],
+    *args: P.args,
+    **kwargs: P.kwargs,
+) -> R | None:
+    try:
+        client = kwargs["client"] if "client" in kwargs and isinstance(kwargs["client"], AuthenticatedClient) else None
+
+        response = await asyncio_detailed(*args, **kwargs)
+        parsed_data = get_parsed_response_data(response)
+    except ApiError as e:
+        if e.status_code == 429 and client is not None:
+            new_access_token = await io.prompt(
+                prompt="API rate limit exceeded. Enter a new access token", password=True
+            )
+            client.token = new_access_token
+            response = await asyncio_detailed(*args, **kwargs)
+            parsed_data = get_parsed_response_data(response)
+        else:
+            raise e
+
+    return parsed_data
+
+
+async def get_asyncio_detailed(
+    io: IO,
+    asyncio_detailed: Callable[P, Coroutine[Any, Any, Response[ErrorResponse | R]]],
+    *args: P.args,
+    **kwargs: P.kwargs,
+) -> R:
+    response = await run_asyncio_detailed(io, asyncio_detailed, *args, **kwargs)
+    if response is None:
+        raise ApiError(
+            status_code=500, error_detail=ErrorDetail(id="500", name="internal_error", detail="No response data")
+        )
+    return response

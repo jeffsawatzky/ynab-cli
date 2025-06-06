@@ -83,7 +83,7 @@ def list_all(ctx: click.Context) -> None:
 @click.group()
 @click.pass_context
 def categories(ctx: click.Context) -> None:
-    """Manage YNAB categories."""
+    """Manage YNAB categories in the YNAB budget."""
 
     ctx.ensure_object(dict)
 

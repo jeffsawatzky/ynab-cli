@@ -1281,6 +1281,18 @@ wheels = [
 ]
 
 [[package]]
+name = "textual-fspicker"
+version = "0.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "textual" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a4/b0/5f895b15562064ef473bc1e882b6dfb1df4c29fd3259ba09aae481e289a6/textual_fspicker-0.4.1.tar.gz", hash = "sha256:94815262c12d38b69ccba85804d334b998f90ebda7c43d362e9665e59d72cb87", size = 356376, upload-time = "2025-02-28T10:12:05.511Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0b/17/6787a44e5516901f81ebd1ad65e28f8b46260a38be38b5136242b7ed08d7/textual_fspicker-0.4.1-py3-none-any.whl", hash = "sha256:c143f126c8664ba3bfe844d853d26caf0832c7d1b0f16d69e4a8654e8b2fb3d3", size = 21033, upload-time = "2025-02-28T10:12:03.517Z" },
+]
+
+[[package]]
 name = "textual-serve"
 version = "1.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1503,6 +1515,7 @@ dependencies = [
     { name = "rich" },
     { name = "rule-engine" },
     { name = "textual" },
+    { name = "textual-fspicker" },
     { name = "typing-extensions" },
 ]
 
@@ -1533,6 +1546,7 @@ requires-dist = [
     { name = "rich", specifier = "~=14.0" },
     { name = "rule-engine", specifier = "~=4.5" },
     { name = "textual", specifier = "~=3.3" },
+    { name = "textual-fspicker", specifier = "~=0.4" },
     { name = "typing-extensions", specifier = "~=4.14" },
 ]
 

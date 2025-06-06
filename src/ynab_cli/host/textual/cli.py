@@ -6,7 +6,7 @@ from textual.logging import TextualHandler
 
 from ynab_cli.domain.settings import Settings, YnabSettings
 from ynab_cli.host.constants import CONTEXT_KEY_SETTINGS, ENV_PREFIX
-from ynab_cli.host.textual.application import App
+from ynab_cli.host.textual.app import App
 
 
 async def _tui(settings: Settings) -> None:

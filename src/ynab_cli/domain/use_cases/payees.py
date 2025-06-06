@@ -52,11 +52,10 @@ async def normalize_names(
 
     async with client:
         try:
-            get_payees_response = await get_payees.asyncio_detailed(
-                settings.ynab.budget_id,
-                client=client,
-            )
-            payees = util.get_ynab_model(get_payees_response, models.PayeesResponse).data.payees
+            payees = (
+                await util.get_asyncio_detailed(io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=client)
+            ).data.payees
+            payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
             for payee in payees:
@@ -70,31 +69,14 @@ async def normalize_names(
                     yield (payee, normalized_name)
 
                     if not settings.dry_run:
-                        try:
-                            util.ensure_success(
-                                await update_payee.asyncio_detailed(
-                                    settings.ynab.budget_id,
-                                    str(payee.id),
-                                    client=client,
-                                    body=models.PatchPayeeWrapper(payee=models.SavePayee(name=normalized_name)),
-                                )
-                            )
-                        except util.ApiError as e:
-                            if e.status_code == 429:
-                                new_access_token = await io.prompt(
-                                    prompt="API rate limit exceeded. Enter a new access token", password=True
-                                )
-                                client.token = new_access_token
-                                util.ensure_success(
-                                    await update_payee.asyncio_detailed(
-                                        settings.ynab.budget_id,
-                                        str(payee.id),
-                                        client=client,
-                                        body=models.PatchPayeeWrapper(payee=models.SavePayee(name=normalized_name)),
-                                    )
-                                )
-                            else:
-                                raise e
+                        await util.run_asyncio_detailed(
+                            io,
+                            update_payee.asyncio_detailed,
+                            settings.ynab.budget_id,
+                            str(payee.id),
+                            client=client,
+                            body=models.PatchPayeeWrapper(payee=models.SavePayee(name=normalized_name)),
+                        )
 
         except util.ApiError as e:
             if e.status_code == 429:
@@ -117,11 +99,10 @@ async def list_duplicates(
         try:
             possible_duplicates: dict[tuple[UUID, str], list[tuple[UUID, str]]] = {}
 
-            get_payees_response = await get_payees.asyncio_detailed(
-                settings.ynab.budget_id,
-                client=client,
-            )
-            payees = util.get_ynab_model(get_payees_response, models.PayeesResponse).data.payees
+            payees = (
+                await util.get_asyncio_detailed(io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=client)
+            ).data.payees
+            payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
             for idx, payee in enumerate(payees):
@@ -172,11 +153,10 @@ async def list_unused(
 
     async with client:
         try:
-            get_payees_response = await get_payees.asyncio_detailed(
-                settings.ynab.budget_id,
-                client=client,
-            )
-            payees = util.get_ynab_model(get_payees_response, models.PayeesResponse).data.payees
+            payees = (
+                await util.get_asyncio_detailed(io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=client)
+            ).data.payees
+            payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
             for payee in payees:
@@ -185,64 +165,32 @@ async def list_unused(
                 if _should_skip_payee(payee=payee):
                     continue
 
-                try:
-                    get_transactions_by_payee_response = await get_transactions_by_payee.asyncio_detailed(
+                transactions = (
+                    await util.get_asyncio_detailed(
+                        io,
+                        get_transactions_by_payee.asyncio_detailed,
                         settings.ynab.budget_id,
                         str(payee.id),
                         client=client,
                     )
-                    transactions = util.get_ynab_model(
-                        get_transactions_by_payee_response, models.HybridTransactionsResponse
-                    ).data.transactions
-                except util.ApiError as e:
-                    if e.status_code == 429:
-                        new_access_token = await io.prompt(
-                            prompt="API rate limit exceeded. Enter a new access token", password=True
-                        )
-                        client.token = new_access_token
-                        get_transactions_by_payee_response = await get_transactions_by_payee.asyncio_detailed(
-                            settings.ynab.budget_id,
-                            str(payee.id),
-                            client=client,
-                        )
-                        transactions = util.get_ynab_model(
-                            get_transactions_by_payee_response, models.HybridTransactionsResponse
-                        ).data.transactions
-                    else:
-                        raise e
+                ).data.transactions
                 num_transactions = len(transactions)
 
                 # List unused payee if no transactions
                 if not num_transactions:
                     yield payee
 
+                    # If prefix_unused is True, rename the payee
                     if not settings.dry_run and params.get("prefix_unused", False):
-                        try:
-                            new_name = f"{UNUSED_PREFIX} {payee.name}"
-                            util.ensure_success(
-                                await update_payee.asyncio_detailed(
-                                    settings.ynab.budget_id,
-                                    str(payee.id),
-                                    client=client,
-                                    body=models.PatchPayeeWrapper(payee=models.SavePayee(name=new_name)),
-                                )
-                            )
-                        except util.ApiError as e:
-                            if e.status_code == 429:
-                                new_access_token = await io.prompt(
-                                    prompt="API rate limit exceeded. Enter a new access token", password=True
-                                )
-                                client.token = new_access_token
-                                util.ensure_success(
-                                    await update_payee.asyncio_detailed(
-                                        settings.ynab.budget_id,
-                                        str(payee.id),
-                                        client=client,
-                                        body=models.PatchPayeeWrapper(payee=models.SavePayee(name=new_name)),
-                                    )
-                                )
-                            else:
-                                raise e
+                        new_name = f"{UNUSED_PREFIX} {payee.name}"
+                        await util.run_asyncio_detailed(
+                            io,
+                            update_payee.asyncio_detailed,
+                            settings.ynab.budget_id,
+                            str(payee.id),
+                            client=client,
+                            body=models.PatchPayeeWrapper(payee=models.SavePayee(name=new_name)),
+                        )
 
         except util.ApiError as e:
             if e.status_code == 429:
@@ -263,11 +211,10 @@ async def list_all(
 
     async with client:
         try:
-            get_payees_response = await get_payees.asyncio_detailed(
-                settings.ynab.budget_id,
-                client=client,
-            )
-            payees = util.get_ynab_model(get_payees_response, models.PayeesResponse).data.payees
+            payees = (
+                await util.get_asyncio_detailed(io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=client)
+            ).data.payees
+            payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
             for payee in payees:

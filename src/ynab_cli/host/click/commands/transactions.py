@@ -53,7 +53,7 @@ async def _apply_rules(settings: Settings, transaction_rules: rules.TransactionR
 @click.argument("rules-file", type=click.File())
 @click.pass_context
 def apply_rules(ctx: click.Context, rules_file: IO[Any]) -> None:
-    """Apply transaction rules from a JSON RULES_FILE.
+    """Apply transaction rules from a JSON RULES_FILE to transactions in the YNAB budget.
 
     RULES_FILE should be a JSON file containing transaction rules.
     """
