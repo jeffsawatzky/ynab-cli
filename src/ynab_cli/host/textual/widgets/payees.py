@@ -17,6 +17,8 @@ class PayeesTabs(RunnableWidget):
                 yield PayeesListDuplicatesCommand().data_bind(settings=PayeesTabs.settings)
             with TabPane("Unused", id="unused"):
                 yield PayeesListUnusedCommand().data_bind(settings=PayeesTabs.settings)
+            with TabPane("All", id="all"):
+                yield PayeesListAllCommand().data_bind(settings=PayeesTabs.settings)
 
     @override
     async def run_command(self) -> None:
@@ -28,6 +30,8 @@ class PayeesTabs(RunnableWidget):
                 await self.query_one(PayeesListDuplicatesCommand).run_command()
             elif tabbed_content.active_pane.id == "unused":
                 await self.query_one(PayeesListUnusedCommand).run_command()
+            elif tabbed_content.active_pane.id == "all":
+                await self.query_one(PayeesListAllCommand).run_command()
 
 
 class PayeesNormalizeNamesCommand(BaseCommand[use_cases.NormalizeNamesParams]):
@@ -112,6 +116,34 @@ class PayeesListUnusedCommand(BaseCommand[use_cases.ListUnusedParams]):
         log = self.query_one(Log)
 
         async for payee in use_cases.list_unused(
+            self.settings, TextualWorkerIO(self.app, log, progress_bar), use_case_params
+        ):
+            table.add_row(
+                payee.id,
+                payee.name,
+            )
+
+
+class PayeesListAllCommand(BaseCommand[use_cases.ListAllParams]):
+    def on_mount(self) -> None:
+        table = self.query_one(DataTable)
+        table.add_columns(
+            "Payee Id",
+            "Payee Name",
+        )
+
+    @override
+    async def run_command(self) -> None:
+        params: use_cases.ListAllParams = {}
+        self._run_command_worker(params)
+
+    @override
+    async def _run_command(self, use_case_params: use_cases.ListAllParams) -> None:
+        progress_bar = self.query_one(ProgressBar)
+        table = self.query_one(DataTable)
+        log = self.query_one(Log)
+
+        async for payee in use_cases.list_all(
             self.settings, TextualWorkerIO(self.app, log, progress_bar), use_case_params
         ):
             table.add_row(

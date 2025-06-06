@@ -44,7 +44,7 @@ async def _apply_rules(settings: Settings, transaction_rules: rules.TransactionR
                 str(transaction.amount),
                 str(save_transaction.to_dict()),
             )
-            progress.refresh()
+
     if console:
         console.print(table)
 

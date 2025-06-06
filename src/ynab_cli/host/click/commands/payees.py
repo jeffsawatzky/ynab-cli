@@ -29,7 +29,7 @@ async def _normalize_names(settings: Settings) -> None:
                 payee.name,
                 normalized_name,
             )
-            progress.refresh()
+
     if console:
         console.print(table)
 
@@ -55,7 +55,7 @@ async def _list_duplicates(settings: Settings) -> None:
                 str(duplicate_payee.id),
                 duplicate_payee.name,
             )
-            progress.refresh()
+
     if console:
         console.print(table)
 
@@ -77,7 +77,29 @@ async def _list_unused(settings: Settings) -> None:
                 str(payee.id),
                 payee.name,
             )
-            progress.refresh()
+
+    if console:
+        console.print(table)
+
+
+async def _list_all(settings: Settings) -> None:
+    params: use_cases.ListAllParams = {}
+
+    table = Table(title="All Payees")
+    table.add_column("Payee Id")
+    table.add_column("Payee Name")
+
+    console = None
+    with ProgressTable(table) as progress:
+        console = progress.console
+
+        task_id = progress.add_task("Loading all payees...")
+        async for payee in use_cases.list_all(settings, io.RichIO((progress, task_id)), params):
+            table.add_row(
+                str(payee.id),
+                payee.name,
+            )
+
     if console:
         console.print(table)
 
@@ -109,6 +131,15 @@ def list_unused(ctx: click.Context) -> None:
     asyncio.run(_list_unused(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
 
 
+@click.command()
+@click.pass_context
+def list_all(ctx: click.Context) -> None:
+    """List all payees in the YNAB budget."""
+
+    ctx.ensure_object(dict)
+    asyncio.run(_list_all(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
+
+
 @click.group()
 @click.pass_context
 def payees(ctx: click.Context) -> None:
@@ -120,3 +151,4 @@ def payees(ctx: click.Context) -> None:
 payees.add_command(normalize_names)
 payees.add_command(list_duplicates)
 payees.add_command(list_unused)
+payees.add_command(list_all)
