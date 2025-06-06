@@ -10,7 +10,7 @@ from ynab_cli.adapters.ynab import models, util
 from ynab_cli.adapters.ynab.api.payees import get_payees, update_payee
 from ynab_cli.adapters.ynab.api.transactions import get_transactions_by_payee
 from ynab_cli.domain import ports
-from ynab_cli.domain.constants import YNAB_API_URL
+from ynab_cli.domain.constants import UNUSED_PREFIX, YNAB_API_URL
 from ynab_cli.domain.settings import Settings
 
 
@@ -19,6 +19,7 @@ def _should_skip_payee(payee: models.Payee) -> bool:
         payee.deleted
         or (payee.transfer_account_id and isinstance(payee.transfer_account_id, str))
         or payee.name.startswith("Transfer : ")
+        or payee.name.startswith(UNUSED_PREFIX)
         or payee.name in ["Starting Balance"]
     ):
         return True
@@ -160,7 +161,7 @@ async def list_duplicates(
 
 
 class ListUnusedParams(TypedDict):
-    pass
+    prefix_unused: bool
 
 
 async def list_unused(
@@ -214,6 +215,34 @@ async def list_unused(
                 # List unused payee if no transactions
                 if not num_transactions:
                     yield payee
+
+                    if not settings.dry_run and params.get("prefix_unused", False):
+                        try:
+                            new_name = f"{UNUSED_PREFIX} {payee.name}"
+                            util.ensure_success(
+                                await update_payee.asyncio_detailed(
+                                    settings.ynab.budget_id,
+                                    str(payee.id),
+                                    client=client,
+                                    body=models.PatchPayeeWrapper(payee=models.SavePayee(name=new_name)),
+                                )
+                            )
+                        except util.ApiError as e:
+                            if e.status_code == 429:
+                                new_access_token = await io.prompt(
+                                    prompt="API rate limit exceeded. Enter a new access token", password=True
+                                )
+                                client.token = new_access_token
+                                util.ensure_success(
+                                    await update_payee.asyncio_detailed(
+                                        settings.ynab.budget_id,
+                                        str(payee.id),
+                                        client=client,
+                                        body=models.PatchPayeeWrapper(payee=models.SavePayee(name=new_name)),
+                                    )
+                                )
+                            else:
+                                raise e
 
         except util.ApiError as e:
             if e.status_code == 429:

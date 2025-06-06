@@ -106,7 +106,9 @@ class PayeesListUnusedCommand(BaseCommand[use_cases.ListUnusedParams]):
 
     @override
     async def run_command(self) -> None:
-        params: use_cases.ListUnusedParams = {}
+        params: use_cases.ListUnusedParams = {
+            "prefix_unused": False,  # Default to not prefixing unused payees
+        }
         self._run_command_worker(params)
 
     @override

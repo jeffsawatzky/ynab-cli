@@ -60,8 +60,10 @@ async def _list_duplicates(settings: Settings) -> None:
         console.print(table)
 
 
-async def _list_unused(settings: Settings) -> None:
-    params: use_cases.ListUnusedParams = {}
+async def _list_unused(settings: Settings, prefix_unused: bool) -> None:
+    params: use_cases.ListUnusedParams = {
+        "prefix_unused": prefix_unused,
+    }
 
     table = Table(title="Unused Payees")
     table.add_column("Payee Id")
@@ -123,12 +125,13 @@ def list_duplicates(ctx: click.Context) -> None:
 
 
 @click.command()
+@click.option("--prefix-unused", is_flag=True, default=False, help="Add a prefix to the unused payee names.")
 @click.pass_context
-def list_unused(ctx: click.Context) -> None:
+def list_unused(ctx: click.Context, prefix_unused: bool) -> None:
     """List unused payees in the YNAB budget."""
 
     ctx.ensure_object(dict)
-    asyncio.run(_list_unused(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
+    asyncio.run(_list_unused(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()), prefix_unused))
 
 
 @click.command()
