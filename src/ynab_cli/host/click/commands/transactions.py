@@ -53,6 +53,11 @@ async def _apply_rules(settings: Settings, transaction_rules: rules.TransactionR
 @click.argument("rules-file", type=click.File())
 @click.pass_context
 def apply_rules(ctx: click.Context, rules_file: IO[Any]) -> None:
+    """Apply transaction rules from a JSON RULES_FILE.
+
+    RULES_FILE should be a JSON file containing transaction rules.
+    """
+
     ctx.ensure_object(dict)
 
     transaction_rules = rules.TransactionRules.from_dict(json.load(rules_file))
@@ -63,6 +68,8 @@ def apply_rules(ctx: click.Context, rules_file: IO[Any]) -> None:
 @click.group()
 @click.pass_context
 def transactions(ctx: click.Context) -> None:
+    """Manage transactions in the YNAB budget."""
+
     ctx.ensure_object(dict)
 
 

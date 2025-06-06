@@ -15,14 +15,18 @@ async def _tui(settings: Settings) -> None:
 
 
 @click.command()
-@click.option("--access-token", default="", envvar=f"{ENV_PREFIX}_ACCESS_TOKEN", show_envvar=True)
-@click.option("--budget-id", default="", envvar=f"{ENV_PREFIX}_BUDGET_ID", show_envvar=True)
+@click.option(
+    "--access-token", default="", envvar=f"{ENV_PREFIX}_ACCESS_TOKEN", show_envvar=True, help="YNAB API access token."
+)
+@click.option("--budget-id", default="", envvar=f"{ENV_PREFIX}_BUDGET_ID", show_envvar=True, help="YNAB budget ID.")
 @click.pass_context
 def tui(
     ctx: click.Context,
     access_token: str,
     budget_id: str,
 ) -> None:
+    """Run the Textual User Interface (TUI) for YNAB CLI."""
+
     ctx.ensure_object(dict)
     settings: Settings = ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())
     settings.ynab = YnabSettings(access_token=access_token, budget_id=budget_id)

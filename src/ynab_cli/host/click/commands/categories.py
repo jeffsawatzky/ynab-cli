@@ -65,6 +65,8 @@ async def _list_all(settings: Settings) -> None:
 @click.command()
 @click.pass_context
 def list_unused(ctx: click.Context) -> None:
+    """List unused categories in the YNAB budget."""
+
     ctx.ensure_object(dict)
     asyncio.run(_list_unused(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
 
@@ -72,6 +74,8 @@ def list_unused(ctx: click.Context) -> None:
 @click.command()
 @click.pass_context
 def list_all(ctx: click.Context) -> None:
+    """List all categories in the YNAB budget."""
+
     ctx.ensure_object(dict)
     asyncio.run(_list_all(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
 
@@ -79,6 +83,8 @@ def list_all(ctx: click.Context) -> None:
 @click.group()
 @click.pass_context
 def categories(ctx: click.Context) -> None:
+    """Manage YNAB categories."""
+
     ctx.ensure_object(dict)
 
 

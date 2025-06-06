@@ -85,6 +85,8 @@ async def _list_unused(settings: Settings) -> None:
 @click.command()
 @click.pass_context
 def normalize_names(ctx: click.Context) -> None:
+    """Normalize payee names in the YNAB budget."""
+
     ctx.ensure_object(dict)
     asyncio.run(_normalize_names(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
 
@@ -92,6 +94,8 @@ def normalize_names(ctx: click.Context) -> None:
 @click.command()
 @click.pass_context
 def list_duplicates(ctx: click.Context) -> None:
+    """List duplicate payees in the YNAB budget."""
+
     ctx.ensure_object(dict)
     asyncio.run(_list_duplicates(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
 
@@ -99,6 +103,8 @@ def list_duplicates(ctx: click.Context) -> None:
 @click.command()
 @click.pass_context
 def list_unused(ctx: click.Context) -> None:
+    """List unused payees in the YNAB budget."""
+
     ctx.ensure_object(dict)
     asyncio.run(_list_unused(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
 
@@ -106,6 +112,8 @@ def list_unused(ctx: click.Context) -> None:
 @click.group()
 @click.pass_context
 def payees(ctx: click.Context) -> None:
+    """Manage payees in the YNAB budget."""
+
     ctx.ensure_object(dict)
 
 

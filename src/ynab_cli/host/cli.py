@@ -8,14 +8,16 @@ from ynab_cli.host.textual.cli import tui
 
 
 @click.group(cls=DefaultGroup, default="tui", default_if_no_args=True)
-@click.option("--dry-run", is_flag=True, default=False)
-@click.option("--debug", is_flag=True, default=False)
+@click.option("--dry-run", is_flag=True, default=False, help="Run without making any changes.")
+@click.option("--debug", is_flag=True, default=False, help="Enable debug mode for more verbose output.")
 @click.pass_context
 def cli(
     ctx: click.Context,
     dry_run: bool,
     debug: bool,
 ) -> None:
+    """Main entrypoint."""
+
     ctx.ensure_object(dict)
     ctx.obj[CONTEXT_KEY_SETTINGS] = Settings(dry_run=dry_run, debug=debug)
 
