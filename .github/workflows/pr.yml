@@ -10,9 +10,10 @@ jobs:
         python-version: ['3.11', '3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
         with:
-          version: "0.5.14"
+          version: latest
           python-version: ${{ matrix.python-version }}
       - run: uv sync --locked                # abort if the lockfile changes
       - run: uv run ruff format --check .    # check formatting is correct
