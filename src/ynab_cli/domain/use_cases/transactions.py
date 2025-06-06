@@ -48,12 +48,16 @@ async def apply_rules(
 ) -> AsyncIterator[tuple[models.TransactionDetail, models.SaveTransactionWithIdOrImportId]]:
     async with ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token) as client:
         try:
-            get_transactions_response = await get_transactions.asyncio_detailed(
-                settings.ynab.budget_id,
-                client=client,
-                type_=models.GetTransactionsType.UNAPPROVED,
-            )
-            transactions = util.get_ynab_model(get_transactions_response, models.TransactionsResponse).data.transactions
+            transactions = (
+                await util.get_asyncio_detailed(
+                    io,
+                    get_transactions.asyncio_detailed,
+                    settings.ynab.budget_id,
+                    client=client,
+                    type_=models.GetTransactionsType.UNAPPROVED,
+                )
+            ).data.transactions
+            transactions.sort(key=lambda t: t.date)
 
             save_transactions = []
 
@@ -74,29 +78,13 @@ async def apply_rules(
                         save_transactions.append(save_transaction)
 
             if save_transactions:
-                try:
-                    util.ensure_success(
-                        await update_transactions.asyncio_detailed(
-                            settings.ynab.budget_id,
-                            client=client,
-                            body=models.PatchTransactionsWrapper(transactions=save_transactions),
-                        )
-                    )
-                except util.ApiError as e:
-                    if e.status_code == 429:
-                        new_access_token = await io.prompt(
-                            prompt="API rate limit exceeded. Enter a new access token", password=True
-                        )
-                        client.token = new_access_token
-                        util.ensure_success(
-                            await update_transactions.asyncio_detailed(
-                                settings.ynab.budget_id,
-                                client=client,
-                                body=models.PatchTransactionsWrapper(transactions=save_transactions),
-                            )
-                        )
-                    else:
-                        raise e
+                await util.run_asyncio_detailed(
+                    io,
+                    update_transactions.asyncio_detailed,
+                    settings.ynab.budget_id,
+                    client=client,
+                    body=models.PatchTransactionsWrapper(transactions=save_transactions),
+                )
 
         except util.ApiError as e:
             if e.status_code == 429:

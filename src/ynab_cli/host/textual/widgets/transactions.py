@@ -3,8 +3,8 @@ from pathlib import Path
 
 from textual import work
 from textual.app import ComposeResult
-from textual.screen import ModalScreen
-from textual.widgets import DataTable, DirectoryTree, Log, ProgressBar, TabbedContent, TabPane
+from textual.widgets import DataTable, Log, ProgressBar, TabbedContent, TabPane
+from textual_fspicker import FileOpen
 from typing_extensions import override
 
 from ynab_cli.adapters.textual.io import TextualWorkerIO
@@ -28,16 +28,11 @@ class TransactionsTabs(RunnableWidget):
                 await self.query_one(TransactionsApplyRulesCommand).run_command()
 
 
-class LoadRulesScreen(ModalScreen[Path]):
-    @override
-    def compose(self) -> ComposeResult:
-        yield DirectoryTree("./")
-
-    def on_directory_tree_file_selected(self, event: DirectoryTree.FileSelected) -> None:
-        self.dismiss(event.path)
-
-
 class TransactionsApplyRulesCommand(BaseCommand[use_cases.ApplyRulesParams]):
+    def __init__(self) -> None:
+        super().__init__()
+        self._transaction_rules_path: Path | None = None
+
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
         table.add_columns(
@@ -56,13 +51,17 @@ class TransactionsApplyRulesCommand(BaseCommand[use_cases.ApplyRulesParams]):
 
     @work(exclusive=True)
     async def _select_rules_worker(self) -> None:
-        transaction_rules_path = await self.app.push_screen_wait(LoadRulesScreen())
+        self._transaction_rules_path = await self.app.push_screen_wait(
+            FileOpen(title="Select Transaction Rules JSON File", default_file=self._transaction_rules_path)
+        )
+        if not self._transaction_rules_path:
+            return
+
         try:
-            transaction_rules_json = json.loads(transaction_rules_path.read_text())
+            transaction_rules_json = json.loads(self._transaction_rules_path.read_text())
             transaction_rules = rules.TransactionRules.from_dict(transaction_rules_json)
         except Exception as e:
-            log = self.query_one(Log)
-            log.write_line(f"Error loading rules: {e}")
+            self.query_one(Log).write_line(f"Error loading rules: {e}")
             return
 
         params: use_cases.ApplyRulesParams = {

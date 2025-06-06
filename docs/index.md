@@ -10,7 +10,7 @@ This is a simple cli/tui application written in python to help manage your YNAB 
 - Your YNAB budget ID. You can get this from your browser URL while you have your budget open. For example, if the URL looks like `https://app.ynab.com/aaaaaaaa-1111-bbbb-2222-ddddddd` then the budget ID is `aaaaaaaa-1111-bbbb-2222-ddddddd`.
 
 ## Installation
-```bash
+```sh
 $ git clone https://github.com/jeffsawatzky/ynab-cli.git
 $ cd ynab-cli
 $ uv sync
@@ -26,8 +26,8 @@ $ uv sync
 
 To run the text ui, execute the following command:
 
-```bash
-$ uv run ynab
+```sh
+$ uv run ynab-cli
 ```
 
 Full command line usage is below.
@@ -35,6 +35,6 @@ Full command line usage is below.
 ::: mkdocs-click
     :module: ynab_cli.host.cli
     :command: cli
-    :prog_name: ynab
+    :prog_name: ynab-cli
     :style: table
     :list_subcommands: True
