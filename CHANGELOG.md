@@ -16,6 +16,12 @@
 
 - cleaned up some code, sorted lists, and improved the file selector
 
+## v0.4.0 (2025-06-06)
+
+### Feat
+
+- **budgets**: added a command to list all budgets
+
 ## v0.3.0 (2025-06-06)
 
 ### BREAKING CHANGE
