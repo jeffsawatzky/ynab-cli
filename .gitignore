@@ -8,3 +8,5 @@ __pycache__/
 .ruff_cache/
 .venv/
 .vscode/
+dist/
+site/

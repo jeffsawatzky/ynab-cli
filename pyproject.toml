@@ -3,23 +3,38 @@ name = "ynab-cli"
 version = "0.4.0"
 description = "YNAB Command Line Interface"
 readme = "README.md"
-authors = [
-    { name = "Jeff Sawatzky" }
-]
 requires-python = ">=3.11"
-dependencies = [
-    "attrs~=25.3",
-    "click-default-group~=1.2",
-    "click~=8.2",
-    "httpx~=0.28",
-    "python-dotenv~=1.1",
-    "rapidfuzz~=3.13",
-    "rich~=14.0",
-    "rule-engine~=4.5",
-    "textual-fspicker~=0.4",
-    "textual~=3.3",
-    "typing-extensions~=4.14",
+license-files = [
+  "LICENSE.md"
 ]
+authors = [
+  { name = "Jeff Sawatzky" }
+]
+keywords = [
+  "ynab",
+  "cli",
+  "textual",
+  "click",
+  "budget",
+]
+dependencies = [
+  "attrs~=25.3",
+  "click-default-group~=1.2",
+  "click~=8.2",
+  "httpx~=0.28",
+  "python-dotenv~=1.1",
+  "rapidfuzz~=3.13",
+  "rich~=14.0",
+  "rule-engine~=4.5",
+  "textual-fspicker~=0.4",
+  "textual~=3.3",
+  "typing-extensions~=4.14",
+]
+
+[project.urls]
+documentation = "https://jeffsawatzky.github.io/ynab-cli/"
+source = "https://github.com/jeffsawatzky/ynab-cli"
+funding = "https://github.com/sponsors/jeffsawatzky"
 
 [project.scripts]
 ynab-cli = "ynab_cli.host.cli:main"
@@ -27,18 +42,18 @@ ynab-cli = "ynab_cli.host.cli:main"
 
 [dependency-groups]
 dev = [
-    "factory-boy>=3.3.3",
-    "mkdocs-click>=0.9.0",
-    "mkdocs-material>=9.6.14",
-    "mkdocs>=1.6.1",
-    "mypy>=1.16.0",
-    "pytest-asyncio>=1.0.0",
-    "pytest-cov>=6.1.1",
-    "pytest-mock>=3.14.1",
-    "pytest>=8.4.0",
-    "ruff>=0.11.12",
-    "textual-dev>=1.7.0",
-    "types-python-dateutil>=2.9.0.20250516",
+  "factory-boy>=3.3.3",
+  "mkdocs-click>=0.9.0",
+  "mkdocs-material>=9.6.14",
+  "mkdocs>=1.6.1",
+  "mypy>=1.16.0",
+  "pytest-asyncio>=1.0.0",
+  "pytest-cov>=6.1.1",
+  "pytest-mock>=3.14.1",
+  "pytest>=8.4.0",
+  "ruff>=0.11.12",
+  "textual-dev>=1.7.0",
+  "types-python-dateutil>=2.9.0.20250516",
 ]
 
 
@@ -73,21 +88,21 @@ target-version = "py311"
 
 [tool.ruff.lint]
 extend-select = [
-    "W",   # warnings
-    "I",   # isort
-    "C90", # mccabe
-    "N",   # pep8-naming
-    "UP",  # pyupgrade
-    "S",   # flake8-bandit
-    "B",   # flake8-bugbear
-    "A",   # flake8-builtins
-    "DTZ", # flake8-datetimez
-    "PT",  # flake8-pytest-style
-    "TID", # flake8-tidy-imports
-    "RUF", # ruff specific rules
+  "W",   # warnings
+  "I",   # isort
+  "C90", # mccabe
+  "N",   # pep8-naming
+  "UP",  # pyupgrade
+  "S",   # flake8-bandit
+  "B",   # flake8-bugbear
+  "A",   # flake8-builtins
+  "DTZ", # flake8-datetimez
+  "PT",  # flake8-pytest-style
+  "TID", # flake8-tidy-imports
+  "RUF", # ruff specific rules
 ]
 extend-ignore = [
-    "S110",   # `try`-`except`-`pass` detected
+  "S110",   # `try`-`except`-`pass` detected
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -105,6 +120,7 @@ builtins-ignorelist = ["type", "id"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
+annotated_tag = true
 tag_format = "v$version"
 version_scheme = "pep440"
 version_provider = "uv"

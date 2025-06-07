@@ -10,6 +10,7 @@ from ynab_cli.host.textual.cli import tui
 @click.group(cls=DefaultGroup, default="tui", default_if_no_args=True)
 @click.option("--dry-run", is_flag=True, default=False, help="Run without making any changes.")
 @click.option("--debug", is_flag=True, default=False, help="Enable debug mode for more verbose output.")
+@click.version_option()
 @click.pass_context
 def cli(
     ctx: click.Context,

@@ -20,3 +20,5 @@ jobs:
       - run: uv run ruff check --no-fix .    # and linting
       - run: uv run mypy .                   # typecheck too
       - run: uv run pytest tests             # then run your tests!
+      - run: uv build                        # make sure the package builds
+      - run: uv run mkdocs build             # make sure the docs build

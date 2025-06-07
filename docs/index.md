@@ -11,6 +11,7 @@ This is a simple cli/tui application written in python to help manage your YNAB 
     Developer access tokens are rate limited to 200 requests per hour. Some of the commands below will provide you an opportunity to enter a new developer access token when the current one has exceeded it's limit. It also seems like there is a limit to how many developer access tokens you can create from the developer settings UI.
 
 - Your YNAB budget ID. Once you have `uv` and your `access token` you can list your budgets by running:
+
 ```sh
 $ uvx ynab-cli run --access-token your_access_token budgets list-all
 ```

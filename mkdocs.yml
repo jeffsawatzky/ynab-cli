@@ -1,5 +1,5 @@
 site_name: YNAB CLI
-site_url: http://jeffsawatzky.github.io/ynab-cli/
+site_url: https://jeffsawatzky.github.io/ynab-cli/
 repo_url: https://github.com/jeffsawatzky/ynab-cli
 
 theme:
