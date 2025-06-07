@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="http://jeffsawatzky.github.io/ynab-cli/">
+        <link rel="canonical" href="https://jeffsawatzky.github.io/ynab-cli/">
       
       
       
@@ -390,10 +390,10 @@
 <p>Developer access tokens are rate limited to 200 requests per hour. Some of the commands below will provide you an opportunity to enter a new developer access token when the current one has exceeded it's limit. It also seems like there is a limit to how many developer access tokens you can create from the developer settings UI.</p>
 </div>
 <ul>
-<li>Your YNAB budget ID. Once you have <code>uv</code> and your <code>access token</code> you can list your budgets by running:
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>uvx<span class="w"> </span>ynab-cli<span class="w"> </span>run<span class="w"> </span>--access-token<span class="w"> </span>your_access_token<span class="w"> </span>budgets<span class="w"> </span>list-all
-</span></code></pre></div></li>
+<li>Your YNAB budget ID. Once you have <code>uv</code> and your <code>access token</code> you can list your budgets by running:</li>
 </ul>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>uvx<span class="w"> </span>ynab-cli<span class="w"> </span>run<span class="w"> </span>--access-token<span class="w"> </span>your_access_token<span class="w"> </span>budgets<span class="w"> </span>list-all
+</span></code></pre></div>
 <h2 id="usage">Usage</h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -432,6 +432,12 @@
 <td><code>--debug</code></td>
 <td>boolean</td>
 <td>Enable debug mode for more verbose output.</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>--version</code></td>
+<td>boolean</td>
+<td>Show the version and exit.</td>
 <td><code>False</code></td>
 </tr>
 <tr>
