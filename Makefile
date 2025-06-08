@@ -1,4 +1,4 @@
-.PHONY: lint test clean version
+.PHONY: lint test clean ynab-sdk release
 
 .venv: pyproject.toml # the python virtual environment
 	uv sync
@@ -32,14 +32,10 @@ ynab-sdk: # regenerate the YNAB SDK from the OpenAPI spec
 dist: clean # build the distribution package
 	uv build
 
-site: clean # build the documentation site
-	uv run mkdocs build
-
-site-serve: clean # serve the documentation site locally
+site: clean # serve the documentation site locally
 	uv run mkdocs serve
 
-site-gh: clean # deploy the documentation site to GitHub Pages
+release: clean # release the package and deploy documentation
+	uv run cz bump
+	git push --follow-tags
 	uv run mkdocs gh-deploy
-
-version: clean # update the version in pyproject.toml and create a new tag
-	cz bump
