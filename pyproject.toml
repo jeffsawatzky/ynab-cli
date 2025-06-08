@@ -4,12 +4,16 @@ version = "0.5.0"
 description = "YNAB Command Line Interface"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT"
+
 license-files = [
   "LICENSE.md"
 ]
+
 authors = [
   { name = "Jeff Sawatzky" }
 ]
+
 keywords = [
   "ynab",
   "cli",
@@ -17,6 +21,17 @@ keywords = [
   "click",
   "budget",
 ]
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: End Users/Desktop",
+  "Topic :: Utilities",
+  "Topic :: Office/Business :: Financial",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
 dependencies = [
   "attrs~=25.3",
   "click-default-group~=1.2",
@@ -32,9 +47,11 @@ dependencies = [
 ]
 
 [project.urls]
-documentation = "https://jeffsawatzky.github.io/ynab-cli/"
-source = "https://github.com/jeffsawatzky/ynab-cli"
-funding = "https://github.com/sponsors/jeffsawatzky"
+Changelog = "https://github.com/jeffsawatzky/ynab-cli/blob/main/CHANGELOG.md"
+Documentation = "https://jeffsawatzky.github.io/ynab-cli/"
+Funding = "https://github.com/sponsors/jeffsawatzky"
+Releases = "https://github.com/jeffsawatzky/ynab-cli/releases"
+Source = "https://github.com/jeffsawatzky/ynab-cli"
 
 [project.scripts]
 ynab-cli = "ynab_cli.host.cli:main"
