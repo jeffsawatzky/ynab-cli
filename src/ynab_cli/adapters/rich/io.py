@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from rich import progress as rich_progress
 from rich import prompt as rich_prompt
 from typing_extensions import override
@@ -32,6 +34,13 @@ class RichIO(IO):
             return rich_prompt.Prompt.ask(prompt, console=self._progress.console, password=password)
         finally:
             self._progress.start()
+
+    @override
+    async def file(self, prompt: str) -> Path | None:
+        file_path = rich_prompt.Prompt.ask(prompt, console=self._progress.console)
+        if not file_path:
+            return None
+        return Path(file_path).resolve()
 
     @override
     async def print(self, message: str) -> None:
