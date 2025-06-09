@@ -2,9 +2,10 @@ from textual.app import ComposeResult
 from textual.widgets import DataTable, Log, ProgressBar, TabbedContent, TabPane
 from typing_extensions import override
 
-from ynab_cli.adapters.textual.io import TextualWorkerIO
+from ynab_cli.adapters.textual.io import TextualIO
 from ynab_cli.domain.use_cases import payees as use_cases
-from ynab_cli.host.textual.widgets import BaseCommand, RunnableWidget
+from ynab_cli.host.textual.widgets.common.base_command import BaseCommand
+from ynab_cli.host.textual.widgets.common.runnable_widget import RunnableWidget
 
 
 class PayeesTabs(RunnableWidget):
@@ -55,7 +56,7 @@ class PayeesNormalizeNamesCommand(BaseCommand[use_cases.NormalizeNamesParams]):
         log = self.query_one(Log)
 
         async for payee, normalized_name in use_cases.normalize_names(
-            self.settings, TextualWorkerIO(self.app, log, progress_bar), use_case_params
+            self.settings, TextualIO(self.app, log, progress_bar), use_case_params
         ):
             table.add_row(
                 payee.id,
@@ -86,7 +87,7 @@ class PayeesListDuplicatesCommand(BaseCommand[use_cases.ListDuplicatesParams]):
         log = self.query_one(Log)
 
         async for payee, duplicate_payee in use_cases.list_duplicates(
-            self.settings, TextualWorkerIO(self.app, log, progress_bar), use_case_params
+            self.settings, TextualIO(self.app, log, progress_bar), use_case_params
         ):
             table.add_row(
                 payee.id,
@@ -118,7 +119,7 @@ class PayeesListUnusedCommand(BaseCommand[use_cases.ListUnusedParams]):
         log = self.query_one(Log)
 
         async for payee in use_cases.list_unused(
-            self.settings, TextualWorkerIO(self.app, log, progress_bar), use_case_params
+            self.settings, TextualIO(self.app, log, progress_bar), use_case_params
         ):
             table.add_row(
                 payee.id,
@@ -145,9 +146,7 @@ class PayeesListAllCommand(BaseCommand[use_cases.ListAllParams]):
         table = self.query_one(DataTable)
         log = self.query_one(Log)
 
-        async for payee in use_cases.list_all(
-            self.settings, TextualWorkerIO(self.app, log, progress_bar), use_case_params
-        ):
+        async for payee in use_cases.list_all(self.settings, TextualIO(self.app, log, progress_bar), use_case_params):
             table.add_row(
                 payee.id,
                 payee.name,

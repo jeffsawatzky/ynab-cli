@@ -2,9 +2,10 @@ from textual.app import ComposeResult
 from textual.widgets import DataTable, Log, ProgressBar, TabbedContent, TabPane
 from typing_extensions import override
 
-from ynab_cli.adapters.textual.io import TextualWorkerIO
+from ynab_cli.adapters.textual.io import TextualIO
 from ynab_cli.domain.use_cases import categories as use_cases
-from ynab_cli.host.textual.widgets import BaseCommand, RunnableWidget
+from ynab_cli.host.textual.widgets.common.base_command import BaseCommand
+from ynab_cli.host.textual.widgets.common.runnable_widget import RunnableWidget
 
 
 class CategoriesTabs(RunnableWidget):
@@ -48,7 +49,7 @@ class CategoriesListUnusedCommand(BaseCommand[use_cases.ListUnusedParams]):
         log = self.query_one(Log)
 
         async for category in use_cases.list_unused(
-            self.settings, TextualWorkerIO(self.app, log, progress_bar), use_case_params
+            self.settings, TextualIO(self.app, log, progress_bar), use_case_params
         ):
             table.add_row(
                 category.category_group_id,
@@ -80,7 +81,7 @@ class CategoriesListAllCommand(BaseCommand[use_cases.ListAllParams]):
         log = self.query_one(Log)
 
         async for category in use_cases.list_all(
-            self.settings, TextualWorkerIO(self.app, log, progress_bar), use_case_params
+            self.settings, TextualIO(self.app, log, progress_bar), use_case_params
         ):
             table.add_row(
                 category.category_group_id,

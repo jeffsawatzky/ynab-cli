@@ -1,16 +1,17 @@
 from typing import Any, ClassVar
 
-from textual.app import App as _App
-from textual.app import ComposeResult
+from textual import on, work
+from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
-from textual.widgets import Checkbox, Footer, Header, Input, Label, TabbedContent, TabPane
+from textual.widgets import Button, Checkbox, Footer, Header, Input, Label, TabbedContent, TabPane
 from typing_extensions import override
 
-from ynab_cli.domain.settings import Settings
-from ynab_cli.host.textual.widgets import RunnableWidget
+from ynab_cli.domain.settings import Settings, YnabSettings
 from ynab_cli.host.textual.widgets.categories import CategoriesTabs
+from ynab_cli.host.textual.widgets.common.dialogs import CANCELLED, DialogForm, SaveCancelDialogScreen
+from ynab_cli.host.textual.widgets.common.runnable_widget import RunnableWidget
 from ynab_cli.host.textual.widgets.payees import PayeesTabs
 from ynab_cli.host.textual.widgets.transactions import TransactionsTabs
 
@@ -38,7 +39,43 @@ class CommandTabs(RunnableWidget):
                 await self.query_one(PayeesTabs).run_command()
 
 
-class App(_App[None]):
+class SettingsDialogForm(DialogForm[Settings]):
+    def __init__(self, settings: Settings, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._settings = settings
+
+    @override
+    def compose(self) -> ComposeResult:
+        with Horizontal():
+            with Vertical():
+                yield Label("Access Token")
+                yield Input(self._settings.ynab.access_token, placeholder="Access Token", id="access_token")
+            with Vertical():
+                yield Label("Budget Id")
+                yield Input(self._settings.ynab.budget_id, placeholder="Budget Id", id="budget_id")
+        with Horizontal():
+            yield Checkbox("Debug", self._settings.debug, id="debug")
+            yield Checkbox("Dry Run", self._settings.dry_run, id="dry_run")
+
+    @override
+    async def get_result(self) -> Settings:
+        """Get the result from the dialog form."""
+        access_token = self.query_one("#access_token", Input).value.strip()
+        budget_id = self.query_one("#budget_id", Input).value.strip()
+        debug = self.query_one("#debug", Checkbox).value
+        dry_run = self.query_one("#dry_run", Checkbox).value
+
+        return Settings(
+            ynab=YnabSettings(
+                access_token=access_token,
+                budget_id=budget_id,
+            ),
+            debug=debug,
+            dry_run=dry_run,
+        )
+
+
+class YnabCliApp(App[None]):
     TITLE = "YNAB CLI"
     CSS_PATH: ClassVar[str] = "app.tcss"
 
@@ -60,20 +97,13 @@ class App(_App[None]):
     @override
     def compose(self) -> ComposeResult:
         yield Header(id="header")
-        with Vertical(id="settings"):
-            with Horizontal():
-                with Vertical():
-                    yield Label("Access Token")
-                    yield Input(self.settings.ynab.access_token, placeholder="Access Token", id="access_token")
-                with Vertical():
-                    yield Label("Budget Id")
-                    yield Input(self.settings.ynab.budget_id, placeholder="Budget Id", id="budget_id")
-            with Horizontal():
-                yield Checkbox("Debug", self.settings.debug, id="debug")
-                yield Checkbox("Dry Run", self.settings.dry_run, id="dry_run")
+
+        with Vertical(id="toolbar"):
+            yield Button("Settings", id="settings_button")
 
         with Vertical(id="main"):
-            yield CommandTabs().data_bind(settings=App.settings)
+            yield CommandTabs().data_bind(settings=YnabCliApp.settings)
+
         yield Footer(id="footer")
 
     def on_mount(self) -> None:
@@ -83,16 +113,14 @@ class App(_App[None]):
         command_tabs = self.query_one(CommandTabs)
         await command_tabs.run_command()
 
-    async def on_input_changed(self, event: Input.Changed) -> None:
-        if event.input.id == "access_token":
-            self.settings.ynab.access_token = event.value
-        elif event.input.id == "budget_id":
-            self.settings.ynab.budget_id = event.value
-        self.mutate_reactive(App.settings)
+    @on(Button.Pressed, "#settings_button")
+    async def _settings_button_pressed(self, event: Button.Pressed) -> None:
+        self._get_settings()
 
-    async def on_checkbox_changed(self, event: Checkbox.Changed) -> None:
-        if event.checkbox.id == "debug":
-            self.settings.debug = event.value
-        elif event.checkbox.id == "dry_run":
-            self.settings.dry_run = event.value
-        self.mutate_reactive(App.settings)
+    @work(exclusive=True)
+    async def _get_settings(self) -> None:
+        result = await self.push_screen_wait(
+            SaveCancelDialogScreen(SettingsDialogForm(self.settings), title="Settings")
+        )
+        if result is not CANCELLED:
+            self.settings = result

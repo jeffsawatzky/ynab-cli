@@ -51,6 +51,8 @@ async def normalize_names(
         client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
 
     async with client:
+        progress_total = 0
+
         try:
             payees = (
                 await util.get_asyncio_detailed(io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=client)
@@ -58,8 +60,9 @@ async def normalize_names(
             payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
+            await io.progress.update(total=progress_total)
             for payee in payees:
-                await io.progress.update(total=progress_total, advance=1)
+                await io.progress.update(advance=1)
 
                 if _should_skip_payee(payee=payee):
                     continue
@@ -83,6 +86,8 @@ async def normalize_names(
                 await io.print("API rate limit exceeded. Try again later, or get a new access token.")
             else:
                 await io.print(f"Exception when calling YNAB: {e}\n")
+        finally:
+            await io.progress.update(total=progress_total, completed=progress_total)
 
 
 class ListDuplicatesParams(TypedDict):
@@ -96,6 +101,8 @@ async def list_duplicates(
         client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
 
     async with client:
+        progress_total = 0
+
         try:
             possible_duplicates: dict[tuple[UUID, str], list[tuple[UUID, str]]] = {}
 
@@ -105,8 +112,9 @@ async def list_duplicates(
             payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
+            await io.progress.update(total=progress_total)
             for idx, payee in enumerate(payees):
-                await io.progress.update(total=progress_total, advance=1)
+                await io.progress.update(advance=1)
 
                 if _should_skip_payee(payee=payee):
                     continue
@@ -139,6 +147,8 @@ async def list_duplicates(
                 await io.print("API rate limit exceeded. Try again later, or get a new access token.")
             else:
                 await io.print(f"Exception when calling YNAB: {e}\n")
+        finally:
+            await io.progress.update(total=progress_total, completed=progress_total)
 
 
 class ListUnusedParams(TypedDict):
@@ -152,6 +162,8 @@ async def list_unused(
         client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
 
     async with client:
+        progress_total = 0
+
         try:
             payees = (
                 await util.get_asyncio_detailed(io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=client)
@@ -159,8 +171,9 @@ async def list_unused(
             payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
+            await io.progress.update(total=progress_total)
             for payee in payees:
-                await io.progress.update(total=progress_total, advance=1)
+                await io.progress.update(advance=1)
 
                 if _should_skip_payee(payee=payee):
                     continue
@@ -217,8 +230,9 @@ async def list_all(
             payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
+            await io.progress.update(total=progress_total)
             for payee in payees:
-                await io.progress.update(total=progress_total, advance=1)
+                await io.progress.update(advance=1)
 
                 if _should_skip_payee(payee=payee):
                     continue
@@ -230,3 +244,5 @@ async def list_all(
                 await io.print("API rate limit exceeded. Try again later, or get a new access token.")
             else:
                 await io.print(f"Exception when calling YNAB: {e}\n")
+        finally:
+            await io.progress.update(total=progress_total, completed=progress_total)

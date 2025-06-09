@@ -22,6 +22,7 @@ class ListUnusedParams(TypedDict):
 
 async def list_unused(settings: Settings, io: ports.IO, params: ListUnusedParams) -> AsyncIterator[models.Category]:
     async with ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token) as client:
+        progress_total = 0
         try:
             category_groups = (
                 await util.get_asyncio_detailed(
@@ -31,16 +32,18 @@ async def list_unused(settings: Settings, io: ports.IO, params: ListUnusedParams
             category_groups.sort(key=lambda cg: cg.name)
 
             progress_total = len(category_groups)
+            await io.progress.update(total=progress_total)
             for category_group in category_groups:
-                await io.progress.update(total=progress_total, advance=1)
+                await io.progress.update(advance=1)
 
                 if _should_skip_category_or_group(category_or_group=category_group):
                     continue
 
                 progress_total += len(category_group.categories)
+                await io.progress.update(total=progress_total)
                 category_group.categories.sort(key=lambda c: c.name)
                 for category in category_group.categories:
-                    await io.progress.update(total=progress_total, advance=1)
+                    await io.progress.update(advance=1)
 
                     if _should_skip_category_or_group(category_or_group=category):
                         continue
@@ -65,6 +68,8 @@ async def list_unused(settings: Settings, io: ports.IO, params: ListUnusedParams
                 await io.print("API rate limit exceeded. Try again later, or get a new access token.")
             else:
                 await io.print(f"Exception when calling YNAB: {e}\n")
+        finally:
+            await io.progress.update(total=progress_total, completed=progress_total)
 
 
 class ListAllParams(TypedDict):
@@ -73,6 +78,7 @@ class ListAllParams(TypedDict):
 
 async def list_all(settings: Settings, io: ports.IO, params: ListAllParams) -> AsyncIterator[models.Category]:
     async with ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token) as client:
+        progress_total = 0
         try:
             category_groups = (
                 await util.get_asyncio_detailed(
@@ -82,16 +88,18 @@ async def list_all(settings: Settings, io: ports.IO, params: ListAllParams) -> A
             category_groups.sort(key=lambda cg: cg.name)
 
             progress_total = len(category_groups)
+            await io.progress.update(total=progress_total)
             for category_group in category_groups:
-                await io.progress.update(total=progress_total, advance=1)
+                await io.progress.update(advance=1)
 
                 if _should_skip_category_or_group(category_or_group=category_group):
                     continue
 
                 progress_total += len(category_group.categories)
+                await io.progress.update(total=progress_total)
                 category_group.categories.sort(key=lambda c: c.name)
                 for category in category_group.categories:
-                    await io.progress.update(total=progress_total, advance=1)
+                    await io.progress.update(advance=1)
 
                     if _should_skip_category_or_group(category_or_group=category):
                         continue
@@ -103,3 +111,5 @@ async def list_all(settings: Settings, io: ports.IO, params: ListAllParams) -> A
                 await io.print("API rate limit exceeded. Try again later, or get a new access token.")
             else:
                 await io.print(f"Exception when calling YNAB: {e}\n")
+        finally:
+            await io.progress.update(total=progress_total, completed=progress_total)
