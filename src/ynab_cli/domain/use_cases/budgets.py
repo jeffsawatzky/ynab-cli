@@ -15,6 +15,7 @@ class ListAllParams(TypedDict):
 
 async def list_all(settings: Settings, io: ports.IO, params: ListAllParams) -> AsyncIterator[models.BudgetSummary]:
     async with ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token) as client:
+        progress_total = 0
         try:
             budgets = (
                 await util.get_asyncio_detailed(io, get_budgets.asyncio_detailed, include_accounts=True, client=client)
@@ -22,8 +23,9 @@ async def list_all(settings: Settings, io: ports.IO, params: ListAllParams) -> A
             budgets.sort(key=lambda b: b.name)
 
             progress_total = len(budgets)
+            await io.progress.update(total=progress_total)
             for budget in budgets:
-                await io.progress.update(total=progress_total, advance=1)
+                await io.progress.update(advance=1)
                 yield budget
 
         except util.ApiError as e:
@@ -31,3 +33,5 @@ async def list_all(settings: Settings, io: ports.IO, params: ListAllParams) -> A
                 await io.print("API rate limit exceeded. Try again later, or get a new access token.")
             else:
                 await io.print(f"Exception when calling YNAB: {e}\n")
+        finally:
+            await io.progress.update(total=progress_total, completed=progress_total)

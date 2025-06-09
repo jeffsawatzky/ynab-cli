@@ -1,47 +1,96 @@
 Screen {
-    Vertical#settings {
-        margin-top: 1;
-        height: auto;
+    
+
+    & > Vertical#toolbar {
         border: solid $primary;
-
-        Horizontal {
-            height: auto;
-
-            Vertical {
-                height: auto;
-
-                Input {
-                    border: solid $secondary;
-                }
-            }
-        }
-    }
-    Vertical#main {
+        height: auto;
         margin-top: 1;
-        margin-bottom: 1;
-        
-        CommandTabs {
-            height: 1fr;
-            TransactionsTabs, CategoriesTabs, PayeesTabs {
-                padding-top: 1;
-                border: solid $primary;
-                height: 1fr;
+    }
 
-                DataTable {
-                    border: solid $secondary;
-                    height: 3fr;
-                }
-                Log {
-                    border: solid $secondary;
-                    height: 1fr;
-                }
-            }
+    & > Vertical#main {
+        height: 1fr;
+        margin-bottom: 1;
+        margin-top: 1;
+    }
+}
+
+CommandTabs {
+    height: auto;
+
+    & CategoriesTabs,
+    & PayeesTabs,
+    & TransactionsTabs {
+        border: solid $primary;
+        height: auto;
+        padding-top: 1;
+
+        & DataTable {
+            border: solid $secondary;
+            height: 1fr;
+        }
+
+        & Log {
+            border: solid $secondary;
+            height: 5;
         }
     }
 }
 
-IOScreen {
-    Label {
+RunnableWidget {
+    height: auto;
+}
+
+DialogScreen {
+    align: center middle;
+
+    & > Dialog {
+        background: $panel;
+        border-title-background: $panel;
+        border-title-color: $text;
+        border: solid $primary;
+        height: auto;
+        max-width: 90%;
+        width: auto;
+
+        & > Static {
+            margin:1;
+        }
+    }
+}
+
+Dialog {
+    border: $border;
+    height: auto;
+}
+
+SaveCancelDialog {
+    & > Horizontal {
+        align: right middle;
+        height: auto;
+
+        & Widget {
+            margin: 1;
+        }
+    }
+}
+
+DialogForm {
+    border: solid $secondary;
+    height: auto;
+
+    & Static {
         margin: 1;
+    }
+}
+
+SettingsDialogForm {
+    height: auto;
+
+    & > Horizontal {
+        height: auto;
+
+        & > Vertical {
+            height: auto;
+        }
     }
 }

@@ -47,6 +47,7 @@ async def apply_rules(
     settings: Settings, io: ports.IO, params: ApplyRulesParams
 ) -> AsyncIterator[tuple[models.TransactionDetail, models.SaveTransactionWithIdOrImportId]]:
     async with ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token) as client:
+        progress_total = 0
         try:
             transactions = (
                 await util.get_asyncio_detailed(
@@ -62,8 +63,9 @@ async def apply_rules(
             save_transactions = []
 
             progress_total = len(transactions)
+            await io.progress.update(total=progress_total)
             for transaction in transactions:
-                await io.progress.update(total=progress_total, advance=1)
+                await io.progress.update(advance=1)
 
                 if _should_skip_transaction(transaction=transaction):
                     continue
@@ -91,3 +93,5 @@ async def apply_rules(
                 await io.print("API rate limit exceeded. Try again later, or get a new access token.")
             else:
                 await io.print(f"Exception when calling YNAB: {e}\n")
+        finally:
+            await io.progress.update(total=progress_total, completed=progress_total)
