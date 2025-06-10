@@ -44,8 +44,8 @@ class SaveCancelDialog(Dialog[DialogResultType]):
         yield from super().compose()
 
         with Horizontal():
-            yield Button("Cancel", id="cancel")
-            yield Button("Save", id="save")
+            yield Button("Cancel", id="cancel", variant="error")
+            yield Button("Save", id="save", variant="primary")
 
     @on(Button.Pressed, "#cancel")
     async def _cancel_button_pressed(self, _: Button.Pressed) -> None:
