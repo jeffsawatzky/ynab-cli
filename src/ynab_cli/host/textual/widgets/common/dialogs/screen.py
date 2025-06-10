@@ -1,8 +1,9 @@
 from enum import Enum
-from typing import Literal, TypeAlias
+from typing import ClassVar, Literal, TypeAlias
 
 from textual import on
 from textual.app import ComposeResult
+from textual.binding import Binding, BindingType
 from textual.screen import ModalScreen, ScreenResultType
 from typing_extensions import override
 
@@ -23,6 +24,11 @@ Cancelled: TypeAlias = Literal[CancelledType.YES]
 
 
 class SaveCancelDialogScreen(DialogScreen[Cancelled | ScreenResultType]):
+    BINDINGS: ClassVar[list[BindingType]] = [
+        Binding("escape", "cancel", "Cancel", show=True, priority=False),
+        Binding("ctrl+enter", "save", "Save", show=True, priority=False),
+    ]
+
     def __init__(self, form: DialogForm[ScreenResultType], title: str | None = None) -> None:
         super().__init__()
         self._dialog = SaveCancelDialog(form, title=title)
@@ -31,10 +37,17 @@ class SaveCancelDialogScreen(DialogScreen[Cancelled | ScreenResultType]):
     def compose(self) -> ComposeResult:
         yield self._dialog
 
+    @on(SaveCancelDialog.Cancelled)
+    async def _save_cancel_dialod_cancelled(self, _: SaveCancelDialog.Cancelled) -> None:
+        self.dismiss(CANCELLED)
+
+    async def action_cancel(self) -> None:
+        self.dismiss(CANCELLED)
+
     @on(SaveCancelDialog.Saved)
     async def _save_cancel_dialod_saved(self, event: SaveCancelDialog.Saved) -> None:
         self.dismiss(event.result)  # type: ignore[arg-type]
 
-    @on(SaveCancelDialog.Cancelled)
-    async def _save_cancel_dialod_cancelled(self, _: SaveCancelDialog.Cancelled) -> None:
-        self.dismiss(CANCELLED)
+    async def action_save(self) -> None:
+        result = await self._dialog._form.get_result()
+        self.dismiss(result)

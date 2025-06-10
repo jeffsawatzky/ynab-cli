@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Self
 
 from attrs import define as _attrs_define
 
@@ -18,20 +18,33 @@ class TransactionRule:
     #   See: https://api.ynab.com/v1#/Transactions/updateTransactions
     patch: models.SaveTransactionWithIdOrImportId | None = None
 
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "rules": self.rules,
+            "patch": self.patch.to_dict() if self.patch else None,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        rules = [str(r) for r in data.get("rules", [])]
+        patch = None
+        if "patch" in data:
+            patch = models.SaveTransactionWithIdOrImportId.from_dict(data["patch"])
+
+        return cls(rules=rules, patch=patch)
+
 
 @_attrs_define
 class TransactionRules:
     transaction_rules: list[TransactionRule]
 
+    def to_dict(self) -> dict[str, Any]:
+        return {"transaction_rules": [rule.to_dict() for rule in self.transaction_rules]}
+
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "TransactionRules":
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         transaction_rules = []
         for rule in data.get("transaction_rules", []):
-            rules = [str(r) for r in rule.get("rules", [])]
-            patch = None
-            if "patch" in rule:
-                patch = models.SaveTransactionWithIdOrImportId.from_dict(rule["patch"])
-
-            transaction_rules.append(TransactionRule(rules=rules, patch=patch))
+            transaction_rules.append(TransactionRule.from_dict(rule))
 
         return cls(transaction_rules=transaction_rules)

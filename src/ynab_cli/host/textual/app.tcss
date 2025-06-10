@@ -1,21 +1,6 @@
-Screen {
-    
-
-    & > Vertical#toolbar {
-        border: solid $primary;
-        height: auto;
-        margin-top: 1;
-    }
-
-    & > Vertical#main {
-        height: 1fr;
-        margin-bottom: 1;
-        margin-top: 1;
-    }
-}
-
 CommandTabs {
-    height: auto;
+    height: 1fr;
+    padding-top: 1;
 
     & CategoriesTabs,
     & PayeesTabs,
@@ -31,7 +16,7 @@ CommandTabs {
 
         & Log {
             border: solid $secondary;
-            height: 5;
+            height: 8;
         }
     }
 }
@@ -44,53 +29,39 @@ DialogScreen {
     align: center middle;
 
     & > Dialog {
-        background: $panel;
         border-title-background: $panel;
         border-title-color: $text;
         border: solid $primary;
         height: auto;
+        max-height: 90%;
         max-width: 90%;
         width: auto;
 
-        & > Static {
-            margin:1;
-        }
-    }
-}
-
-Dialog {
-    border: $border;
-    height: auto;
-}
-
-SaveCancelDialog {
-    & > Horizontal {
-        align: right middle;
-        height: auto;
-
-        & Widget {
-            margin: 1;
-        }
-    }
-}
-
-DialogForm {
-    border: solid $secondary;
-    height: auto;
-
-    & Static {
-        margin: 1;
-    }
-}
-
-SettingsDialogForm {
-    height: auto;
-
-    & > Horizontal {
-        height: auto;
-
-        & > Vertical {
+        & > DialogForm {
+            border: solid $secondary;
             height: auto;
         }
+
+        & Horizontal, Vertical {
+            height: auto;
+        }
+
+        & Button, Input, Select, TextArea, Label {
+            margin: 1;
+        }       
+    }
+
+    & > SaveCancelDialog {
+        & > Horizontal {
+            align: right middle;
+            height: auto;
+        }
+    }
+}
+
+ApplyRulesParamsDialogForm {
+    & > ScrollableContainer {
+        border: solid $secondary;
+        height: 10;
     }
 }

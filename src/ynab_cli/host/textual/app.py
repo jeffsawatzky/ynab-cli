@@ -1,19 +1,19 @@
 from typing import Any, ClassVar
 
-from textual import on, work
+from textual import work
 from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
-from textual.widgets import Button, Checkbox, Footer, Header, Input, Label, TabbedContent, TabPane
+from textual.widgets import Checkbox, Footer, Header, Input, Label, TabbedContent, TabPane
 from typing_extensions import override
 
 from ynab_cli.domain.settings import Settings, YnabSettings
-from ynab_cli.host.textual.widgets.categories import CategoriesTabs
+from ynab_cli.host.textual.widgets.categories.tabs import CategoriesTabs
 from ynab_cli.host.textual.widgets.common.dialogs import CANCELLED, DialogForm, SaveCancelDialogScreen
 from ynab_cli.host.textual.widgets.common.runnable_widget import RunnableWidget
-from ynab_cli.host.textual.widgets.payees import PayeesTabs
-from ynab_cli.host.textual.widgets.transactions import TransactionsTabs
+from ynab_cli.host.textual.widgets.payees.tabs import PayeesTabs
+from ynab_cli.host.textual.widgets.transactions.tabs import TransactionsTabs
 
 
 class CommandTabs(RunnableWidget):
@@ -81,6 +81,7 @@ class YnabCliApp(App[None]):
 
     BINDINGS: ClassVar[list[BindingType]] = [
         Binding("ctrl+c", "quit", "Quit", show=True, priority=True),
+        Binding("s", "settings", "Settings", show=True, priority=False),
         Binding("r", "run", "Run", show=True, priority=False),
     ]
 
@@ -97,13 +98,7 @@ class YnabCliApp(App[None]):
     @override
     def compose(self) -> ComposeResult:
         yield Header(id="header")
-
-        with Vertical(id="toolbar"):
-            yield Button("Settings", id="settings_button")
-
-        with Vertical(id="main"):
-            yield CommandTabs().data_bind(settings=YnabCliApp.settings)
-
+        yield CommandTabs().data_bind(settings=YnabCliApp.settings)
         yield Footer(id="footer")
 
     def on_mount(self) -> None:
@@ -113,8 +108,7 @@ class YnabCliApp(App[None]):
         command_tabs = self.query_one(CommandTabs)
         await command_tabs.run_command()
 
-    @on(Button.Pressed, "#settings_button")
-    async def _settings_button_pressed(self, event: Button.Pressed) -> None:
+    async def action_settings(self) -> None:
         self._get_settings()
 
     @work(exclusive=True)
