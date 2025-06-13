@@ -1,8 +1,11 @@
 from textual.app import ComposeResult
+from textual.reactive import var
+from textual.widget import Widget
 from textual.widgets import TabbedContent, TabPane
 from typing_extensions import override
 
-from ynab_cli.host.textual.widgets.common.runnable_widget import RunnableWidget
+from ynab_cli.domain.settings import Settings
+from ynab_cli.host.textual.widgets.common.command_widget import CommandWidget
 
 from .list_all import ListAllCommand
 from .list_duplicates import ListDuplicatesCommand
@@ -10,7 +13,9 @@ from .list_unused import ListUnusedCommand
 from .normalize_names import NormalizeNamesCommand
 
 
-class PayeesTabs(RunnableWidget):
+class PayeesTabs(Widget):
+    settings: var[Settings] = var(Settings())
+
     @override
     def compose(self) -> ComposeResult:
         with TabbedContent():
@@ -23,15 +28,16 @@ class PayeesTabs(RunnableWidget):
             with TabPane("All", id="all"):
                 yield ListAllCommand().data_bind(settings=PayeesTabs.settings)
 
-    @override
-    async def run_command(self) -> None:
+    def active_command(self) -> CommandWidget:
         tabbed_content = self.query_one(TabbedContent)
         if tabbed_content.active_pane:
             if tabbed_content.active_pane.id == "normalize":
-                await self.query_one(NormalizeNamesCommand).run_command()
+                return self.query_one(NormalizeNamesCommand)
             elif tabbed_content.active_pane.id == "duplicates":
-                await self.query_one(ListDuplicatesCommand).run_command()
+                return self.query_one(ListDuplicatesCommand)
             elif tabbed_content.active_pane.id == "unused":
-                await self.query_one(ListUnusedCommand).run_command()
+                return self.query_one(ListUnusedCommand)
             elif tabbed_content.active_pane.id == "all":
-                await self.query_one(ListAllCommand).run_command()
+                return self.query_one(ListAllCommand)
+
+        raise ValueError("No active command found in PayeesTabs.")

@@ -5,6 +5,7 @@ from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding, BindingType
 from textual.screen import ModalScreen, ScreenResultType
+from textual.widgets import Footer
 from typing_extensions import override
 
 from .dialog import SaveCancelDialog
@@ -25,8 +26,8 @@ Cancelled: TypeAlias = Literal[CancelledType.YES]
 
 class SaveCancelDialogScreen(DialogScreen[Cancelled | ScreenResultType]):
     BINDINGS: ClassVar[list[BindingType]] = [
-        Binding("escape", "cancel", "Cancel", show=True, priority=False),
-        Binding("ctrl+enter", "save", "Save", show=True, priority=False),
+        Binding("escape", "cancel", "Cancel", show=True, priority=True),
+        Binding("ctrl+s", "save", "Save", show=True, priority=True),
     ]
 
     def __init__(self, form: DialogForm[ScreenResultType], title: str | None = None) -> None:
@@ -36,6 +37,7 @@ class SaveCancelDialogScreen(DialogScreen[Cancelled | ScreenResultType]):
     @override
     def compose(self) -> ComposeResult:
         yield self._dialog
+        yield Footer()
 
     @on(SaveCancelDialog.Cancelled)
     async def _save_cancel_dialod_cancelled(self, _: SaveCancelDialog.Cancelled) -> None:

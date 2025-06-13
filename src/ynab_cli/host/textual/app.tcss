@@ -9,20 +9,20 @@ CommandTabs {
         height: auto;
         padding-top: 1;
 
-        & DataTable {
-            border: solid $secondary;
-            height: 1fr;
-        }
+        & CommandWidget {
+            height: auto;
 
-        & Log {
-            border: solid $secondary;
-            height: 8;
+            & DataTable {
+                border: solid $secondary;
+                height: 1fr;
+            }
+
+            & Log {
+                border: solid $secondary;
+                height: 8;
+            }
         }
     }
-}
-
-RunnableWidget {
-    height: auto;
 }
 
 DialogScreen {
