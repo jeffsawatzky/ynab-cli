@@ -1,9 +1,8 @@
 import json
-from typing import Any, ClassVar
+from typing import Any
 
 from textual import on, work
 from textual.app import ComposeResult
-from textual.binding import Binding, BindingType
 from textual.containers import ScrollableContainer
 from textual.widgets import Button, DataTable, Log, Pretty, ProgressBar
 from textual_fspicker import FileOpen
@@ -12,7 +11,7 @@ from typing_extensions import override
 from ynab_cli.adapters.textual.io import TextualIO
 from ynab_cli.domain.models import rules
 from ynab_cli.domain.use_cases import transactions as use_cases
-from ynab_cli.host.textual.widgets.common.base_command import BaseCommand
+from ynab_cli.host.textual.widgets.common.command_widget import CommandWidget
 from ynab_cli.host.textual.widgets.common.dialogs import CANCELLED, DialogForm, SaveCancelDialogScreen
 
 
@@ -54,9 +53,7 @@ class ApplyRulesParamsDialogForm(DialogForm[use_cases.ApplyRulesParams]):
         }
 
 
-class ApplyRulesCommand(BaseCommand[use_cases.ApplyRulesParams]):
-    BINDINGS: ClassVar[list[BindingType]] = [Binding("p", "parameters", "Parameters", show=True, priority=False)]
-
+class ApplyRulesCommand(CommandWidget):
     def __init__(self) -> None:
         super().__init__()
         self._params: use_cases.ApplyRulesParams = {
@@ -75,11 +72,8 @@ class ApplyRulesCommand(BaseCommand[use_cases.ApplyRulesParams]):
             "Transaction Changes",
         )
 
-    async def action_parameters(self) -> None:
-        self._get_parameters()
-
-    @work(exclusive=True)
-    async def _get_parameters(self) -> None:
+    @override
+    async def _get_command_params(self) -> None:
         result = await self.app.push_screen_wait(
             SaveCancelDialogScreen(
                 ApplyRulesParamsDialogForm(self._params), title="Transactions: Apply Rules Parameters"
@@ -89,23 +83,19 @@ class ApplyRulesCommand(BaseCommand[use_cases.ApplyRulesParams]):
             self._params = result
 
     @override
-    async def run_command(self) -> None:
+    async def _run_command(self) -> None:
         if not self._params["transaction_rules"].transaction_rules:
-            self._get_parameters()
+            await self.get_command_params()
 
             if not self._params["transaction_rules"].transaction_rules:
                 return
 
-        self._run_command_worker(self._params)
-
-    @override
-    async def _run_command(self, use_case_params: use_cases.ApplyRulesParams) -> None:
         progress_bar = self.query_one(ProgressBar)
         table = self.query_one(DataTable)
         log = self.query_one(Log)
 
         async for transaction, save_transaction in use_cases.apply_rules(
-            self.settings, TextualIO(self.app, log, progress_bar), use_case_params
+            self.settings, TextualIO(self.app, log, progress_bar), self._params
         ):
             table.add_row(
                 transaction.id,

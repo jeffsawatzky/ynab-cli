@@ -5,38 +5,12 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
-from textual.widgets import Checkbox, Footer, Header, Input, Label, TabbedContent, TabPane
+from textual.widgets import Checkbox, Footer, Header, Input, Label, TabbedContent
 from typing_extensions import override
 
 from ynab_cli.domain.settings import Settings, YnabSettings
-from ynab_cli.host.textual.widgets.categories.tabs import CategoriesTabs
 from ynab_cli.host.textual.widgets.common.dialogs import CANCELLED, DialogForm, SaveCancelDialogScreen
-from ynab_cli.host.textual.widgets.common.runnable_widget import RunnableWidget
-from ynab_cli.host.textual.widgets.payees.tabs import PayeesTabs
-from ynab_cli.host.textual.widgets.transactions.tabs import TransactionsTabs
-
-
-class CommandTabs(RunnableWidget):
-    @override
-    def compose(self) -> ComposeResult:
-        with TabbedContent():
-            with TabPane("Transactions", id="transactions"):
-                yield TransactionsTabs().data_bind(settings=CommandTabs.settings)
-            with TabPane("Categories", id="categories"):
-                yield CategoriesTabs().data_bind(settings=CommandTabs.settings)
-            with TabPane("Payees", id="payees"):
-                yield PayeesTabs().data_bind(settings=CommandTabs.settings)
-
-    @override
-    async def run_command(self) -> None:
-        tabbed_content = self.query_one(TabbedContent)
-        if tabbed_content.active_pane:
-            if tabbed_content.active_pane.id == "transactions":
-                await self.query_one(TransactionsTabs).run_command()
-            elif tabbed_content.active_pane.id == "categories":
-                await self.query_one(CategoriesTabs).run_command()
-            elif tabbed_content.active_pane.id == "payees":
-                await self.query_one(PayeesTabs).run_command()
+from ynab_cli.host.textual.widgets.tabs import CommandTabs
 
 
 class SettingsDialogForm(DialogForm[Settings]):
@@ -81,8 +55,9 @@ class YnabCliApp(App[None]):
 
     BINDINGS: ClassVar[list[BindingType]] = [
         Binding("ctrl+c", "quit", "Quit", show=True, priority=True),
-        Binding("s", "settings", "Settings", show=True, priority=False),
-        Binding("r", "run", "Run", show=True, priority=False),
+        Binding("s", "settings", "Application Settings", show=True, priority=False),
+        Binding("p", "parameters", "Command Parameters", show=True, priority=False),
+        Binding("r", "run", "Run Command", show=True, priority=False),
     ]
 
     settings: reactive[Settings] = reactive(Settings())
@@ -104,17 +79,21 @@ class YnabCliApp(App[None]):
     def on_mount(self) -> None:
         self.query_one(CommandTabs).query_one(TabbedContent).focus()
 
-    async def action_run(self) -> None:
-        command_tabs = self.query_one(CommandTabs)
-        await command_tabs.run_command()
-
     async def action_settings(self) -> None:
-        self._get_settings()
+        self._get_settings_worker()
 
     @work(exclusive=True)
-    async def _get_settings(self) -> None:
+    async def _get_settings_worker(self) -> None:
         result = await self.push_screen_wait(
             SaveCancelDialogScreen(SettingsDialogForm(self.settings), title="Settings")
         )
         if result is not CANCELLED:
             self.settings = result
+
+    async def action_parameters(self) -> None:
+        command_tabs = self.query_one(CommandTabs)
+        await command_tabs.active_command().get_command_params()
+
+    async def action_run(self) -> None:
+        command_tabs = self.query_one(CommandTabs)
+        await command_tabs.active_command().run_command()
