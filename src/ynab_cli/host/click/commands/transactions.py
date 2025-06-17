@@ -1,7 +1,7 @@
-import asyncio
 import json
 from typing import IO, Any
 
+import anyio
 import click
 from rich.table import Table
 
@@ -62,7 +62,12 @@ def apply_rules(ctx: click.Context, rules_file: IO[Any]) -> None:
 
     transaction_rules = rules.TransactionRules.from_dict(json.load(rules_file))
 
-    asyncio.run(_apply_rules(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()), transaction_rules))
+    anyio.run(
+        _apply_rules,
+        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        transaction_rules,
+        backend_options={"use_uvloop": True},
+    )
 
 
 @click.group()

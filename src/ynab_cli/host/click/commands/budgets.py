@@ -1,5 +1,4 @@
-import asyncio
-
+import anyio
 import click
 from rich.table import Table
 
@@ -38,7 +37,11 @@ def list_all(ctx: click.Context) -> None:
     """List all budgets in YNAB."""
 
     ctx.ensure_object(dict)
-    asyncio.run(_list_all(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
+    anyio.run(
+        _list_all,
+        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        backend_options={"use_uvloop": True},
+    )
 
 
 @click.group()

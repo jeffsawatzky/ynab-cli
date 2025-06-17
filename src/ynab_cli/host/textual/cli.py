@@ -1,6 +1,6 @@
-import asyncio
 import logging
 
+import anyio
 import click
 from textual.logging import TextualHandler
 
@@ -39,4 +39,8 @@ def tui(
         handlers=[TextualHandler()],
     )
 
-    asyncio.run(_tui(ctx.obj[CONTEXT_KEY_SETTINGS]))
+    anyio.run(
+        _tui,
+        ctx.obj[CONTEXT_KEY_SETTINGS],
+        backend_options={"use_uvloop": True},
+    )
