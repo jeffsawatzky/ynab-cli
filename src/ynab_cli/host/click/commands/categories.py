@@ -1,5 +1,4 @@
-import asyncio
-
+import anyio
 import click
 from rich.table import Table
 
@@ -68,7 +67,11 @@ def list_unused(ctx: click.Context) -> None:
     """List unused categories in the YNAB budget."""
 
     ctx.ensure_object(dict)
-    asyncio.run(_list_unused(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
+    anyio.run(
+        _list_unused,
+        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        backend_options={"use_uvloop": True},
+    )
 
 
 @click.command()
@@ -77,7 +80,11 @@ def list_all(ctx: click.Context) -> None:
     """List all categories in the YNAB budget."""
 
     ctx.ensure_object(dict)
-    asyncio.run(_list_all(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
+    anyio.run(
+        _list_all,
+        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        backend_options={"use_uvloop": True},
+    )
 
 
 @click.group()

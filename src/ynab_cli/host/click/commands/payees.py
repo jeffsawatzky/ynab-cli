@@ -1,5 +1,4 @@
-import asyncio
-
+import anyio
 import click
 from rich.table import Table
 
@@ -112,7 +111,11 @@ def normalize_names(ctx: click.Context) -> None:
     """Normalize payee names in the YNAB budget."""
 
     ctx.ensure_object(dict)
-    asyncio.run(_normalize_names(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
+    anyio.run(
+        _normalize_names,
+        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        backend_options={"use_uvloop": True},
+    )
 
 
 @click.command()
@@ -121,7 +124,11 @@ def list_duplicates(ctx: click.Context) -> None:
     """List duplicate payees in the YNAB budget."""
 
     ctx.ensure_object(dict)
-    asyncio.run(_list_duplicates(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
+    anyio.run(
+        _list_duplicates,
+        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        backend_options={"use_uvloop": True},
+    )
 
 
 @click.command()
@@ -131,7 +138,12 @@ def list_unused(ctx: click.Context, prefix_unused: bool) -> None:
     """List unused payees in the YNAB budget."""
 
     ctx.ensure_object(dict)
-    asyncio.run(_list_unused(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()), prefix_unused))
+    anyio.run(
+        _list_unused,
+        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        prefix_unused,
+        backend_options={"use_uvloop": True},
+    )
 
 
 @click.command()
@@ -140,7 +152,11 @@ def list_all(ctx: click.Context) -> None:
     """List all payees in the YNAB budget."""
 
     ctx.ensure_object(dict)
-    asyncio.run(_list_all(ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())))
+    anyio.run(
+        _list_all,
+        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        backend_options={"use_uvloop": True},
+    )
 
 
 @click.group()

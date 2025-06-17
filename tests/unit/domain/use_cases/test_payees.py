@@ -39,7 +39,7 @@ def test_normalize_name() -> None:
     assert use_cases._normalize_name("Payee's \t Restaurant\t\t\n\rand Grill") == "Payee's Restaurant And Grill"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_list_all(mocker: MockerFixture, mock_io: IO) -> None:
     mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
     mock_get_payees.asyncio_detailed = AsyncMock()
