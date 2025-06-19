@@ -138,6 +138,12 @@ max-complexity = 70
 builtins-ignorelist = ["type", "id"]
 
 
+[tool.coverage.run]
+omit = [
+  "src/ynab_cli/adapters/ynab/**/*",
+]
+
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 annotated_tag = true

@@ -7,7 +7,6 @@ from pytest_mock import MockerFixture
 
 from ynab_cli.adapters.ynab import AuthenticatedClient, models
 from ynab_cli.adapters.ynab.types import Response
-from ynab_cli.domain.ports.io import IO
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import payees as use_cases
 
@@ -40,7 +39,130 @@ def test_normalize_name() -> None:
 
 
 @pytest.mark.anyio
-async def test_list_all(mocker: MockerFixture, mock_io: IO) -> None:
+async def test_normalize_names(mocker: MockerFixture, mock_io: MagicMock) -> None:
+    mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
+    mock_get_payees.asyncio_detailed = AsyncMock()
+    mock_get_payees.asyncio_detailed.return_value = Response(
+        status_code=HTTPStatus.OK,
+        content=b"",
+        headers={},
+        parsed=models.PayeesResponse(
+            data=models.PayeesResponseData(
+                payees=[
+                    models.Payee(id=uuid, name="PAYEE.COM", deleted=False),
+                    models.Payee(id=uuid, name="Payee 2", deleted=False),
+                ],
+                server_knowledge=0,
+            )
+        ),
+    )
+    mock_update_payee = mocker.patch("ynab_cli.domain.use_cases.payees.update_payee")
+    mock_update_payee.asyncio_detailed = AsyncMock()
+
+    settings = Settings()
+    params: use_cases.NormalizeNamesParams = {}
+    client = MagicMock(spec=AuthenticatedClient)
+
+    results: list[tuple[models.Payee, str]] = []
+    async for result in use_cases.normalize_names(settings, mock_io, params, client=client):
+        payee, name = result
+        assert isinstance(payee, models.Payee)
+        assert isinstance(name, str)
+        assert payee.name in ["PAYEE.COM"]
+        assert name in ["Payee.com"]
+        results.append(result)
+
+    assert len(results) == 1
+    assert mock_update_payee.asyncio_detailed.call_count == 1
+
+
+@pytest.mark.anyio
+async def test_list_duplicates(mocker: MockerFixture, mock_io: MagicMock) -> None:
+    mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
+    mock_get_payees.asyncio_detailed = AsyncMock()
+    mock_get_payees.asyncio_detailed.return_value = Response(
+        status_code=HTTPStatus.OK,
+        content=b"",
+        headers={},
+        parsed=models.PayeesResponse(
+            data=models.PayeesResponseData(
+                payees=[
+                    models.Payee(id=uuid, name="Payee 1", deleted=False),
+                    models.Payee(id=uuid, name="Payee 2", deleted=False),
+                    models.Payee(id=uuid, name="Payee 1", deleted=False),
+                ],
+                server_knowledge=0,
+            )
+        ),
+    )
+
+    settings = Settings()
+    params: use_cases.ListDuplicatesParams = {}
+    client = MagicMock(spec=AuthenticatedClient)
+
+    results: list[tuple[models.Payee, models.Payee]] = []
+    async for result in use_cases.list_duplicates(settings, mock_io, params, client=client):
+        payee_1, payee_other_1 = result
+        assert isinstance(payee_1, models.Payee)
+        assert isinstance(payee_other_1, models.Payee)
+        assert payee_1.name in ["Payee 1"]
+        assert payee_other_1.name in ["Payee 1", "Payee 2"]
+        results.append(result)
+
+    assert len(results) == 3
+
+
+@pytest.mark.anyio
+async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock) -> None:
+    mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
+    mock_get_payees.asyncio_detailed = AsyncMock()
+    mock_get_payees.asyncio_detailed.return_value = Response(
+        status_code=HTTPStatus.OK,
+        content=b"",
+        headers={},
+        parsed=models.PayeesResponse(
+            data=models.PayeesResponseData(
+                payees=[
+                    models.Payee(id=uuid, name="Payee 1", deleted=False),
+                ],
+                server_knowledge=0,
+            )
+        ),
+    )
+    mocke_get_transactions_by_payee = mocker.patch("ynab_cli.domain.use_cases.payees.get_transactions_by_payee")
+    mocke_get_transactions_by_payee.asyncio_detailed = AsyncMock()
+    mocke_get_transactions_by_payee.asyncio_detailed.return_value = Response(
+        status_code=HTTPStatus.OK,
+        content=b"",
+        headers={},
+        parsed=models.TransactionsResponse(
+            data=models.TransactionsResponseData(
+                transactions=[],
+                server_knowledge=0,
+            )
+        ),
+    )
+    mock_update_payee = mocker.patch("ynab_cli.domain.use_cases.payees.update_payee")
+    mock_update_payee.asyncio_detailed = AsyncMock()
+
+    settings = Settings()
+    params: use_cases.ListUnusedParams = {
+        "prefix_unused": True,
+    }
+    client = MagicMock(spec=AuthenticatedClient)
+
+    results: list[models.Payee] = []
+    async for result in use_cases.list_unused(settings, mock_io, params, client=client):
+        assert isinstance(result, models.Payee)
+        assert result.name in ["Payee 1"]
+        results.append(result)
+
+    assert len(results) == 1
+    assert mock_update_payee.asyncio_detailed.call_count == 1
+
+
+@pytest.mark.anyio
+async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
     mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
     mock_get_payees.asyncio_detailed = AsyncMock()
     mock_get_payees.asyncio_detailed.return_value = Response(
@@ -63,10 +185,10 @@ async def test_list_all(mocker: MockerFixture, mock_io: IO) -> None:
     params: use_cases.ListAllParams = {}
     client = MagicMock(spec=AuthenticatedClient)
 
-    payees = []
+    results = []
     async for result in use_cases.list_all(settings, mock_io, params, client=client):
         assert isinstance(result, models.Payee)
         assert result.name in ["Payee 1", "Payee 2"]
-        payees.append(result)
+        results.append(result)
 
-    assert len(payees) == 2
+    assert len(results) == 2

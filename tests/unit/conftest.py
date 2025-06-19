@@ -6,12 +6,12 @@ from ynab_cli.domain.ports.io import IO, Progress
 
 
 @pytest.fixture
-def mock_io() -> IO:
+def mock_io() -> MagicMock:
     progress = MagicMock(spec=Progress)
-    progress.update = AsyncMock(spec=Progress.update)
+    progress.update = AsyncMock()
 
     io = MagicMock(spec=IO)
     io.progress = progress
-    io.prompt = AsyncMock(spec=IO.prompt)
-    io.print = AsyncMock(spec=IO.print)
+    io.prompt = AsyncMock()
+    io.print = AsyncMock()
     return io
