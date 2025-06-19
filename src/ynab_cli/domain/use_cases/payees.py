@@ -87,7 +87,7 @@ async def normalize_names(
         elif isinstance(e, util.ApiError) and e.status_code == 429:
             await io.print("API rate limit exceeded. Try again later, or get a new access token.")
         else:
-            await io.print(f"Exception when calling YNAB: {e}\n")
+            await io.print(f"Exception when calling YNAB: {e}")
     finally:
         await io.progress.update(total=progress_total, completed=progress_total)
 
@@ -150,7 +150,7 @@ async def list_duplicates(
         elif isinstance(e, util.ApiError) and e.status_code == 429:
             await io.print("API rate limit exceeded. Try again later, or get a new access token.")
         else:
-            await io.print(f"Exception when calling YNAB: {e}\n")
+            await io.print(f"Exception when calling YNAB: {e}")
     finally:
         await io.progress.update(total=progress_total, completed=progress_total)
 
@@ -215,7 +215,7 @@ async def list_unused(
         elif isinstance(e, util.ApiError) and e.status_code == 429:
             await io.print("API rate limit exceeded. Try again later, or get a new access token.")
         else:
-            await io.print(f"Exception when calling YNAB: {e}\n")
+            await io.print(f"Exception when calling YNAB: {e}")
     finally:
         await io.progress.update(total=progress_total, completed=progress_total)
 
@@ -255,6 +255,6 @@ async def list_all(
         elif isinstance(e, util.ApiError) and e.status_code == 429:
             await io.print("API rate limit exceeded. Try again later, or get a new access token.")
         else:
-            await io.print(f"Exception when calling YNAB: {e}\n")
+            await io.print(f"Exception when calling YNAB: {e}")
     finally:
         await io.progress.update(total=progress_total, completed=progress_total)

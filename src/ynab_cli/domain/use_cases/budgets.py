@@ -24,7 +24,7 @@ async def list_all(
 
         async with client:
             budgets = (
-                await util.get_asyncio_detailed(io, get_budgets.asyncio_detailed, include_accounts=True, client=client)
+                await util.get_asyncio_detailed(io, get_budgets.asyncio_detailed, include_accounts=False, client=client)
             ).data.budgets
             budgets.sort(key=lambda b: b.name)
 
@@ -40,6 +40,6 @@ async def list_all(
         elif isinstance(e, util.ApiError) and e.status_code == 429:
             await io.print("API rate limit exceeded. Try again later, or get a new access token.")
         else:
-            await io.print(f"Exception when calling YNAB: {e}\n")
+            await io.print(f"Exception when calling YNAB: {e}")
     finally:
         await io.progress.update(total=progress_total, completed=progress_total)
