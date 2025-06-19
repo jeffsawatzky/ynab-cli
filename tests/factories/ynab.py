@@ -3,7 +3,7 @@ import factory
 from ynab_cli.adapters.ynab import models
 
 
-class TransactionDetailFactory(factory.Factory):  # type: ignore[misc]
+class TransactionDetailFactory(factory.Factory[models.TransactionDetail]):  # type: ignore[misc]
     class Meta:
         model = models.TransactionDetail
 

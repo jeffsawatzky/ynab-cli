@@ -5,7 +5,7 @@ from uuid import UUID
 import pytest
 from pytest_mock import MockerFixture
 
-from ynab_cli.adapters.ynab import AuthenticatedClient, models
+from ynab_cli.adapters.ynab import models, util
 from ynab_cli.adapters.ynab.types import Response
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import payees as use_cases
@@ -51,6 +51,7 @@ async def test_normalize_names(mocker: MockerFixture, mock_io: MagicMock) -> Non
                 payees=[
                     models.Payee(id=uuid, name="PAYEE.COM", deleted=False),
                     models.Payee(id=uuid, name="Payee 2", deleted=False),
+                    models.Payee(id=uuid, name="Deleted Payee", deleted=True),
                 ],
                 server_knowledge=0,
             )
@@ -61,10 +62,9 @@ async def test_normalize_names(mocker: MockerFixture, mock_io: MagicMock) -> Non
 
     settings = Settings()
     params: use_cases.NormalizeNamesParams = {}
-    client = MagicMock(spec=AuthenticatedClient)
 
     results: list[tuple[models.Payee, str]] = []
-    async for result in use_cases.normalize_names(settings, mock_io, params, client=client):
+    async for result in use_cases.normalize_names(settings, mock_io, params):
         payee, name = result
         assert isinstance(payee, models.Payee)
         assert isinstance(name, str)
@@ -74,6 +74,31 @@ async def test_normalize_names(mocker: MockerFixture, mock_io: MagicMock) -> Non
 
     assert len(results) == 1
     assert mock_update_payee.asyncio_detailed.call_count == 1
+
+
+@pytest.mark.parametrize(
+    ("exception", "expected_print"),
+    [
+        (util.ApiError(401), "Invalid or expired access token. Please update your settings."),
+        (util.ApiError(429), "API rate limit exceeded. Try again later, or get a new access token."),
+        (Exception("Unexpected error"), "Exception when calling YNAB: Unexpected error"),
+    ],
+)
+@pytest.mark.anyio
+async def test_normalize_names_exception(
+    exception: Exception, expected_print: str, mocker: MockerFixture, mock_io: MagicMock
+) -> None:
+    mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
+    mock_get_payees.asyncio_detailed = AsyncMock()
+    mock_get_payees.asyncio_detailed.side_effect = exception
+
+    settings = Settings()
+    params: use_cases.NormalizeNamesParams = {}
+
+    async for _ in use_cases.normalize_names(settings, mock_io, params):
+        pass
+
+    mock_io.print.assert_called_with(expected_print)
 
 
 @pytest.mark.anyio
@@ -90,6 +115,7 @@ async def test_list_duplicates(mocker: MockerFixture, mock_io: MagicMock) -> Non
                     models.Payee(id=uuid, name="Payee 1", deleted=False),
                     models.Payee(id=uuid, name="Payee 2", deleted=False),
                     models.Payee(id=uuid, name="Payee 1", deleted=False),
+                    models.Payee(id=uuid, name="Deleted Payee", deleted=True),
                 ],
                 server_knowledge=0,
             )
@@ -98,10 +124,9 @@ async def test_list_duplicates(mocker: MockerFixture, mock_io: MagicMock) -> Non
 
     settings = Settings()
     params: use_cases.ListDuplicatesParams = {}
-    client = MagicMock(spec=AuthenticatedClient)
 
     results: list[tuple[models.Payee, models.Payee]] = []
-    async for result in use_cases.list_duplicates(settings, mock_io, params, client=client):
+    async for result in use_cases.list_duplicates(settings, mock_io, params):
         payee_1, payee_other_1 = result
         assert isinstance(payee_1, models.Payee)
         assert isinstance(payee_other_1, models.Payee)
@@ -110,6 +135,31 @@ async def test_list_duplicates(mocker: MockerFixture, mock_io: MagicMock) -> Non
         results.append(result)
 
     assert len(results) == 3
+
+
+@pytest.mark.parametrize(
+    ("exception", "expected_print"),
+    [
+        (util.ApiError(401), "Invalid or expired access token. Please update your settings."),
+        (util.ApiError(429), "API rate limit exceeded. Try again later, or get a new access token."),
+        (Exception("Unexpected error"), "Exception when calling YNAB: Unexpected error"),
+    ],
+)
+@pytest.mark.anyio
+async def test_list_duplicates_exception(
+    exception: Exception, expected_print: str, mocker: MockerFixture, mock_io: MagicMock
+) -> None:
+    mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
+    mock_get_payees.asyncio_detailed = AsyncMock()
+    mock_get_payees.asyncio_detailed.side_effect = exception
+
+    settings = Settings()
+    params: use_cases.ListDuplicatesParams = {}
+
+    async for _ in use_cases.list_duplicates(settings, mock_io, params):
+        pass
+
+    mock_io.print.assert_called_with(expected_print)
 
 
 @pytest.mark.anyio
@@ -124,14 +174,15 @@ async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock) -> None:
             data=models.PayeesResponseData(
                 payees=[
                     models.Payee(id=uuid, name="Payee 1", deleted=False),
+                    models.Payee(id=uuid, name="Deleted Payee", deleted=True),
                 ],
                 server_knowledge=0,
             )
         ),
     )
-    mocke_get_transactions_by_payee = mocker.patch("ynab_cli.domain.use_cases.payees.get_transactions_by_payee")
-    mocke_get_transactions_by_payee.asyncio_detailed = AsyncMock()
-    mocke_get_transactions_by_payee.asyncio_detailed.return_value = Response(
+    mock_get_transactions_by_payee = mocker.patch("ynab_cli.domain.use_cases.payees.get_transactions_by_payee")
+    mock_get_transactions_by_payee.asyncio_detailed = AsyncMock()
+    mock_get_transactions_by_payee.asyncio_detailed.return_value = Response(
         status_code=HTTPStatus.OK,
         content=b"",
         headers={},
@@ -149,16 +200,42 @@ async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock) -> None:
     params: use_cases.ListUnusedParams = {
         "prefix_unused": True,
     }
-    client = MagicMock(spec=AuthenticatedClient)
 
     results: list[models.Payee] = []
-    async for result in use_cases.list_unused(settings, mock_io, params, client=client):
+    async for result in use_cases.list_unused(settings, mock_io, params):
         assert isinstance(result, models.Payee)
         assert result.name in ["Payee 1"]
         results.append(result)
 
     assert len(results) == 1
     assert mock_update_payee.asyncio_detailed.call_count == 1
+
+
+@pytest.mark.parametrize(
+    ("exception", "expected_print"),
+    [
+        (util.ApiError(401), "Invalid or expired access token. Please update your settings."),
+        (util.ApiError(429), "API rate limit exceeded. Try again later, or get a new access token."),
+        (Exception("Unexpected error"), "Exception when calling YNAB: Unexpected error"),
+    ],
+)
+@pytest.mark.anyio
+async def test_list_unused_exception(
+    exception: Exception, expected_print: str, mocker: MockerFixture, mock_io: MagicMock
+) -> None:
+    mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
+    mock_get_payees.asyncio_detailed = AsyncMock()
+    mock_get_payees.asyncio_detailed.side_effect = exception
+
+    settings = Settings()
+    params: use_cases.ListUnusedParams = {
+        "prefix_unused": True,
+    }
+
+    async for _ in use_cases.list_unused(settings, mock_io, params):
+        pass
+
+    mock_io.print.assert_called_with(expected_print)
 
 
 @pytest.mark.anyio
@@ -175,6 +252,7 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
                     models.Payee(id=uuid, name="Payee 1", deleted=False),
                     models.Payee(id=uuid, name="Payee 2", deleted=False),
                     models.Payee(id=uuid, name="Payee 3", deleted=True),
+                    models.Payee(id=uuid, name="Deleted Payee", deleted=True),
                 ],
                 server_knowledge=0,
             )
@@ -183,12 +261,36 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
 
     settings = Settings()
     params: use_cases.ListAllParams = {}
-    client = MagicMock(spec=AuthenticatedClient)
 
     results = []
-    async for result in use_cases.list_all(settings, mock_io, params, client=client):
+    async for result in use_cases.list_all(settings, mock_io, params):
         assert isinstance(result, models.Payee)
         assert result.name in ["Payee 1", "Payee 2"]
         results.append(result)
 
     assert len(results) == 2
+
+
+@pytest.mark.parametrize(
+    ("exception", "expected_print"),
+    [
+        (util.ApiError(401), "Invalid or expired access token. Please update your settings."),
+        (util.ApiError(429), "API rate limit exceeded. Try again later, or get a new access token."),
+        (Exception("Unexpected error"), "Exception when calling YNAB: Unexpected error"),
+    ],
+)
+@pytest.mark.anyio
+async def test_list_all_exception(
+    exception: Exception, expected_print: str, mocker: MockerFixture, mock_io: MagicMock
+) -> None:
+    mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
+    mock_get_payees.asyncio_detailed = AsyncMock()
+    mock_get_payees.asyncio_detailed.side_effect = exception
+
+    settings = Settings()
+    params: use_cases.ListAllParams = {}
+
+    async for _ in use_cases.list_all(settings, mock_io, params):
+        pass
+
+    mock_io.print.assert_called_with(expected_print)
