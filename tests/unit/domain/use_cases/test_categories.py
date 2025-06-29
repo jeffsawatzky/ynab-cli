@@ -10,15 +10,13 @@ from ynab_cli.adapters.ynab.types import Response
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import categories as use_cases
 
-uuid = UUID("00000000-0000-0000-0000-000000000000")
 
-
-def test_should_skip_category_or_group__with_category() -> None:
+def test_should_skip_category_or_group__with_category(empty_uuid: UUID) -> None:
     assert (
         use_cases._should_skip_category_or_group(
             category_or_group=models.Category(
-                id=uuid,
-                category_group_id=uuid,
+                id=empty_uuid,
+                category_group_id=empty_uuid,
                 name="Category",
                 activity=0,
                 balance=0,
@@ -33,8 +31,8 @@ def test_should_skip_category_or_group__with_category() -> None:
     assert (
         use_cases._should_skip_category_or_group(
             category_or_group=models.Category(
-                id=uuid,
-                category_group_id=uuid,
+                id=empty_uuid,
+                category_group_id=empty_uuid,
                 name="Category",
                 activity=0,
                 balance=0,
@@ -47,11 +45,11 @@ def test_should_skip_category_or_group__with_category() -> None:
     )
 
 
-def test_should_skip_category_or_group__with_category_group() -> None:
+def test_should_skip_category_or_group__with_category_group(empty_uuid: UUID) -> None:
     assert (
         use_cases._should_skip_category_or_group(
             category_or_group=models.CategoryGroupWithCategories(
-                id=uuid,
+                id=empty_uuid,
                 name="Category",
                 hidden=False,
                 categories=[],
@@ -64,7 +62,7 @@ def test_should_skip_category_or_group__with_category_group() -> None:
     assert (
         use_cases._should_skip_category_or_group(
             category_or_group=models.CategoryGroupWithCategories(
-                id=uuid,
+                id=empty_uuid,
                 name="Category",
                 hidden=False,
                 categories=[],
@@ -76,7 +74,7 @@ def test_should_skip_category_or_group__with_category_group() -> None:
 
 
 @pytest.mark.anyio
-async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock) -> None:
+async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock, empty_uuid: UUID) -> None:
     mock_get_categories = mocker.patch("ynab_cli.domain.use_cases.categories.get_categories")
     mock_get_categories.asyncio_detailed = AsyncMock()
     mock_get_categories.asyncio_detailed.return_value = Response(
@@ -87,14 +85,14 @@ async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock) -> None:
             data=models.CategoriesResponseData(
                 category_groups=[
                     models.CategoryGroupWithCategories(
-                        id=uuid,
+                        id=empty_uuid,
                         name="Category Group 1",
                         hidden=False,
                         deleted=False,
                         categories=[
                             models.Category(
-                                id=uuid,
-                                category_group_id=uuid,
+                                id=empty_uuid,
+                                category_group_id=empty_uuid,
                                 name="Category 1",
                                 activity=0,
                                 balance=0,
@@ -103,8 +101,8 @@ async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock) -> None:
                                 deleted=False,
                             ),
                             models.Category(
-                                id=uuid,
-                                category_group_id=uuid,
+                                id=empty_uuid,
+                                category_group_id=empty_uuid,
                                 name="Deleted Category",
                                 activity=0,
                                 balance=0,
@@ -115,7 +113,7 @@ async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock) -> None:
                         ],
                     ),
                     models.CategoryGroupWithCategories(
-                        id=uuid, name="Deleted Category Group", hidden=False, deleted=True, categories=[]
+                        id=empty_uuid, name="Deleted Category Group", hidden=False, deleted=True, categories=[]
                     ),
                 ],
                 server_knowledge=0,
@@ -176,7 +174,7 @@ async def test_list_unused_exception(
 
 
 @pytest.mark.anyio
-async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
+async def test_list_all(mocker: MockerFixture, mock_io: MagicMock, empty_uuid: UUID) -> None:
     mock_get_categories = mocker.patch("ynab_cli.domain.use_cases.categories.get_categories")
     mock_get_categories.asyncio_detailed = AsyncMock()
     mock_get_categories.asyncio_detailed.return_value = Response(
@@ -187,14 +185,14 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
             data=models.CategoriesResponseData(
                 category_groups=[
                     models.CategoryGroupWithCategories(
-                        id=uuid,
+                        id=empty_uuid,
                         name="Category Group 1",
                         hidden=False,
                         deleted=False,
                         categories=[
                             models.Category(
-                                id=uuid,
-                                category_group_id=uuid,
+                                id=empty_uuid,
+                                category_group_id=empty_uuid,
                                 name="Category 1",
                                 activity=0,
                                 balance=0,
@@ -203,8 +201,8 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
                                 deleted=False,
                             ),
                             models.Category(
-                                id=uuid,
-                                category_group_id=uuid,
+                                id=empty_uuid,
+                                category_group_id=empty_uuid,
                                 name="Deleted Category",
                                 activity=0,
                                 balance=0,
@@ -215,7 +213,7 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
                         ],
                     ),
                     models.CategoryGroupWithCategories(
-                        id=uuid, name="Deleted Category Group", hidden=False, deleted=True, categories=[]
+                        id=empty_uuid, name="Deleted Category Group", hidden=False, deleted=True, categories=[]
                     ),
                 ],
                 server_knowledge=0,

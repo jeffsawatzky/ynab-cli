@@ -10,21 +10,91 @@ from ynab_cli.adapters.ynab.types import Response
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import payees as use_cases
 
-uuid = UUID("00000000-0000-0000-0000-000000000000")
 
+def test_should_skip_payee(empty_uuid: UUID) -> None:
+    assert (
+        use_cases._should_skip_payee(
+            payee=models.Payee(
+                id=empty_uuid,
+                name="Payee",
+                deleted=False,
+            )
+        )
+        is False
+    )
+    assert (
+        use_cases._should_skip_payee(
+            payee=models.Payee(
+                id=empty_uuid,
+                name="Payee",
+                deleted=True,
+            )
+        )
+        is True
+    )
 
-def test_should_skip_payee() -> None:
-    assert use_cases._should_skip_payee(payee=models.Payee(id=uuid, name="Payee", deleted=False)) is False
-    assert use_cases._should_skip_payee(payee=models.Payee(id=uuid, name="Payee", deleted=True)) is True
+    assert (
+        use_cases._should_skip_payee(
+            payee=models.Payee(
+                id=empty_uuid,
+                name="Transfer : Savings",
+                deleted=False,
+            )
+        )
+        is True
+    )
+    assert (
+        use_cases._should_skip_payee(
+            payee=models.Payee(
+                id=empty_uuid,
+                name="Transfer : Savings",
+                deleted=True,
+            )
+        )
+        is True
+    )
 
-    assert use_cases._should_skip_payee(payee=models.Payee(id=uuid, name="Transfer : Savings", deleted=False)) is True
-    assert use_cases._should_skip_payee(payee=models.Payee(id=uuid, name="Transfer : Savings", deleted=True)) is True
+    assert (
+        use_cases._should_skip_payee(
+            payee=models.Payee(
+                id=empty_uuid,
+                name="Starting Balance",
+                deleted=False,
+            )
+        )
+        is True
+    )
+    assert (
+        use_cases._should_skip_payee(
+            payee=models.Payee(
+                id=empty_uuid,
+                name="Starting Balance",
+                deleted=True,
+            )
+        )
+        is True
+    )
 
-    assert use_cases._should_skip_payee(payee=models.Payee(id=uuid, name="Starting Balance", deleted=False)) is True
-    assert use_cases._should_skip_payee(payee=models.Payee(id=uuid, name="Starting Balance", deleted=True)) is True
-
-    assert use_cases._should_skip_payee(payee=models.Payee(id=uuid, name="My Starting Balance", deleted=False)) is False
-    assert use_cases._should_skip_payee(payee=models.Payee(id=uuid, name="My Starting Balance", deleted=True)) is True
+    assert (
+        use_cases._should_skip_payee(
+            payee=models.Payee(
+                id=empty_uuid,
+                name="My Starting Balance",
+                deleted=False,
+            )
+        )
+        is False
+    )
+    assert (
+        use_cases._should_skip_payee(
+            payee=models.Payee(
+                id=empty_uuid,
+                name="My Starting Balance",
+                deleted=True,
+            )
+        )
+        is True
+    )
 
 
 def test_normalize_name() -> None:
@@ -39,7 +109,7 @@ def test_normalize_name() -> None:
 
 
 @pytest.mark.anyio
-async def test_normalize_names(mocker: MockerFixture, mock_io: MagicMock) -> None:
+async def test_normalize_names(mocker: MockerFixture, mock_io: MagicMock, empty_uuid: UUID) -> None:
     mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
     mock_get_payees.asyncio_detailed = AsyncMock()
     mock_get_payees.asyncio_detailed.return_value = Response(
@@ -49,9 +119,9 @@ async def test_normalize_names(mocker: MockerFixture, mock_io: MagicMock) -> Non
         parsed=models.PayeesResponse(
             data=models.PayeesResponseData(
                 payees=[
-                    models.Payee(id=uuid, name="PAYEE.COM", deleted=False),
-                    models.Payee(id=uuid, name="Payee 2", deleted=False),
-                    models.Payee(id=uuid, name="Deleted Payee", deleted=True),
+                    models.Payee(id=empty_uuid, name="PAYEE.COM", deleted=False),
+                    models.Payee(id=empty_uuid, name="Payee 2", deleted=False),
+                    models.Payee(id=empty_uuid, name="Deleted Payee", deleted=True),
                 ],
                 server_knowledge=0,
             )
@@ -102,7 +172,7 @@ async def test_normalize_names_exception(
 
 
 @pytest.mark.anyio
-async def test_list_duplicates(mocker: MockerFixture, mock_io: MagicMock) -> None:
+async def test_list_duplicates(mocker: MockerFixture, mock_io: MagicMock, empty_uuid: UUID) -> None:
     mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
     mock_get_payees.asyncio_detailed = AsyncMock()
     mock_get_payees.asyncio_detailed.return_value = Response(
@@ -112,10 +182,10 @@ async def test_list_duplicates(mocker: MockerFixture, mock_io: MagicMock) -> Non
         parsed=models.PayeesResponse(
             data=models.PayeesResponseData(
                 payees=[
-                    models.Payee(id=uuid, name="Payee 1", deleted=False),
-                    models.Payee(id=uuid, name="Payee 2", deleted=False),
-                    models.Payee(id=uuid, name="Payee 1", deleted=False),
-                    models.Payee(id=uuid, name="Deleted Payee", deleted=True),
+                    models.Payee(id=empty_uuid, name="Payee 1", deleted=False),
+                    models.Payee(id=empty_uuid, name="Payee 2", deleted=False),
+                    models.Payee(id=empty_uuid, name="Payee 1", deleted=False),
+                    models.Payee(id=empty_uuid, name="Deleted Payee", deleted=True),
                 ],
                 server_knowledge=0,
             )
@@ -163,7 +233,7 @@ async def test_list_duplicates_exception(
 
 
 @pytest.mark.anyio
-async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock) -> None:
+async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock, empty_uuid: UUID) -> None:
     mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
     mock_get_payees.asyncio_detailed = AsyncMock()
     mock_get_payees.asyncio_detailed.return_value = Response(
@@ -173,8 +243,8 @@ async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock) -> None:
         parsed=models.PayeesResponse(
             data=models.PayeesResponseData(
                 payees=[
-                    models.Payee(id=uuid, name="Payee 1", deleted=False),
-                    models.Payee(id=uuid, name="Deleted Payee", deleted=True),
+                    models.Payee(id=empty_uuid, name="Payee 1", deleted=False),
+                    models.Payee(id=empty_uuid, name="Deleted Payee", deleted=True),
                 ],
                 server_knowledge=0,
             )
@@ -239,7 +309,7 @@ async def test_list_unused_exception(
 
 
 @pytest.mark.anyio
-async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
+async def test_list_all(mocker: MockerFixture, mock_io: MagicMock, empty_uuid: UUID) -> None:
     mock_get_payees = mocker.patch("ynab_cli.domain.use_cases.payees.get_payees")
     mock_get_payees.asyncio_detailed = AsyncMock()
     mock_get_payees.asyncio_detailed.return_value = Response(
@@ -249,10 +319,10 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
         parsed=models.PayeesResponse(
             data=models.PayeesResponseData(
                 payees=[
-                    models.Payee(id=uuid, name="Payee 1", deleted=False),
-                    models.Payee(id=uuid, name="Payee 2", deleted=False),
-                    models.Payee(id=uuid, name="Payee 3", deleted=True),
-                    models.Payee(id=uuid, name="Deleted Payee", deleted=True),
+                    models.Payee(id=empty_uuid, name="Payee 1", deleted=False),
+                    models.Payee(id=empty_uuid, name="Payee 2", deleted=False),
+                    models.Payee(id=empty_uuid, name="Payee 3", deleted=True),
+                    models.Payee(id=empty_uuid, name="Deleted Payee", deleted=True),
                 ],
                 server_knowledge=0,
             )

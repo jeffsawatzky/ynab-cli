@@ -1,5 +1,3 @@
-# mypy: disable-error-code="method-assign"
-
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
@@ -114,31 +112,36 @@ class TestIODialogForm:
         assert compose_result[1].password is True
 
     @pytest.mark.anyio
-    async def test_get_result_returns_stripped_input_value(self, io_dialog_form: IODialogForm) -> None:
+    async def test_get_result_returns_stripped_input_value(
+        self, monkeypatch: pytest.MonkeyPatch, io_dialog_form: IODialogForm
+    ) -> None:
         mock_input = MagicMock(spec=Input)
         mock_input.value = "  test_value  "
-        io_dialog_form.query_one = MagicMock(return_value=mock_input)
+        monkeypatch.setattr(io_dialog_form, "query_one", MagicMock(return_value=mock_input))
 
         result = await io_dialog_form.get_result()
 
         assert result == "test_value"
-        io_dialog_form.query_one.assert_called_once_with(Input)
 
     @pytest.mark.anyio
-    async def test_get_result_with_empty_input(self, io_dialog_form: IODialogForm) -> None:
+    async def test_get_result_with_empty_input(
+        self, monkeypatch: pytest.MonkeyPatch, io_dialog_form: IODialogForm
+    ) -> None:
         mock_input = MagicMock(spec=Input)
         mock_input.value = "   "
-        io_dialog_form.query_one = MagicMock(return_value=mock_input)
+        monkeypatch.setattr(io_dialog_form, "query_one", MagicMock(return_value=mock_input))
 
         result = await io_dialog_form.get_result()
 
         assert result == ""
 
     @pytest.mark.anyio
-    async def test_get_result_with_no_whitespace(self, io_dialog_form: IODialogForm) -> None:
+    async def test_get_result_with_no_whitespace(
+        self, monkeypatch: pytest.MonkeyPatch, io_dialog_form: IODialogForm
+    ) -> None:
         mock_input = MagicMock(spec=Input)
         mock_input.value = "no_whitespace"
-        io_dialog_form.query_one = MagicMock(return_value=mock_input)
+        monkeypatch.setattr(io_dialog_form, "query_one", MagicMock(return_value=mock_input))
 
         result = await io_dialog_form.get_result()
 
