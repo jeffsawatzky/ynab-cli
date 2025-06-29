@@ -1,7 +1,6 @@
 from http import HTTPStatus
 from typing import cast
 from unittest.mock import AsyncMock, MagicMock
-from uuid import UUID
 
 import pytest
 from pytest_mock import MockerFixture
@@ -12,8 +11,6 @@ from ynab_cli.adapters.ynab.types import Response
 from ynab_cli.domain.models import rules
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import transactions as use_cases
-
-uuid = UUID("00000000-0000-0000-0000-000000000000")
 
 
 @pytest.fixture
