@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from textual import work
+from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
 from textual.containers import Horizontal, Vertical
@@ -8,7 +8,9 @@ from textual.reactive import reactive
 from textual.widgets import Checkbox, Footer, Header, Input, Label, TabbedContent
 from typing_extensions import override
 
+from ynab_cli.adapters.ynab.client import AuthenticatedClient
 from ynab_cli.domain.settings import Settings, YnabSettings
+from ynab_cli.host.textual.widgets.common.command_widget import CommandWidget
 from ynab_cli.host.textual.widgets.common.dialogs import CANCELLED, DialogForm, SaveCancelDialogScreen
 from ynab_cli.host.textual.widgets.tabs import CommandTabs
 
@@ -65,10 +67,12 @@ class YnabCliApp(App[None]):
     def __init__(
         self,
         settings: Settings,
+        client: AuthenticatedClient,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         self.settings = settings
+        self.client = client
 
     @override
     def compose(self) -> ComposeResult:
@@ -89,6 +93,7 @@ class YnabCliApp(App[None]):
         )
         if result is not CANCELLED:
             self.settings = result
+            self.client.token = self.settings.ynab.access_token
 
     async def action_parameters(self) -> None:
         command_tabs = self.query_one(CommandTabs)
@@ -97,3 +102,10 @@ class YnabCliApp(App[None]):
     async def action_run(self) -> None:
         command_tabs = self.query_one(CommandTabs)
         await command_tabs.active_command().run_command()
+
+    @on(CommandWidget.CommandCompleted)
+    def _worker_state_changed(self, event: CommandWidget.CommandCompleted) -> None:
+        # If the user had to update the access token, we need to update the settings.
+        if self.settings.ynab.access_token != self.client.token:
+            self.settings.ynab.access_token = self.client.token
+            self.mutate_reactive(YnabCliApp.settings)

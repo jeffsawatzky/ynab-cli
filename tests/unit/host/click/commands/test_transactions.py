@@ -2,21 +2,18 @@ import json
 from collections.abc import AsyncIterator, Generator
 from pathlib import Path
 from typing import Any
-from unittest.mock import ANY, MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from click.testing import CliRunner
+from lagom import Container
 
 from tests.factories import ynab
 from ynab_cli.adapters.ynab import models
 from ynab_cli.domain.models import rules
 from ynab_cli.domain.settings import Settings, YnabSettings
+from ynab_cli.domain.use_cases import transactions as use_cases
 from ynab_cli.host.cli import cli
-
-
-@pytest.fixture
-def runner() -> CliRunner:
-    return CliRunner()
 
 
 @pytest.fixture
@@ -33,7 +30,7 @@ def transaction_rules_file(runner: CliRunner, transaction_rules: rules.Transacti
 
 
 def test_apply_rules(
-    runner: CliRunner, transaction_rules: rules.TransactionRules, transaction_rules_file: Path
+    runner: CliRunner, container: Container, transaction_rules: rules.TransactionRules, transaction_rules_file: Path
 ) -> None:
     async def apply_rules(
         *args: Any, **kwargs: Any
@@ -43,25 +40,26 @@ def test_apply_rules(
             models.SaveTransactionWithIdOrImportId(),
         )
 
-    with patch("ynab_cli.host.click.commands.transactions.use_cases") as mock_use_cases:
-        mock_use_cases.apply_rules = MagicMock(wraps=apply_rules)
-        result = runner.invoke(
-            cli,
-            [
-                "run",
-                "--access-token",
-                "test_token",
-                "transactions",
-                "--budget-id",
-                "test_budget",
-                "apply-rules",
-                str(transaction_rules_file),
-            ],
-        )
+    use_case = MagicMock(wraps=apply_rules)
+    container[use_cases.ApplyRules] = use_case
 
-        assert result.exit_code == 0
-        mock_use_cases.apply_rules.assert_called_once_with(
-            Settings(ynab=YnabSettings(access_token="test_token", budget_id="test_budget")),
-            ANY,
-            {"transaction_rules": transaction_rules},
-        )
+    result = runner.invoke(
+        cli,
+        [
+            "run",
+            "--access-token",
+            "test_token",
+            "transactions",
+            "--budget-id",
+            "test_budget",
+            "apply-rules",
+            str(transaction_rules_file),
+        ],
+    )
+
+    assert result.exit_code == 0
+
+    use_case.assert_called_once_with(
+        Settings(ynab=YnabSettings(access_token="test_token", budget_id="test_budget")),
+        {"transaction_rules": transaction_rules},
+    )

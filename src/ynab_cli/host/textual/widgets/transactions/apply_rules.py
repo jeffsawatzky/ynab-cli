@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from textual import on, work
 from textual.app import ComposeResult
@@ -13,6 +13,9 @@ from ynab_cli.domain.models import rules
 from ynab_cli.domain.use_cases import transactions as use_cases
 from ynab_cli.host.textual.widgets.common.command_widget import CommandWidget
 from ynab_cli.host.textual.widgets.common.dialogs import CANCELLED, DialogForm, SaveCancelDialogScreen
+
+if TYPE_CHECKING:
+    from ynab_cli.host.textual.app import YnabCliApp
 
 
 class ApplyRulesParamsDialogForm(DialogForm[use_cases.ApplyRulesParams]):
@@ -94,9 +97,9 @@ class ApplyRulesCommand(CommandWidget):
         table = self.query_one(DataTable)
         log = self.query_one(Log)
 
-        async for transaction, save_transaction in use_cases.apply_rules(
-            self.settings, TextualIO(self.app, log, progress_bar), self._params
-        ):
+        async for transaction, save_transaction in use_cases.ApplyRules(
+            TextualIO(self.app, log, progress_bar), cast("YnabCliApp", self.app).client
+        )(self.settings, self._params):
             table.add_row(
                 transaction.id,
                 transaction.date.isoformat(),

@@ -1,108 +1,129 @@
 import anyio
 import click
-from rich.table import Table
+from lagom import Container
 
-from ynab_cli.adapters.rich import io
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import payees as use_cases
 from ynab_cli.host.click.commands.rich.progress_table import ProgressTable
+from ynab_cli.host.click.container import containerize
 from ynab_cli.host.constants import CONTEXT_KEY_SETTINGS, ENV_PREFIX
 
 
-async def _normalize_names(settings: Settings) -> None:
-    params: use_cases.NormalizeNamesParams = {}
+class NormalizeNamesCommand:
+    def __init__(self, use_case: use_cases.NormalizeNames, progress_table: ProgressTable) -> None:
+        self._use_case = use_case
+        self._progress_table = progress_table
 
-    table = Table(title="Normalized Payees")
-    table.add_column("Payee Id")
-    table.add_column("Payee Name")
-    table.add_column("Normalized Name")
+        self._progress_table.table.title = "Normalized Payees"
+        self._progress_table.table.add_column("Payee Id")
+        self._progress_table.table.add_column("Payee Name")
+        self._progress_table.table.add_column("Normalized Name")
 
-    console = None
-    with ProgressTable(table) as progress:
-        console = progress.console
+    async def __call__(self, settings: Settings) -> None:
+        params: use_cases.NormalizeNamesParams = {}
 
-        task_id = progress.add_task("Normalizing payee names...")
-        async for payee, normalized_name in use_cases.normalize_names(settings, io.RichIO((progress, task_id)), params):
-            table.add_row(
-                str(payee.id),
-                payee.name,
-                normalized_name,
-            )
+        console = None
+        with self._progress_table:
+            console = self._progress_table.console
 
-    if console:
-        console.print(table)
+            async for payee, normalized_name in self._use_case(settings, params):
+                self._progress_table.table.add_row(
+                    str(payee.id),
+                    payee.name,
+                    normalized_name,
+                )
 
-
-async def _list_duplicates(settings: Settings) -> None:
-    params: use_cases.ListDuplicatesParams = {}
-
-    table = Table(title="Duplicate Payees")
-    table.add_column("Payee Id")
-    table.add_column("Payee Name")
-    table.add_column("Duplicate Payee Id")
-    table.add_column("Duplicate Payee Name")
-
-    console = None
-    with ProgressTable(table) as progress:
-        console = progress.console
-
-        task_id = progress.add_task("Loading duplicate payees...")
-        async for payee, duplicate_payee in use_cases.list_duplicates(settings, io.RichIO((progress, task_id)), params):
-            table.add_row(
-                str(payee.id),
-                payee.name,
-                str(duplicate_payee.id),
-                duplicate_payee.name,
-            )
-
-    if console:
-        console.print(table)
+        if console:
+            console.print(self._progress_table.table)
 
 
-async def _list_unused(settings: Settings, prefix_unused: bool) -> None:
-    params: use_cases.ListUnusedParams = {
-        "prefix_unused": prefix_unused,
-    }
+class ListDuplicatesCommand:
+    def __init__(self, use_case: use_cases.ListDuplicates, progress_table: ProgressTable) -> None:
+        self._use_case = use_case
+        self._progress_table = progress_table
 
-    table = Table(title="Unused Payees")
-    table.add_column("Payee Id")
-    table.add_column("Payee Name")
+        self._progress_table.table.title = "Duplicate Payees"
+        self._progress_table.table.add_column("Payee Id")
+        self._progress_table.table.add_column("Payee Name")
+        self._progress_table.table.add_column("Duplicate Payee Id")
+        self._progress_table.table.add_column("Duplicate Payee Name")
 
-    console = None
-    with ProgressTable(table) as progress:
-        console = progress.console
+    async def __call__(self, settings: Settings) -> None:
+        params: use_cases.ListDuplicatesParams = {}
 
-        task_id = progress.add_task("Loading unused payees...")
-        async for payee in use_cases.list_unused(settings, io.RichIO((progress, task_id)), params):
-            table.add_row(
-                str(payee.id),
-                payee.name,
-            )
+        console = None
+        with self._progress_table:
+            console = self._progress_table.console
 
-    if console:
-        console.print(table)
+            async for payee, duplicate_payee in self._use_case(settings, params):
+                self._progress_table.table.add_row(
+                    str(payee.id),
+                    payee.name,
+                    str(duplicate_payee.id),
+                    duplicate_payee.name,
+                )
+
+        if console:
+            console.print(self._progress_table.table)
 
 
-async def _list_all(settings: Settings) -> None:
-    params: use_cases.ListAllParams = {}
+class ListUnusedCommand:
+    def __init__(self, use_case: use_cases.ListUnused, progress_table: ProgressTable) -> None:
+        self._use_case = use_case
+        self._progress_table = progress_table
 
-    table = Table(title="All Payees")
-    table.add_column("Payee Id")
-    table.add_column("Payee Name")
+        self._progress_table.table.title = "Unused Payees"
+        self._progress_table.table.add_column("Payee Id")
+        self._progress_table.table.add_column("Payee Name")
 
-    console = None
-    with ProgressTable(table) as progress:
-        console = progress.console
+    async def __call__(self, settings: Settings, prefix_unused: bool) -> None:
+        params: use_cases.ListUnusedParams = {
+            "prefix_unused": prefix_unused,
+        }
 
-        task_id = progress.add_task("Loading all payees...")
-        async for payee in use_cases.list_all(settings, io.RichIO((progress, task_id)), params):
-            table.add_row(
-                str(payee.id),
-                payee.name,
-            )
+        console = None
+        with self._progress_table:
+            console = self._progress_table.console
 
-    if console:
-        console.print(table)
+            async for payee in self._use_case(settings, params):
+                self._progress_table.table.add_row(
+                    str(payee.id),
+                    payee.name,
+                )
+
+        if console:
+            console.print(self._progress_table.table)
+
+
+class ListAllCommand:
+    def __init__(self, use_case: use_cases.ListAll, progress_table: ProgressTable) -> None:
+        self._use_case = use_case
+        self._progress_table = progress_table
+
+        self._progress_table.table.title = "All Payees"
+        self._progress_table.table.add_column("Payee Id")
+        self._progress_table.table.add_column("Payee Name")
+
+    async def __call__(self, settings: Settings) -> None:
+        params: use_cases.ListAllParams = {}
+
+        console = None
+        with self._progress_table:
+            console = self._progress_table.console
+
+            async for payee in self._use_case(settings, params):
+                self._progress_table.table.add_row(
+                    str(payee.id),
+                    payee.name,
+                )
+
+        if console:
+            console.print(self._progress_table.table)
+
+
+@containerize
+async def _normalize_names(container: Container) -> None:
+    await container[NormalizeNamesCommand](container[Settings])
 
 
 @click.command()
@@ -111,11 +132,19 @@ def normalize_names(ctx: click.Context) -> None:
     """Normalize payee names in the YNAB budget."""
 
     ctx.ensure_object(dict)
+    settings: Settings = ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())
+    ctx.obj[CONTEXT_KEY_SETTINGS] = settings
+
     anyio.run(
         _normalize_names,
-        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        settings,
         backend_options={"use_uvloop": True},
     )
+
+
+@containerize
+async def _list_duplicates(container: Container) -> None:
+    await container[ListDuplicatesCommand](container[Settings])
 
 
 @click.command()
@@ -124,11 +153,19 @@ def list_duplicates(ctx: click.Context) -> None:
     """List duplicate payees in the YNAB budget."""
 
     ctx.ensure_object(dict)
+    settings: Settings = ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())
+    ctx.obj[CONTEXT_KEY_SETTINGS] = settings
+
     anyio.run(
         _list_duplicates,
-        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        settings,
         backend_options={"use_uvloop": True},
     )
+
+
+@containerize
+async def _list_unused(container: Container, prefix_unused: bool) -> None:
+    await container[ListUnusedCommand](container[Settings], prefix_unused)
 
 
 @click.command()
@@ -138,12 +175,20 @@ def list_unused(ctx: click.Context, prefix_unused: bool) -> None:
     """List unused payees in the YNAB budget."""
 
     ctx.ensure_object(dict)
+    settings: Settings = ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())
+    ctx.obj[CONTEXT_KEY_SETTINGS] = settings
+
     anyio.run(
         _list_unused,
-        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        settings,
         prefix_unused,
         backend_options={"use_uvloop": True},
     )
+
+
+@containerize
+async def _list_all(container: Container) -> None:
+    await container[ListAllCommand](container[Settings])
 
 
 @click.command()
@@ -152,9 +197,12 @@ def list_all(ctx: click.Context) -> None:
     """List all payees in the YNAB budget."""
 
     ctx.ensure_object(dict)
+    settings: Settings = ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())
+    ctx.obj[CONTEXT_KEY_SETTINGS] = settings
+
     anyio.run(
         _list_all,
-        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        settings,
         backend_options={"use_uvloop": True},
     )
 

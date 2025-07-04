@@ -134,7 +134,7 @@ async def test_normalize_names(mocker: MockerFixture, mock_io: MagicMock, empty_
     params: use_cases.NormalizeNamesParams = {}
 
     results: list[tuple[models.Payee, str]] = []
-    async for result in use_cases.normalize_names(settings, mock_io, params):
+    async for result in use_cases.NormalizeNames(mock_io, MagicMock())(settings, params):
         payee, name = result
         assert isinstance(payee, models.Payee)
         assert isinstance(name, str)
@@ -165,7 +165,7 @@ async def test_normalize_names_exception(
     settings = Settings()
     params: use_cases.NormalizeNamesParams = {}
 
-    async for _ in use_cases.normalize_names(settings, mock_io, params):
+    async for _ in use_cases.NormalizeNames(mock_io, MagicMock())(settings, params):
         pass
 
     mock_io.print.assert_called_with(expected_print)
@@ -196,7 +196,7 @@ async def test_list_duplicates(mocker: MockerFixture, mock_io: MagicMock, empty_
     params: use_cases.ListDuplicatesParams = {}
 
     results: list[tuple[models.Payee, models.Payee]] = []
-    async for result in use_cases.list_duplicates(settings, mock_io, params):
+    async for result in use_cases.ListDuplicates(mock_io, MagicMock())(settings, params):
         payee_1, payee_other_1 = result
         assert isinstance(payee_1, models.Payee)
         assert isinstance(payee_other_1, models.Payee)
@@ -226,7 +226,7 @@ async def test_list_duplicates_exception(
     settings = Settings()
     params: use_cases.ListDuplicatesParams = {}
 
-    async for _ in use_cases.list_duplicates(settings, mock_io, params):
+    async for _ in use_cases.ListDuplicates(mock_io, MagicMock())(settings, params):
         pass
 
     mock_io.print.assert_called_with(expected_print)
@@ -272,7 +272,7 @@ async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock, empty_uuid
     }
 
     results: list[models.Payee] = []
-    async for result in use_cases.list_unused(settings, mock_io, params):
+    async for result in use_cases.ListUnused(mock_io, MagicMock())(settings, params):
         assert isinstance(result, models.Payee)
         assert result.name in ["Payee 1"]
         results.append(result)
@@ -302,7 +302,7 @@ async def test_list_unused_exception(
         "prefix_unused": True,
     }
 
-    async for _ in use_cases.list_unused(settings, mock_io, params):
+    async for _ in use_cases.ListUnused(mock_io, MagicMock())(settings, params):
         pass
 
     mock_io.print.assert_called_with(expected_print)
@@ -333,7 +333,7 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock, empty_uuid: U
     params: use_cases.ListAllParams = {}
 
     results = []
-    async for result in use_cases.list_all(settings, mock_io, params):
+    async for result in use_cases.ListAll(mock_io, MagicMock())(settings, params):
         assert isinstance(result, models.Payee)
         assert result.name in ["Payee 1", "Payee 2"]
         results.append(result)
@@ -360,7 +360,7 @@ async def test_list_all_exception(
     settings = Settings()
     params: use_cases.ListAllParams = {}
 
-    async for _ in use_cases.list_all(settings, mock_io, params):
+    async for _ in use_cases.ListAll(mock_io, MagicMock())(settings, params):
         pass
 
     mock_io.print.assert_called_with(expected_print)

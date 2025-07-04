@@ -28,10 +28,11 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
         ),
     )
 
+    use_case = use_cases.ListAll(mock_io, MagicMock())
     settings = Settings()
     params: use_cases.ListAllParams = {}
 
-    budgets = [budget async for budget in use_cases.list_all(settings, mock_io, params)]
+    budgets = [budget async for budget in use_case(settings, params)]
 
     assert len(budgets) == 1
     assert budgets[0].name == "Budget 1"
@@ -53,10 +54,11 @@ async def test_list_all_exception(
     mock_get_budgets.asyncio_detailed = AsyncMock()
     mock_get_budgets.asyncio_detailed.side_effect = exception
 
+    use_case = use_cases.ListAll(mock_io, MagicMock())
     settings = Settings()
     params: use_cases.ListAllParams = {}
 
-    async for _ in use_cases.list_all(settings, mock_io, params):
+    async for _ in use_case(settings, params):
         pass
 
     mock_io.print.assert_called_with(expected_print)

@@ -3,6 +3,8 @@ from unittest import mock
 import pytest
 from textual.widgets import Checkbox, Input
 
+from ynab_cli.adapters.ynab.client import AuthenticatedClient
+from ynab_cli.domain.constants import YNAB_API_URL
 from ynab_cli.domain.settings import Settings
 from ynab_cli.host.textual.app import SettingsDialogForm, YnabCliApp
 
@@ -38,7 +40,10 @@ async def test_settings_dialog_form_get_result(monkeypatch: pytest.MonkeyPatch) 
 
 def test_ynab_cli_app_initialization() -> None:
     settings = Settings()
-    app = YnabCliApp(settings)
+    client = AuthenticatedClient(YNAB_API_URL, settings.ynab.access_token)
+    app = YnabCliApp(settings, client)
+
     assert app.settings == settings
+    assert app.client == client
     assert app.TITLE == "YNAB CLI"
     assert isinstance(app.BINDINGS, list)

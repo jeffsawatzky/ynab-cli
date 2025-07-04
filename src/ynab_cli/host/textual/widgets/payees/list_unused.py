@@ -1,4 +1,4 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from textual.app import ComposeResult
 from textual.widgets import Checkbox, DataTable, Log, ProgressBar
@@ -8,6 +8,9 @@ from ynab_cli.adapters.textual.io import TextualIO
 from ynab_cli.domain.use_cases import payees as use_cases
 from ynab_cli.host.textual.widgets.common.command_widget import CommandWidget
 from ynab_cli.host.textual.widgets.common.dialogs import CANCELLED, DialogForm, SaveCancelDialogScreen
+
+if TYPE_CHECKING:
+    from ynab_cli.host.textual.app import YnabCliApp
 
 
 class ListUnusedParamsDialogForm(DialogForm[use_cases.ListUnusedParams]):
@@ -54,7 +57,9 @@ class ListUnusedCommand(CommandWidget):
         table = self.query_one(DataTable)
         log = self.query_one(Log)
 
-        async for payee in use_cases.list_unused(self.settings, TextualIO(self.app, log, progress_bar), self._params):
+        async for payee in use_cases.ListUnused(
+            TextualIO(self.app, log, progress_bar), cast("YnabCliApp", self.app).client
+        )(self.settings, self._params):
             table.add_row(
                 payee.id,
                 payee.name,

@@ -1,9 +1,14 @@
+from typing import TYPE_CHECKING, cast
+
 from textual.widgets import DataTable, Log, ProgressBar
 from typing_extensions import override
 
 from ynab_cli.adapters.textual.io import TextualIO
 from ynab_cli.domain.use_cases import payees as use_cases
 from ynab_cli.host.textual.widgets.common.command_widget import CommandWidget
+
+if TYPE_CHECKING:
+    from ynab_cli.host.textual.app import YnabCliApp
 
 
 class ListDuplicatesCommand(CommandWidget):
@@ -24,9 +29,9 @@ class ListDuplicatesCommand(CommandWidget):
         table = self.query_one(DataTable)
         log = self.query_one(Log)
 
-        async for payee, duplicate_payee in use_cases.list_duplicates(
-            self.settings, TextualIO(self.app, log, progress_bar), params
-        ):
+        async for payee, duplicate_payee in use_cases.ListDuplicates(
+            TextualIO(self.app, log, progress_bar), cast("YnabCliApp", self.app).client
+        )(self.settings, params):
             table.add_row(
                 payee.id,
                 payee.name,
