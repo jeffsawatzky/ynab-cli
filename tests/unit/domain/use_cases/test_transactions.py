@@ -144,7 +144,7 @@ async def test_apply_rules(mocker: MockerFixture, mock_io: MagicMock) -> None:
     }
 
     results: list[tuple[models.TransactionDetail, models.SaveTransactionWithIdOrImportId]] = []
-    async for result in use_cases.apply_rules(settings, mock_io, params):
+    async for result in use_cases.ApplyRules(mock_io, MagicMock())(settings, params):
         transaction_detail, save_transaction = result
         assert isinstance(transaction_detail, models.TransactionDetail)
         assert isinstance(save_transaction, models.SaveTransactionWithIdOrImportId)
@@ -174,7 +174,7 @@ async def test_apply_rules_exception(
         "transaction_rules": rules.TransactionRules.from_dict({"transaction_rules": []})
     }
 
-    async for _ in use_cases.apply_rules(settings, mock_io, params):
+    async for _ in use_cases.ApplyRules(mock_io, MagicMock())(settings, params):
         pass
 
     mock_io.print.assert_called_with(expected_print)

@@ -7,7 +7,6 @@ from ynab_cli.adapters import ynab
 from ynab_cli.adapters.ynab import models, util
 from ynab_cli.adapters.ynab.api.transactions import get_transactions, update_transactions
 from ynab_cli.domain import ports
-from ynab_cli.domain.constants import YNAB_API_URL
 from ynab_cli.domain.models import rules
 from ynab_cli.domain.settings import Settings
 
@@ -43,22 +42,25 @@ class ApplyRulesParams(TypedDict):
     transaction_rules: rules.TransactionRules
 
 
-async def apply_rules(
-    settings: Settings, io: ports.IO, params: ApplyRulesParams, *, client: ynab.AuthenticatedClient | None = None
-) -> AsyncIterator[tuple[models.TransactionDetail, models.SaveTransactionWithIdOrImportId]]:
-    try:
-        progress_total = 0
+class ApplyRules:
+    """Use case for applying rules to transactions."""
 
-        if client is None:
-            client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
+    def __init__(self, io: ports.IO, client: ynab.AuthenticatedClient):
+        self._io = io
+        self._client = client
 
-        async with client:
+    async def __call__(
+        self, settings: Settings, params: ApplyRulesParams
+    ) -> AsyncIterator[tuple[models.TransactionDetail, models.SaveTransactionWithIdOrImportId]]:
+        try:
+            progress_total = 0
+
             transactions = (
                 await util.get_asyncio_detailed(
-                    io,
+                    self._io,
                     get_transactions.asyncio_detailed,
                     settings.ynab.budget_id,
-                    client=client,
+                    client=self._client,
                     type_=models.GetTransactionsType.UNAPPROVED,
                 )
             ).data.transactions
@@ -67,9 +69,9 @@ async def apply_rules(
             save_transactions = []
 
             progress_total = len(transactions)
-            await io.progress.update(total=progress_total)
+            await self._io.progress.update(total=progress_total)
             for transaction in transactions:
-                await io.progress.update(advance=1)
+                await self._io.progress.update(advance=1)
 
                 if _should_skip_transaction(transaction=transaction):
                     continue
@@ -85,19 +87,19 @@ async def apply_rules(
 
             if save_transactions:
                 await util.run_asyncio_detailed(
-                    io,
+                    self._io,
                     update_transactions.asyncio_detailed,
                     settings.ynab.budget_id,
-                    client=client,
+                    client=self._client,
                     body=models.PatchTransactionsWrapper(transactions=save_transactions),
                 )
 
-    except Exception as e:
-        if isinstance(e, util.ApiError) and e.status_code == 401:
-            await io.print("Invalid or expired access token. Please update your settings.")
-        elif isinstance(e, util.ApiError) and e.status_code == 429:
-            await io.print("API rate limit exceeded. Try again later, or get a new access token.")
-        else:
-            await io.print(f"Exception when calling YNAB: {e}")
-    finally:
-        await io.progress.update(total=progress_total, completed=progress_total)
+        except Exception as e:
+            if isinstance(e, util.ApiError) and e.status_code == 401:
+                await self._io.print("Invalid or expired access token. Please update your settings.")
+            elif isinstance(e, util.ApiError) and e.status_code == 429:
+                await self._io.print("API rate limit exceeded. Try again later, or get a new access token.")
+            else:
+                await self._io.print(f"Exception when calling YNAB: {e}")
+        finally:
+            await self._io.progress.update(total=progress_total, completed=progress_total)

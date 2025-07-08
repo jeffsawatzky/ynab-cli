@@ -3,50 +3,57 @@ from typing import IO, Any
 
 import anyio
 import click
-from rich.table import Table
+from lagom import Container
 
-from ynab_cli.adapters.rich import io
 from ynab_cli.domain.models import rules
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import transactions as use_cases
 from ynab_cli.host.click.commands.rich.progress_table import ProgressTable
+from ynab_cli.host.click.container import containerize
 from ynab_cli.host.constants import CONTEXT_KEY_SETTINGS, ENV_PREFIX
 
 
-async def _apply_rules(settings: Settings, transaction_rules: rules.TransactionRules) -> None:
-    params: use_cases.ApplyRulesParams = {
-        "transaction_rules": transaction_rules,
-    }
+class ApplyRulesCommand:
+    def __init__(self, use_case: use_cases.ApplyRules, progress_table: ProgressTable) -> None:
+        self._use_case = use_case
+        self._progress_table = progress_table
 
-    table = Table(title="Updated Transactions")
-    table.add_column("Transaction Id")
-    table.add_column("Transaction Date")
-    table.add_column("Transaction Payee")
-    table.add_column("Transaction Category")
-    table.add_column("Transaction Memo")
-    table.add_column("Transaction Amount")
-    table.add_column("Transaction Changes")
+        self._progress_table.table.title = "Applying Transaction Rules"
+        self._progress_table.table.add_column("Transaction Id")
+        self._progress_table.table.add_column("Transaction Date")
+        self._progress_table.table.add_column("Transaction Payee")
+        self._progress_table.table.add_column("Transaction Category")
+        self._progress_table.table.add_column("Transaction Memo")
+        self._progress_table.table.add_column("Transaction Amount")
+        self._progress_table.table.add_column("Transaction Changes")
 
-    console = None
-    with ProgressTable(table) as progress:
-        console = progress.console
+    async def __call__(self, settings: Settings, transaction_rules: rules.TransactionRules) -> None:
+        params: use_cases.ApplyRulesParams = {
+            "transaction_rules": transaction_rules,
+        }
 
-        task_id = progress.add_task("Updating transactions...")
-        async for transaction, save_transaction in use_cases.apply_rules(
-            settings, io.RichIO((progress, task_id)), params
-        ):
-            table.add_row(
-                transaction.id,
-                transaction.date.isoformat(),
-                str(transaction.payee_name),
-                str(transaction.category_name),
-                str(transaction.memo),
-                str(transaction.amount),
-                str(save_transaction.to_dict()),
-            )
+        console = None
+        with self._progress_table:
+            console = self._progress_table.console
 
-    if console:
-        console.print(table)
+            async for transaction, save_transaction in self._use_case(settings, params):
+                self._progress_table.table.add_row(
+                    transaction.id,
+                    transaction.date.isoformat(),
+                    str(transaction.payee_name),
+                    str(transaction.category_name),
+                    str(transaction.memo),
+                    str(transaction.amount),
+                    str(save_transaction.to_dict()),
+                )
+
+        if console:
+            console.print(self._progress_table.table)
+
+
+@containerize
+async def _apply_rules(container: Container, transaction_rules: rules.TransactionRules) -> None:
+    await container[ApplyRulesCommand](container[Settings], transaction_rules)
 
 
 @click.command()
@@ -59,12 +66,14 @@ def apply_rules(ctx: click.Context, rules_file: IO[Any]) -> None:
     """
 
     ctx.ensure_object(dict)
+    settings: Settings = ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())
+    ctx.obj[CONTEXT_KEY_SETTINGS] = settings
 
     transaction_rules = rules.TransactionRules.from_dict(json.load(rules_file))
 
     anyio.run(
         _apply_rules,
-        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        settings,
         transaction_rules,
         backend_options={"use_uvloop": True},
     )

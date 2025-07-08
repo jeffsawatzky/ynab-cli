@@ -1,128 +1,177 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 from rich import progress as rich_progress
 from rich import prompt as rich_prompt
+from rich.console import Console
 
 from ynab_cli.adapters.rich.io import RichIO, RichProgress
 
 
 class TestRichProgress:
-    @pytest.fixture
-    def mock_progress(self) -> tuple[MagicMock, rich_progress.TaskID]:
-        progress = MagicMock(spec=rich_progress.Progress)
-        task_id = rich_progress.TaskID(1)
-        return progress, task_id
+    def test_init_creates_task(self) -> None:
+        """Test that RichProgress initializes with a task."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
 
-    @pytest.fixture
-    def rich_progress_instance(self, mock_progress: tuple[MagicMock, rich_progress.TaskID]) -> RichProgress:
-        return RichProgress(mock_progress)
+        rich_progress_instance = RichProgress(mock_progress)
+
+        assert rich_progress_instance._progress == mock_progress
+        assert rich_progress_instance._task_id == 1
+        mock_progress.add_task.assert_called_once_with("Loading...")
 
     @pytest.mark.anyio
-    async def test_update_starts_task_if_not_started(
-        self, rich_progress_instance: RichProgress, mock_progress: tuple[MagicMock, rich_progress.TaskID]
-    ) -> None:
-        progress, task_id = mock_progress
-        mock_task = MagicMock()
+    async def test_update_starts_task_if_not_started(self) -> None:
+        """Test that update starts task if not already started."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
+        mock_task = Mock()
         mock_task.started = False
-        progress.tasks = {task_id: mock_task}
+        mock_progress.tasks = {1: mock_task}
+
+        rich_progress_instance = RichProgress(mock_progress)
 
         await rich_progress_instance.update(total=100.0)
 
-        progress.start_task.assert_called_once_with(task_id)
-        progress.update.assert_called_once_with(task_id, total=100.0, completed=None, advance=None)
+        mock_progress.start_task.assert_called_once_with(1)
+        mock_progress.update.assert_called_once_with(1, total=100.0, completed=None, advance=None)
 
     @pytest.mark.anyio
-    async def test_update_does_not_start_task_if_already_started(
-        self, rich_progress_instance: RichProgress, mock_progress: tuple[MagicMock, rich_progress.TaskID]
-    ) -> None:
-        progress, task_id = mock_progress
-        mock_task = MagicMock()
+    async def test_update_does_not_start_task_if_already_started(self) -> None:
+        """Test that update doesn't start task if already started."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
+        mock_task = Mock()
         mock_task.started = True
-        progress.tasks = {task_id: mock_task}
+        mock_progress.tasks = {1: mock_task}
+
+        rich_progress_instance = RichProgress(mock_progress)
 
         await rich_progress_instance.update(completed=50.0)
 
-        progress.start_task.assert_not_called()
-        progress.update.assert_called_once_with(task_id, total=None, completed=50.0, advance=None)
+        mock_progress.start_task.assert_not_called()
+        mock_progress.update.assert_called_once_with(1, total=None, completed=50.0, advance=None)
 
     @pytest.mark.anyio
-    async def test_update_with_all_parameters(
-        self, rich_progress_instance: RichProgress, mock_progress: tuple[MagicMock, rich_progress.TaskID]
-    ) -> None:
-        progress, task_id = mock_progress
-        mock_task = MagicMock()
+    async def test_update_with_all_parameters(self) -> None:
+        """Test update with all parameters provided."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
+        mock_task = Mock()
         mock_task.started = True
-        progress.tasks = {task_id: mock_task}
+        mock_progress.tasks = {1: mock_task}
 
-        await rich_progress_instance.update(total=100.0, completed=75.0, advance=25.0)
+        rich_progress_instance = RichProgress(mock_progress)
 
-        progress.update.assert_called_once_with(task_id, total=100.0, completed=75.0, advance=25.0)
+        await rich_progress_instance.update(total=100.0, completed=25.0, advance=5.0)
+
+        mock_progress.update.assert_called_once_with(1, total=100.0, completed=25.0, advance=5.0)
 
 
 class TestRichIO:
-    @pytest.fixture
-    def mock_progress_info(self) -> tuple[MagicMock, rich_progress.TaskID]:
-        progress = MagicMock(spec=rich_progress.Progress)
-        task_id = rich_progress.TaskID(1)
-        progress.console = MagicMock()
-        return progress, task_id
+    def test_init_creates_progress(self) -> None:
+        """Test that RichIO initializes with RichProgress instance."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
 
-    @pytest.fixture
-    def rich_io_instance(self, mock_progress_info: tuple[MagicMock, rich_progress.TaskID]) -> RichIO:
-        return RichIO(mock_progress_info)
+        rich_io = RichIO(mock_progress)
 
-    def test_init_creates_rich_progress(self, mock_progress_info: tuple[MagicMock, rich_progress.TaskID]) -> None:
-        rich_io = RichIO(mock_progress_info)
-
+        assert rich_io._progress == mock_progress
         assert isinstance(rich_io.progress, RichProgress)
-        assert rich_io._progress == mock_progress_info[0]
+        assert rich_io.progress._progress == mock_progress
 
     @pytest.mark.anyio
-    async def test_prompt_stops_and_starts_progress(
-        self, rich_io_instance: RichIO, mock_progress_info: tuple[MagicMock, rich_progress.TaskID]
-    ) -> None:
-        progress, _ = mock_progress_info
+    async def test_prompt_stops_and_starts_progress(self) -> None:
+        """Test that prompt stops progress before asking and starts after."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
+        mock_console = Mock(spec=Console)
+        mock_progress.console = mock_console
+
+        rich_io = RichIO(mock_progress)
 
         with patch.object(rich_prompt.Prompt, "ask", return_value="user_input") as mock_ask:
-            result = await rich_io_instance.prompt("Enter value:")
+            result = await rich_io.prompt("Enter value:")
 
-            progress.stop.assert_called_once()
-            progress.start.assert_called_once()
-            mock_ask.assert_called_once_with("Enter value:", console=progress.console, password=False)
             assert result == "user_input"
+            mock_progress.stop.assert_called_once()
+            mock_progress.start.assert_called_once()
+            mock_ask.assert_called_once_with("Enter value:", console=mock_console, password=False)
 
     @pytest.mark.anyio
-    async def test_prompt_with_password(
-        self, rich_io_instance: RichIO, mock_progress_info: tuple[MagicMock, rich_progress.TaskID]
-    ) -> None:
-        progress, _ = mock_progress_info
+    async def test_prompt_with_password_true(self) -> None:
+        """Test prompt with password=True."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
+        mock_console = Mock(spec=Console)
+        mock_progress.console = mock_console
+
+        rich_io = RichIO(mock_progress)
 
         with patch.object(rich_prompt.Prompt, "ask", return_value="secret") as mock_ask:
-            result = await rich_io_instance.prompt("Enter password:", password=True)
+            result = await rich_io.prompt("Enter password:", password=True)
 
-            mock_ask.assert_called_once_with("Enter password:", console=progress.console, password=True)
             assert result == "secret"
+            mock_ask.assert_called_once_with("Enter password:", console=mock_console, password=True)
 
     @pytest.mark.anyio
-    async def test_prompt_starts_progress_even_on_exception(
-        self, rich_io_instance: RichIO, mock_progress_info: tuple[MagicMock, rich_progress.TaskID]
-    ) -> None:
-        progress, _ = mock_progress_info
+    async def test_prompt_restarts_progress_on_exception(self) -> None:
+        """Test that progress is restarted even if prompt raises exception."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
+        mock_console = Mock(spec=Console)
+        mock_progress.console = mock_console
 
-        with patch.object(rich_prompt.Prompt, "ask", side_effect=Exception("Test error")):
-            with pytest.raises(Exception, match="Test error"):
-                await rich_io_instance.prompt("Enter value:")
+        rich_io = RichIO(mock_progress)
 
-            progress.stop.assert_called_once()
-            progress.start.assert_called_once()
+        with patch.object(rich_prompt.Prompt, "ask", side_effect=KeyboardInterrupt()):
+            with pytest.raises(KeyboardInterrupt):
+                await rich_io.prompt("Enter value:")
+
+            mock_progress.stop.assert_called_once()
+            mock_progress.start.assert_called_once()
 
     @pytest.mark.anyio
-    async def test_print(
-        self, rich_io_instance: RichIO, mock_progress_info: tuple[MagicMock, rich_progress.TaskID]
-    ) -> None:
-        progress, _ = mock_progress_info
+    async def test_print_uses_console_print(self) -> None:
+        """Test that print uses the progress console."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
+        mock_console = Mock(spec=Console)
+        mock_progress.console = mock_console
 
-        await rich_io_instance.print("Hello, World!")
+        rich_io = RichIO(mock_progress)
 
-        progress.console.print.assert_called_once_with("Hello, World!")
+        await rich_io.print("Hello, world!")
+
+        mock_console.print.assert_called_once_with("Hello, world!")
+
+    @pytest.mark.anyio
+    async def test_print_with_rich_markup(self) -> None:
+        """Test print with rich markup."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
+        mock_console = Mock(spec=Console)
+        mock_progress.console = mock_console
+
+        rich_io = RichIO(mock_progress)
+
+        await rich_io.print("[bold red]Error:[/bold red] Something went wrong")
+
+        mock_console.print.assert_called_once_with("[bold red]Error:[/bold red] Something went wrong")
+
+    @pytest.mark.anyio
+    async def test_progress_integration(self) -> None:
+        """Test that the progress instance works correctly with the IO."""
+        mock_progress = Mock(spec=rich_progress.Progress)
+        mock_progress.add_task.return_value = 1
+        mock_task = Mock()
+        mock_task.started = False
+        mock_progress.tasks = {1: mock_task}
+
+        rich_io = RichIO(mock_progress)
+
+        # Test that we can use the progress instance
+        await rich_io.progress.update(total=100.0, completed=25.0)
+
+        mock_progress.start_task.assert_called_once_with(1)
+        mock_progress.update.assert_called_once_with(1, total=100.0, completed=25.0, advance=None)

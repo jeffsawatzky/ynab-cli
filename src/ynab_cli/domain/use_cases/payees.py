@@ -10,7 +10,7 @@ from ynab_cli.adapters.ynab import models, util
 from ynab_cli.adapters.ynab.api.payees import get_payees, update_payee
 from ynab_cli.adapters.ynab.api.transactions import get_transactions_by_payee
 from ynab_cli.domain import ports
-from ynab_cli.domain.constants import UNUSED_PREFIX, YNAB_API_URL
+from ynab_cli.domain.constants import UNUSED_PREFIX
 from ynab_cli.domain.settings import Settings
 
 
@@ -44,25 +44,30 @@ class NormalizeNamesParams(TypedDict):
     pass
 
 
-async def normalize_names(
-    settings: Settings, io: ports.IO, params: NormalizeNamesParams, *, client: ynab.AuthenticatedClient | None = None
-) -> AsyncIterator[tuple[models.Payee, str]]:
-    try:
-        progress_total = 0
+class NormalizeNames:
+    """Use case for normalizing payee names."""
 
-        if client is None:
-            client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
+    def __init__(self, io: ports.IO, client: ynab.AuthenticatedClient):
+        self._io = io
+        self._client = client
 
-        async with client:
+    async def __call__(
+        self, settings: Settings, params: NormalizeNamesParams
+    ) -> AsyncIterator[tuple[models.Payee, str]]:
+        try:
+            progress_total = 0
+
             payees = (
-                await util.get_asyncio_detailed(io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=client)
+                await util.get_asyncio_detailed(
+                    self._io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=self._client
+                )
             ).data.payees
             payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
-            await io.progress.update(total=progress_total)
+            await self._io.progress.update(total=progress_total)
             for payee in payees:
-                await io.progress.update(advance=1)
+                await self._io.progress.update(advance=1)
 
                 if _should_skip_payee(payee=payee):
                     continue
@@ -73,50 +78,55 @@ async def normalize_names(
 
                     if not settings.dry_run:
                         await util.run_asyncio_detailed(
-                            io,
+                            self._io,
                             update_payee.asyncio_detailed,
                             settings.ynab.budget_id,
                             str(payee.id),
-                            client=client,
+                            client=self._client,
                             body=models.PatchPayeeWrapper(payee=models.SavePayee(name=normalized_name)),
                         )
 
-    except Exception as e:
-        if isinstance(e, util.ApiError) and e.status_code == 401:
-            await io.print("Invalid or expired access token. Please update your settings.")
-        elif isinstance(e, util.ApiError) and e.status_code == 429:
-            await io.print("API rate limit exceeded. Try again later, or get a new access token.")
-        else:
-            await io.print(f"Exception when calling YNAB: {e}")
-    finally:
-        await io.progress.update(total=progress_total, completed=progress_total)
+        except Exception as e:
+            if isinstance(e, util.ApiError) and e.status_code == 401:
+                await self._io.print("Invalid or expired access token. Please update your settings.")
+            elif isinstance(e, util.ApiError) and e.status_code == 429:
+                await self._io.print("API rate limit exceeded. Try again later, or get a new access token.")
+            else:
+                await self._io.print(f"Exception when calling YNAB: {e}")
+        finally:
+            await self._io.progress.update(total=progress_total, completed=progress_total)
 
 
 class ListDuplicatesParams(TypedDict):
     pass
 
 
-async def list_duplicates(
-    settings: Settings, io: ports.IO, params: ListDuplicatesParams, *, client: ynab.AuthenticatedClient | None = None
-) -> AsyncIterator[tuple[models.Payee, models.Payee]]:
-    try:
-        progress_total = 0
+class ListDuplicates:
+    """Use case for listing duplicate payees."""
 
-        if client is None:
-            client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
+    def __init__(self, io: ports.IO, client: ynab.AuthenticatedClient):
+        self._io = io
+        self._client = client
 
-        async with client:
+    async def __call__(
+        self, settings: Settings, params: ListDuplicatesParams
+    ) -> AsyncIterator[tuple[models.Payee, models.Payee]]:
+        try:
+            progress_total = 0
+
             possible_duplicates: dict[tuple[UUID, str], list[tuple[UUID, str]]] = {}
 
             payees = (
-                await util.get_asyncio_detailed(io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=client)
+                await util.get_asyncio_detailed(
+                    self._io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=self._client
+                )
             ).data.payees
             payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
-            await io.progress.update(total=progress_total)
+            await self._io.progress.update(total=progress_total)
             for idx, payee in enumerate(payees):
-                await io.progress.update(advance=1)
+                await self._io.progress.update(advance=1)
 
                 if _should_skip_payee(payee=payee):
                     continue
@@ -144,51 +154,54 @@ async def list_duplicates(
 
                         yield (payee, filtered_payee)
 
-    except Exception as e:
-        if isinstance(e, util.ApiError) and e.status_code == 401:
-            await io.print("Invalid or expired access token. Please update your settings.")
-        elif isinstance(e, util.ApiError) and e.status_code == 429:
-            await io.print("API rate limit exceeded. Try again later, or get a new access token.")
-        else:
-            await io.print(f"Exception when calling YNAB: {e}")
-    finally:
-        await io.progress.update(total=progress_total, completed=progress_total)
+        except Exception as e:
+            if isinstance(e, util.ApiError) and e.status_code == 401:
+                await self._io.print("Invalid or expired access token. Please update your settings.")
+            elif isinstance(e, util.ApiError) and e.status_code == 429:
+                await self._io.print("API rate limit exceeded. Try again later, or get a new access token.")
+            else:
+                await self._io.print(f"Exception when calling YNAB: {e}")
+        finally:
+            await self._io.progress.update(total=progress_total, completed=progress_total)
 
 
 class ListUnusedParams(TypedDict):
     prefix_unused: bool
 
 
-async def list_unused(
-    settings: Settings, io: ports.IO, params: ListUnusedParams, *, client: ynab.AuthenticatedClient | None = None
-) -> AsyncIterator[models.Payee]:
-    try:
-        progress_total = 0
+class ListUnused:
+    """Use case for listing unused payees."""
 
-        if client is None:
-            client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
+    def __init__(self, io: ports.IO, client: ynab.AuthenticatedClient):
+        self._io = io
+        self._client = client
 
-        async with client:
+    async def __call__(self, settings: Settings, params: ListUnusedParams) -> AsyncIterator[models.Payee]:
+        try:
+            progress_total = 0
+
             payees = (
-                await util.get_asyncio_detailed(io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=client)
+                await util.get_asyncio_detailed(
+                    self._io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=self._client
+                )
             ).data.payees
             payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
-            await io.progress.update(total=progress_total)
+            await self._io.progress.update(total=progress_total)
             for payee in payees:
-                await io.progress.update(advance=1)
+                await self._io.progress.update(advance=1)
 
                 if _should_skip_payee(payee=payee):
                     continue
 
                 transactions = (
                     await util.get_asyncio_detailed(
-                        io,
+                        self._io,
                         get_transactions_by_payee.asyncio_detailed,
                         settings.ynab.budget_id,
                         str(payee.id),
-                        client=client,
+                        client=self._client,
                     )
                 ).data.transactions
                 num_transactions = len(transactions)
@@ -201,60 +214,63 @@ async def list_unused(
                     if not settings.dry_run and params.get("prefix_unused", False):
                         new_name = f"{UNUSED_PREFIX} {payee.name}"
                         await util.run_asyncio_detailed(
-                            io,
+                            self._io,
                             update_payee.asyncio_detailed,
                             settings.ynab.budget_id,
                             str(payee.id),
-                            client=client,
+                            client=self._client,
                             body=models.PatchPayeeWrapper(payee=models.SavePayee(name=new_name)),
                         )
 
-    except Exception as e:
-        if isinstance(e, util.ApiError) and e.status_code == 401:
-            await io.print("Invalid or expired access token. Please update your settings.")
-        elif isinstance(e, util.ApiError) and e.status_code == 429:
-            await io.print("API rate limit exceeded. Try again later, or get a new access token.")
-        else:
-            await io.print(f"Exception when calling YNAB: {e}")
-    finally:
-        await io.progress.update(total=progress_total, completed=progress_total)
+        except Exception as e:
+            if isinstance(e, util.ApiError) and e.status_code == 401:
+                await self._io.print("Invalid or expired access token. Please update your settings.")
+            elif isinstance(e, util.ApiError) and e.status_code == 429:
+                await self._io.print("API rate limit exceeded. Try again later, or get a new access token.")
+            else:
+                await self._io.print(f"Exception when calling YNAB: {e}")
+        finally:
+            await self._io.progress.update(total=progress_total, completed=progress_total)
 
 
 class ListAllParams(TypedDict):
     pass
 
 
-async def list_all(
-    settings: Settings, io: ports.IO, params: ListAllParams, *, client: ynab.AuthenticatedClient | None = None
-) -> AsyncIterator[models.Payee]:
-    try:
-        progress_total = 0
+class ListAll:
+    """Use case for listing all payees."""
 
-        if client is None:
-            client = ynab.AuthenticatedClient(base_url=YNAB_API_URL, token=settings.ynab.access_token)
+    def __init__(self, io: ports.IO, client: ynab.AuthenticatedClient):
+        self._io = io
+        self._client = client
 
-        async with client:
+    async def __call__(self, settings: Settings, params: ListAllParams) -> AsyncIterator[models.Payee]:
+        try:
+            progress_total = 0
+
             payees = (
-                await util.get_asyncio_detailed(io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=client)
+                await util.get_asyncio_detailed(
+                    self._io, get_payees.asyncio_detailed, settings.ynab.budget_id, client=self._client
+                )
             ).data.payees
             payees.sort(key=lambda p: p.name)
 
             progress_total = len(payees)
-            await io.progress.update(total=progress_total)
+            await self._io.progress.update(total=progress_total)
             for payee in payees:
-                await io.progress.update(advance=1)
+                await self._io.progress.update(advance=1)
 
                 if _should_skip_payee(payee=payee):
                     continue
 
                 yield payee
 
-    except Exception as e:
-        if isinstance(e, util.ApiError) and e.status_code == 401:
-            await io.print("Invalid or expired access token. Please update your settings.")
-        elif isinstance(e, util.ApiError) and e.status_code == 429:
-            await io.print("API rate limit exceeded. Try again later, or get a new access token.")
-        else:
-            await io.print(f"Exception when calling YNAB: {e}")
-    finally:
-        await io.progress.update(total=progress_total, completed=progress_total)
+        except Exception as e:
+            if isinstance(e, util.ApiError) and e.status_code == 401:
+                await self._io.print("Invalid or expired access token. Please update your settings.")
+            elif isinstance(e, util.ApiError) and e.status_code == 429:
+                await self._io.print("API rate limit exceeded. Try again later, or get a new access token.")
+            else:
+                await self._io.print(f"Exception when calling YNAB: {e}")
+        finally:
+            await self._io.progress.update(total=progress_total, completed=progress_total)

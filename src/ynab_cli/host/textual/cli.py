@@ -2,16 +2,20 @@ import logging
 
 import anyio
 import click
+from lagom import Container
 from textual.logging import TextualHandler
 
+from ynab_cli.adapters.ynab.client import AuthenticatedClient
 from ynab_cli.domain.settings import Settings, YnabSettings
 from ynab_cli.host.constants import CONTEXT_KEY_SETTINGS, ENV_PREFIX
 from ynab_cli.host.textual.app import YnabCliApp
+from ynab_cli.host.textual.container import containerize
 
 
-async def _tui(settings: Settings) -> None:
-    app = YnabCliApp(settings)
-    await app.run_async()
+@containerize
+async def _tui(container: Container) -> None:
+    async with container[AuthenticatedClient]:
+        await container[YnabCliApp].run_async()
 
 
 @click.command()
@@ -30,7 +34,6 @@ def tui(
     ctx.ensure_object(dict)
     settings: Settings = ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())
     settings.ynab = YnabSettings(access_token=access_token, budget_id=budget_id)
-    ctx.obj[CONTEXT_KEY_SETTINGS] = settings
 
     logging.basicConfig(
         level="DEBUG" if settings.debug else "WARNING",  # NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -41,6 +44,6 @@ def tui(
 
     anyio.run(
         _tui,
-        ctx.obj[CONTEXT_KEY_SETTINGS],
+        settings,
         backend_options={"use_uvloop": True},
     )

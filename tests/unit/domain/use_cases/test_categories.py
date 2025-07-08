@@ -140,7 +140,7 @@ async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock, empty_uuid
     params: use_cases.ListUnusedParams = {}
 
     results: list[models.Category] = []
-    async for result in use_cases.list_unused(settings, mock_io, params):
+    async for result in use_cases.ListUnused(mock_io, MagicMock())(settings, params):
         assert isinstance(result, models.Category)
         assert result.name in ["Category 1"]
         results.append(result)
@@ -167,7 +167,7 @@ async def test_list_unused_exception(
     settings = Settings()
     params: use_cases.ListUnusedParams = {}
 
-    async for _ in use_cases.list_unused(settings, mock_io, params):
+    async for _ in use_cases.ListUnused(mock_io, MagicMock())(settings, params):
         pass
 
     mock_io.print.assert_called_with(expected_print)
@@ -225,7 +225,7 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock, empty_uuid: U
     params: use_cases.ListAllParams = {}
 
     results = []
-    async for result in use_cases.list_all(settings, mock_io, params):
+    async for result in use_cases.ListAll(mock_io, MagicMock())(settings, params):
         assert isinstance(result, models.Category)
         assert result.name in ["Category 1"]
         results.append(result)
@@ -252,7 +252,7 @@ async def test_list_all_exception(
     settings = Settings()
     params: use_cases.ListAllParams = {}
 
-    async for _ in use_cases.list_all(settings, mock_io, params):
+    async for _ in use_cases.ListAll(mock_io, MagicMock())(settings, params):
         pass
 
     mock_io.print.assert_called_with(expected_print)

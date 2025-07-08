@@ -6,8 +6,9 @@ from ynab_cli.domain.ports.io import IO, Progress
 
 
 class RichProgress(Progress):
-    def __init__(self, progress_info: tuple[rich_progress.Progress, rich_progress.TaskID]) -> None:
-        self._progress, self._task_id = progress_info
+    def __init__(self, progress: rich_progress.Progress) -> None:
+        self._progress = progress
+        self._task_id = progress.add_task("Loading...")
 
     @override
     async def update(
@@ -20,10 +21,9 @@ class RichProgress(Progress):
 
 
 class RichIO(IO):
-    def __init__(self, progress_info: tuple[rich_progress.Progress, rich_progress.TaskID]) -> None:
-        progress, _ = progress_info
+    def __init__(self, progress: rich_progress.Progress) -> None:
         self._progress = progress
-        self.progress = RichProgress(progress_info)
+        self.progress = RichProgress(self._progress)
 
     @override
     async def prompt(self, prompt: str, password: bool = False) -> str:

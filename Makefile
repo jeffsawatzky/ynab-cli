@@ -10,7 +10,7 @@ lint: .venv # run linters and type checkers
 	uv run mypy .
 
 test: .venv lint # run tests with coverage
-	uv run pytest --cov=src tests
+	uv run pytest --cov-report term-missing:skip-covered --cov=src tests
 
 clean: # clean up build artifacts and caches
 	rm -f .coverage

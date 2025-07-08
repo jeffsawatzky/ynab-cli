@@ -1,34 +1,43 @@
 import anyio
 import click
-from rich.table import Table
+from lagom import Container
 
-from ynab_cli.adapters.rich import io
 from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import budgets as use_cases
 from ynab_cli.host.click.commands.rich.progress_table import ProgressTable
+from ynab_cli.host.click.container import containerize
 from ynab_cli.host.constants import CONTEXT_KEY_SETTINGS
 
 
-async def _list_all(settings: Settings) -> None:
-    params: use_cases.ListAllParams = {}
+class ListAllCommand:
+    def __init__(self, use_case: use_cases.ListAll, progress_table: ProgressTable) -> None:
+        self._use_case = use_case
+        self._progress_table = progress_table
 
-    table = Table(title="All Budgets")
-    table.add_column("Budget ID")
-    table.add_column("Budget Name")
+        self._progress_table.table.title = "All Budgets"
+        self._progress_table.table.add_column("Budget ID")
+        self._progress_table.table.add_column("Budget Name")
 
-    console = None
-    with ProgressTable(table) as progress:
-        console = progress.console
+    async def __call__(self, settings: Settings) -> None:
+        params: use_cases.ListAllParams = {}
 
-        task_id = progress.add_task("Loading all budgets...")
-        async for budget in use_cases.list_all(settings, io.RichIO((progress, task_id)), params):
-            table.add_row(
-                str(budget.id),
-                str(budget.name),
-            )
+        console = None
+        with self._progress_table:
+            console = self._progress_table.console
 
-    if console:
-        console.print(table)
+            async for budget in self._use_case(settings, params):
+                self._progress_table.table.add_row(
+                    str(budget.id),
+                    str(budget.name),
+                )
+
+        if console:
+            console.print(self._progress_table.table)
+
+
+@containerize
+async def _list_all(container: Container) -> None:
+    await container[ListAllCommand](container[Settings])
 
 
 @click.command()
@@ -37,9 +46,12 @@ def list_all(ctx: click.Context) -> None:
     """List all budgets in YNAB."""
 
     ctx.ensure_object(dict)
+    settings: Settings = ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())
+    ctx.obj[CONTEXT_KEY_SETTINGS] = settings
+
     anyio.run(
         _list_all,
-        ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings()),
+        settings,
         backend_options={"use_uvloop": True},
     )
 

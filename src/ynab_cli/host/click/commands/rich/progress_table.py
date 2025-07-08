@@ -17,13 +17,13 @@ class ProgressTable(rich_progress.Progress):
         **kwargs: Any,
     ) -> None:
         self._render_table = False
-        self._table = table
+        self.table = table
         super().__init__(*columns, auto_refresh=auto_refresh, transient=transient, **kwargs)
 
     @override
     def get_renderable(self) -> rich_console.RenderableType:
         if self._render_table and self.live.is_started:
-            return rich_console.Group(*self.get_renderables(), self._table)
+            return rich_console.Group(*self.get_renderables(), self.table)
         return super().get_renderable()
 
     @override
