@@ -203,6 +203,16 @@ class AuthenticatedClient:
             self._async_client.timeout = timeout
         return evolve(self, timeout=timeout)
 
+    def update_token(self, token: str) -> None:
+        """Update the token used for authentication"""
+        self.token = token
+
+        auth_header = f"{self.prefix} {self.token}" if self.prefix else self.token
+        if self._client is not None:
+            self._client.headers[self.auth_header_name] = auth_header
+        if self._async_client is not None:
+            self._async_client.headers[self.auth_header_name] = auth_header
+
     def set_httpx_client(self, client: httpx.Client) -> "AuthenticatedClient":
         """Manually set the underlying httpx.Client
 
