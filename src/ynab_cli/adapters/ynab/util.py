@@ -58,18 +58,7 @@ async def run_asyncio_detailed(
             if not new_access_token:
                 raise e
 
-            #
-            # Update the client with the new access token
-            # Also need to update the headers in the underlying
-            # HTTPX clients if they are set up.
-            #
-            client.token = new_access_token
-            auth_header = f"{client.prefix} {client.token}" if client.prefix else client.token
-            client._headers[client.auth_header_name] = auth_header
-            if client._async_client:
-                client._async_client.headers[client.auth_header_name] = auth_header
-            if client._client:
-                client._client.headers[client.auth_header_name] = auth_header
+            client.update_token(new_access_token)
 
             response = await asyncio_detailed(*args, **kwargs)
             parsed_data = get_parsed_response_data(response)

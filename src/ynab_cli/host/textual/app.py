@@ -93,7 +93,7 @@ class YnabCliApp(App[None]):
         )
         if result is not CANCELLED:
             self.settings = result
-            self.client.token = self.settings.ynab.access_token
+            self.client.update_token(self.settings.ynab.access_token)
 
     async def action_parameters(self) -> None:
         command_tabs = self.query_one(CommandTabs)
