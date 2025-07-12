@@ -61,5 +61,5 @@ def test_apply_rules(
 
     use_case.assert_called_once_with(
         Settings(ynab=YnabSettings(access_token="test_token", budget_id="test_budget")),
-        {"transaction_rules": transaction_rules},
+        {"dry_run": False, "transaction_rules": transaction_rules},
     )

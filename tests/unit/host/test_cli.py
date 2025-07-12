@@ -22,7 +22,6 @@ class TestCli:
 
         assert result.exit_code == 0
         assert "Main entrypoint." in result.output
-        assert "--dry-run" in result.output
         assert "--debug" in result.output
 
 

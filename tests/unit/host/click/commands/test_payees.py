@@ -33,7 +33,7 @@ def test_normalize_names(runner: CliRunner, container: Container, empty_uuid: UU
     assert result.exit_code == 0
 
     use_case.assert_called_once_with(
-        Settings(ynab=YnabSettings(access_token="test_token", budget_id="test_budget")), {}
+        Settings(ynab=YnabSettings(access_token="test_token", budget_id="test_budget")), {"dry_run": False}
     )
 
 
@@ -82,7 +82,8 @@ def test_list_unused(runner: CliRunner, container: Container, empty_uuid: UUID) 
 
     assert result.exit_code == 0
     use_case.assert_called_once_with(
-        Settings(ynab=YnabSettings(access_token="test_token", budget_id="test_budget")), {"prefix_unused": False}
+        Settings(ynab=YnabSettings(access_token="test_token", budget_id="test_budget")),
+        {"dry_run": False, "prefix_unused": False},
     )
 
 

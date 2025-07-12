@@ -39,6 +39,7 @@ def _get_save_transaction(
 
 
 class ApplyRulesParams(TypedDict):
+    dry_run: bool
     transaction_rules: rules.TransactionRules
 
 
@@ -82,7 +83,7 @@ class ApplyRules:
                 if save_transaction:
                     yield (transaction, save_transaction)
 
-                    if not settings.dry_run:
+                    if not params["dry_run"]:
                         save_transactions.append(save_transaction)
 
             if save_transactions:

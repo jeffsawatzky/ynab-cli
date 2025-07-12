@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, cast
 from textual import on, work
 from textual.app import ComposeResult
 from textual.containers import ScrollableContainer
-from textual.widgets import Button, DataTable, Log, Pretty, ProgressBar
+from textual.widgets import Button, Checkbox, DataTable, Log, Pretty, ProgressBar
 from textual_fspicker import FileOpen
 from typing_extensions import override
 
@@ -25,6 +25,7 @@ class ApplyRulesParamsDialogForm(DialogForm[use_cases.ApplyRulesParams]):
 
     @override
     def compose(self) -> ComposeResult:
+        yield Checkbox("Dry Run", self._params["dry_run"], id="dry_run")
         yield Button("Select Transaction Rules JSON File", id="select_rules", variant="primary")
         with ScrollableContainer():
             yield Pretty(self._params["transaction_rules"].to_dict())
@@ -52,6 +53,7 @@ class ApplyRulesParamsDialogForm(DialogForm[use_cases.ApplyRulesParams]):
     @override
     async def get_result(self) -> use_cases.ApplyRulesParams:
         return {
+            "dry_run": self.query_one("#dry_run", Checkbox).value,
             "transaction_rules": self._params["transaction_rules"],
         }
 
@@ -60,6 +62,7 @@ class ApplyRulesCommand(CommandWidget):
     def __init__(self) -> None:
         super().__init__()
         self._params: use_cases.ApplyRulesParams = {
+            "dry_run": False,
             "transaction_rules": rules.TransactionRules(transaction_rules=[]),
         }
 

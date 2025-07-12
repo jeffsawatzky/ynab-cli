@@ -5,7 +5,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
-from textual.widgets import Checkbox, Footer, Header, Input, Label, TabbedContent
+from textual.widgets import Footer, Header, Input, Label, TabbedContent
 from typing_extensions import override
 
 from ynab_cli.adapters.ynab.client import AuthenticatedClient
@@ -29,22 +29,18 @@ class SettingsDialogForm(DialogForm[Settings]):
             with Vertical():
                 yield Label("Budget Id")
                 yield Input(self._settings.ynab.budget_id, placeholder="Budget Id", id="budget_id")
-        with Horizontal():
-            yield Checkbox("Dry Run", self._settings.dry_run, id="dry_run")
 
     @override
     async def get_result(self) -> Settings:
         """Get the result from the dialog form."""
         access_token = self.query_one("#access_token", Input).value.strip()
         budget_id = self.query_one("#budget_id", Input).value.strip()
-        dry_run = self.query_one("#dry_run", Checkbox).value
 
         return Settings(
             ynab=YnabSettings(
                 access_token=access_token,
                 budget_id=budget_id,
-            ),
-            dry_run=dry_run,
+            )
         )
 
 

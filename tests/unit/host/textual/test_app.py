@@ -26,7 +26,6 @@ async def test_settings_dialog_form_get_result(monkeypatch: pytest.MonkeyPatch) 
             ("#access_token", Input): mock.Mock(spec=Input, value="newtoken "),
             ("#budget_id", Input): mock.Mock(spec=Input, value=" newbudget"),
             ("#debug", Checkbox): mock.Mock(spec=Checkbox, value=True),
-            ("#dry_run", Checkbox): mock.Mock(spec=Checkbox, value=True),
         }[(selector, cls)],
     )
 
@@ -34,7 +33,6 @@ async def test_settings_dialog_form_get_result(monkeypatch: pytest.MonkeyPatch) 
     assert isinstance(result, Settings)
     assert result.ynab.access_token == "newtoken"
     assert result.ynab.budget_id == "newbudget"
-    assert result.dry_run is True
 
 
 def test_ynab_cli_app_initialization() -> None:

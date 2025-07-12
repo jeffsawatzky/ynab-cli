@@ -131,7 +131,9 @@ async def test_normalize_names(mocker: MockerFixture, mock_io: MagicMock, empty_
     mock_update_payee.asyncio_detailed = AsyncMock()
 
     settings = Settings()
-    params: use_cases.NormalizeNamesParams = {}
+    params: use_cases.NormalizeNamesParams = {
+        "dry_run": False,
+    }
 
     results: list[tuple[models.Payee, str]] = []
     async for result in use_cases.NormalizeNames(mock_io, MagicMock())(settings, params):
@@ -163,7 +165,9 @@ async def test_normalize_names_exception(
     mock_get_payees.asyncio_detailed.side_effect = exception
 
     settings = Settings()
-    params: use_cases.NormalizeNamesParams = {}
+    params: use_cases.NormalizeNamesParams = {
+        "dry_run": False,
+    }
 
     async for _ in use_cases.NormalizeNames(mock_io, MagicMock())(settings, params):
         pass
@@ -268,13 +272,14 @@ async def test_list_unused(mocker: MockerFixture, mock_io: MagicMock, empty_uuid
 
     settings = Settings()
     params: use_cases.ListUnusedParams = {
+        "dry_run": False,
         "prefix_unused": True,
     }
 
     results: list[models.Payee] = []
     async for result in use_cases.ListUnused(mock_io, MagicMock())(settings, params):
         assert isinstance(result, models.Payee)
-        assert result.name in ["Payee 1"]
+        assert result.name in ["[UNUSED] Payee 1"]
         results.append(result)
 
     assert len(results) == 1
@@ -299,6 +304,7 @@ async def test_list_unused_exception(
 
     settings = Settings()
     params: use_cases.ListUnusedParams = {
+        "dry_run": False,
         "prefix_unused": True,
     }
 

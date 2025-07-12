@@ -27,8 +27,9 @@ class ApplyRulesCommand:
         self._progress_table.table.add_column("Transaction Amount")
         self._progress_table.table.add_column("Transaction Changes")
 
-    async def __call__(self, settings: Settings, transaction_rules: rules.TransactionRules) -> None:
+    async def __call__(self, settings: Settings, dry_run: bool, transaction_rules: rules.TransactionRules) -> None:
         params: use_cases.ApplyRulesParams = {
+            "dry_run": dry_run,
             "transaction_rules": transaction_rules,
         }
 
@@ -52,14 +53,15 @@ class ApplyRulesCommand:
 
 
 @containerize
-async def _apply_rules(container: Container, transaction_rules: rules.TransactionRules) -> None:
-    await container[ApplyRulesCommand](container[Settings], transaction_rules)
+async def _apply_rules(container: Container, dry_run: bool, transaction_rules: rules.TransactionRules) -> None:
+    await container[ApplyRulesCommand](container[Settings], dry_run, transaction_rules)
 
 
 @click.command()
+@click.option("--dry-run", is_flag=True, default=False, help="Run without making any changes.")
 @click.argument("rules-file", type=click.File())
 @click.pass_context
-def apply_rules(ctx: click.Context, rules_file: IO[Any]) -> None:
+def apply_rules(ctx: click.Context, dry_run: bool, rules_file: IO[Any]) -> None:
     """Apply transaction rules from a JSON RULES_FILE to transactions in the YNAB budget.
 
     RULES_FILE should be a JSON file containing transaction rules.
@@ -74,6 +76,7 @@ def apply_rules(ctx: click.Context, rules_file: IO[Any]) -> None:
     anyio.run(
         _apply_rules,
         settings,
+        dry_run,
         transaction_rules,
         backend_options={"use_uvloop": True},
     )

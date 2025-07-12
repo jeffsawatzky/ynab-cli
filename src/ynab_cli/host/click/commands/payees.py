@@ -19,8 +19,10 @@ class NormalizeNamesCommand:
         self._progress_table.table.add_column("Payee Name")
         self._progress_table.table.add_column("Normalized Name")
 
-    async def __call__(self, settings: Settings) -> None:
-        params: use_cases.NormalizeNamesParams = {}
+    async def __call__(self, settings: Settings, dry_run: bool) -> None:
+        params: use_cases.NormalizeNamesParams = {
+            "dry_run": dry_run,
+        }
 
         console = None
         with self._progress_table:
@@ -76,8 +78,9 @@ class ListUnusedCommand:
         self._progress_table.table.add_column("Payee Id")
         self._progress_table.table.add_column("Payee Name")
 
-    async def __call__(self, settings: Settings, prefix_unused: bool) -> None:
+    async def __call__(self, settings: Settings, dry_run: bool, prefix_unused: bool) -> None:
         params: use_cases.ListUnusedParams = {
+            "dry_run": dry_run,
             "prefix_unused": prefix_unused,
         }
 
@@ -122,13 +125,14 @@ class ListAllCommand:
 
 
 @containerize
-async def _normalize_names(container: Container) -> None:
-    await container[NormalizeNamesCommand](container[Settings])
+async def _normalize_names(container: Container, dry_run: bool) -> None:
+    await container[NormalizeNamesCommand](container[Settings], dry_run)
 
 
 @click.command()
+@click.option("--dry-run", is_flag=True, default=False, help="Run without making any changes.")
 @click.pass_context
-def normalize_names(ctx: click.Context) -> None:
+def normalize_names(ctx: click.Context, dry_run: bool) -> None:
     """Normalize payee names in the YNAB budget."""
 
     ctx.ensure_object(dict)
@@ -138,6 +142,7 @@ def normalize_names(ctx: click.Context) -> None:
     anyio.run(
         _normalize_names,
         settings,
+        dry_run,
         backend_options={"use_uvloop": True},
     )
 
@@ -164,14 +169,15 @@ def list_duplicates(ctx: click.Context) -> None:
 
 
 @containerize
-async def _list_unused(container: Container, prefix_unused: bool) -> None:
-    await container[ListUnusedCommand](container[Settings], prefix_unused)
+async def _list_unused(container: Container, dry_run: bool, prefix_unused: bool) -> None:
+    await container[ListUnusedCommand](container[Settings], dry_run, prefix_unused)
 
 
 @click.command()
+@click.option("--dry-run", is_flag=True, default=False, help="Run without making any changes.")
 @click.option("--prefix-unused", is_flag=True, default=False, help="Add a prefix to the unused payee names.")
 @click.pass_context
-def list_unused(ctx: click.Context, prefix_unused: bool) -> None:
+def list_unused(ctx: click.Context, dry_run: bool, prefix_unused: bool) -> None:
     """List unused payees in the YNAB budget."""
 
     ctx.ensure_object(dict)
@@ -181,6 +187,7 @@ def list_unused(ctx: click.Context, prefix_unused: bool) -> None:
     anyio.run(
         _list_unused,
         settings,
+        dry_run,
         prefix_unused,
         backend_options={"use_uvloop": True},
     )

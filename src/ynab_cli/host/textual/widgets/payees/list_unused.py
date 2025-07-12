@@ -20,12 +20,14 @@ class ListUnusedParamsDialogForm(DialogForm[use_cases.ListUnusedParams]):
 
     @override
     def compose(self) -> ComposeResult:
+        yield Checkbox("Dry Run", self._params["dry_run"], id="dry_run")
         yield Checkbox("Prefix Unused Payees", self._params["prefix_unused"], id="prefix_unused")
 
     @override
     async def get_result(self) -> use_cases.ListUnusedParams:
         return {
-            "prefix_unused": self.query_one(Checkbox).value,
+            "dry_run": self.query_one("#dry_run", Checkbox).value,
+            "prefix_unused": self.query_one("#prefix_unused", Checkbox).value,
         }
 
 
@@ -33,7 +35,8 @@ class ListUnusedCommand(CommandWidget):
     def __init__(self) -> None:
         super().__init__()
         self._params: use_cases.ListUnusedParams = {
-            "prefix_unused": False,  # Default to not prefixing unused payees
+            "dry_run": False,
+            "prefix_unused": False,
         }
 
     def on_mount(self) -> None:

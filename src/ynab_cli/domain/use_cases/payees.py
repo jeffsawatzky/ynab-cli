@@ -41,7 +41,7 @@ def _normalize_name(name: str) -> str:
 
 
 class NormalizeNamesParams(TypedDict):
-    pass
+    dry_run: bool
 
 
 class NormalizeNames:
@@ -76,7 +76,7 @@ class NormalizeNames:
                 if normalized_name != payee.name:
                     yield (payee, normalized_name)
 
-                    if not settings.dry_run:
+                    if not params["dry_run"]:
                         await util.run_asyncio_detailed(
                             self._io,
                             update_payee.asyncio_detailed,
@@ -166,6 +166,7 @@ class ListDuplicates:
 
 
 class ListUnusedParams(TypedDict):
+    dry_run: bool
     prefix_unused: bool
 
 
@@ -208,18 +209,20 @@ class ListUnused:
 
                 # List unused payee if no transactions
                 if not num_transactions:
+                    if params["prefix_unused"]:
+                        payee.name = f"{UNUSED_PREFIX} {payee.name}"
+
                     yield payee
 
                     # If prefix_unused is True, rename the payee
-                    if not settings.dry_run and params.get("prefix_unused", False):
-                        new_name = f"{UNUSED_PREFIX} {payee.name}"
+                    if not params["dry_run"] and params["prefix_unused"]:
                         await util.run_asyncio_detailed(
                             self._io,
                             update_payee.asyncio_detailed,
                             settings.ynab.budget_id,
                             str(payee.id),
                             client=self._client,
-                            body=models.PatchPayeeWrapper(payee=models.SavePayee(name=new_name)),
+                            body=models.PatchPayeeWrapper(payee=models.SavePayee(name=payee.name)),
                         )
 
         except Exception as e:
