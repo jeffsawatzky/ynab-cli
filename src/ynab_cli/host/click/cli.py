@@ -5,7 +5,7 @@ from rich.logging import RichHandler
 
 from ynab_cli.domain.settings import Settings
 from ynab_cli.host.click.commands import budgets, categories, payees, transactions
-from ynab_cli.host.constants import CONTEXT_KEY_SETTINGS, ENV_PREFIX
+from ynab_cli.host.constants import CONTEXT_KEY_DEBUG, CONTEXT_KEY_SETTINGS, ENV_PREFIX
 
 
 @click.group()
@@ -25,12 +25,13 @@ def run(
     """Main entrypoint for YNAB CLI commands."""
 
     ctx.ensure_object(dict)
+    debug: bool = ctx.obj.get(CONTEXT_KEY_DEBUG, False)
     settings: Settings = ctx.obj.get(CONTEXT_KEY_SETTINGS, Settings())
     settings.ynab.access_token = access_token
     ctx.obj[CONTEXT_KEY_SETTINGS] = settings
 
     logging.basicConfig(
-        level="DEBUG" if settings.debug else "WARNING",  # NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL
+        level="DEBUG" if debug else "WARNING",  # NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL
         format="%(message)s",
         datefmt="[%X]",
         handlers=[RichHandler()],

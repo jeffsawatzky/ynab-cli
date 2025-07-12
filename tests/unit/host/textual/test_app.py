@@ -34,7 +34,6 @@ async def test_settings_dialog_form_get_result(monkeypatch: pytest.MonkeyPatch) 
     assert isinstance(result, Settings)
     assert result.ynab.access_token == "newtoken"
     assert result.ynab.budget_id == "newbudget"
-    assert result.debug is True
     assert result.dry_run is True
 
 

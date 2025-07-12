@@ -30,7 +30,6 @@ class SettingsDialogForm(DialogForm[Settings]):
                 yield Label("Budget Id")
                 yield Input(self._settings.ynab.budget_id, placeholder="Budget Id", id="budget_id")
         with Horizontal():
-            yield Checkbox("Debug", self._settings.debug, id="debug")
             yield Checkbox("Dry Run", self._settings.dry_run, id="dry_run")
 
     @override
@@ -38,7 +37,6 @@ class SettingsDialogForm(DialogForm[Settings]):
         """Get the result from the dialog form."""
         access_token = self.query_one("#access_token", Input).value.strip()
         budget_id = self.query_one("#budget_id", Input).value.strip()
-        debug = self.query_one("#debug", Checkbox).value
         dry_run = self.query_one("#dry_run", Checkbox).value
 
         return Settings(
@@ -46,7 +44,6 @@ class SettingsDialogForm(DialogForm[Settings]):
                 access_token=access_token,
                 budget_id=budget_id,
             ),
-            debug=debug,
             dry_run=dry_run,
         )
 
