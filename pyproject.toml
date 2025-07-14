@@ -44,7 +44,7 @@ dependencies = [
   "rich~=14.0",
   "rule-engine~=4.5",
   "textual-fspicker~=0.4",
-  "textual~=3.7",
+  "textual>=3.7,<5.0",
   "typing-extensions~=4.14",
   "uvloop~=0.21",
 ]
