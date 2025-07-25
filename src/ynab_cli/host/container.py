@@ -6,6 +6,11 @@ from ynab_cli.domain.constants import YNAB_API_URL
 
 
 def init_container(container: Container) -> Container:
+    from http.cookiejar import MozillaCookieJar
+
+    from httpx import AsyncClient
+
+    from ynab_cli.adapters.amazon.client import AmazonBrowser, AmazonClient
     from ynab_cli.adapters.ynab.client import AuthenticatedClient
     from ynab_cli.domain.ports.io import IO
     from ynab_cli.domain.settings import Settings
@@ -23,6 +28,12 @@ def init_container(container: Container) -> Container:
             cast(Settings, c[Settings]).ynab.access_token,
         )
     )
+
+    container[AmazonBrowser] = Singleton(
+        lambda c: AmazonBrowser(AsyncClient(cookies=MozillaCookieJar(filename=".amazon.cookies.txt"))),
+    )
+
+    container[AmazonClient] = Singleton(lambda c: AmazonClient(cast(IO, c[IO]), cast(AmazonBrowser, c[AmazonBrowser])))
 
     #
     # Use Cases
