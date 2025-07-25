@@ -20,7 +20,7 @@ def _should_skip_payee(payee: models.Payee) -> bool:
         or (payee.transfer_account_id and isinstance(payee.transfer_account_id, str))
         or payee.name.startswith("Transfer : ")
         or payee.name.startswith(UNUSED_PREFIX)
-        or payee.name in ["Starting Balance"]
+        or payee.name in ["Starting Balance", "Manual Balance Adjustment", "Reconciliation Balance Adjustment"]
     ):
         return True
     return False
@@ -216,14 +216,17 @@ class ListUnused:
 
                     # If prefix_unused is True, rename the payee
                     if not params["dry_run"] and params["prefix_unused"]:
-                        await util.run_asyncio_detailed(
-                            self._io,
-                            update_payee.asyncio_detailed,
-                            settings.ynab.budget_id,
-                            str(payee.id),
-                            client=self._client,
-                            body=models.PatchPayeeWrapper(payee=models.SavePayee(name=payee.name)),
-                        )
+                        try:
+                            await util.run_asyncio_detailed(
+                                self._io,
+                                update_payee.asyncio_detailed,
+                                settings.ynab.budget_id,
+                                str(payee.id),
+                                client=self._client,
+                                body=models.PatchPayeeWrapper(payee=models.SavePayee(name=payee.name)),
+                            )
+                        except Exception as e:
+                            await self._io.print(f"Failed to rename payee {payee.name}: {e}")
 
         except Exception as e:
             if isinstance(e, util.ApiError) and e.status_code == 401:

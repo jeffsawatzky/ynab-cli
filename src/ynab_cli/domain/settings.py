@@ -1,13 +1,12 @@
-from attrs import define as _attrs_define
-from attrs import field
+from attrs import define, field
 
 
-@_attrs_define
+@define
 class YnabSettings:
     access_token: str = ""
     budget_id: str = ""
 
 
-@_attrs_define
+@define
 class Settings:
     ynab: YnabSettings = field(factory=YnabSettings)
