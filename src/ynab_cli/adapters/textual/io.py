@@ -1,7 +1,9 @@
+from pathlib import Path
 from typing import Any
 
 from textual.app import App, ComposeResult
 from textual.widgets import Input, Label, Log, ProgressBar
+from textual_fspicker import FileOpen
 from typing_extensions import override
 
 from ynab_cli.domain.ports.io import IO, Progress
@@ -54,6 +56,13 @@ class TextualIO(IO):
         if result is CANCELLED:
             return ""
         return result
+
+    @override
+    async def file(self, prompt: str) -> Path | None:
+        file_path = await self._app.push_screen_wait(FileOpen(title=prompt))
+        if not file_path:
+            return None
+        return Path(file_path).resolve()
 
     @override
     async def print(self, message: str) -> None:

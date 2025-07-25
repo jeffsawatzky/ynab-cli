@@ -1,4 +1,5 @@
 from getpass import getpass
+from pathlib import Path
 from typing import Protocol
 
 from typing_extensions import override
@@ -14,6 +15,8 @@ class IO(Protocol):
     progress: Progress
 
     async def prompt(self, prompt: str, password: bool = False) -> str: ...
+
+    async def file(self, prompt: str) -> Path | None: ...
 
     async def print(self, message: str) -> None: ...
 
@@ -57,6 +60,13 @@ class StdIO(IO):
             return getpass(f"{prompt}: ")
         else:
             return input(f"{prompt}: ")
+
+    @override
+    async def file(self, prompt: str) -> Path | None:
+        file_path = input(f"{prompt}: ")
+        if not file_path:
+            return None
+        return Path(file_path).resolve()
 
     @override
     async def print(self, message: str) -> None:

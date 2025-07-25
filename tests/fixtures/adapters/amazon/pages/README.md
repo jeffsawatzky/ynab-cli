@@ -1,0 +1,6 @@
+You need to create the following pages manually:
+
+amazon_ap_cvf_request__captcha.html
+amazon_ap_signin__captcha.html
+amazon_ap_signin.html
+amazon_cpe_yourpayments_transactions.html
