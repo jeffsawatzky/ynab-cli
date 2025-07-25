@@ -12,8 +12,6 @@ R = TypeVar("R")
 
 
 class ApiError(Exception):
-    """Raised by API functions when the response status is not 200 OK and Client.raise_on_unexpected_status is True"""
-
     def __init__(self, status_code: int, error_detail: ErrorDetail | None = None):
         self.status_code = status_code
         self.error_detail = error_detail
@@ -32,7 +30,7 @@ def get_parsed_response_data(response: Response[ErrorResponse | R]) -> R | None:
         error_detail = ErrorDetail(
             id=str(response.status_code.value),
             name="unknown_error",
-            detail="An unknown error occurred",
+            detail=f"An unknown error occurred.\n\nResponse content:\n{response.content.decode(errors='ignore')}",
         )
         raise ApiError(status_code=response.status_code, error_detail=error_detail)
 

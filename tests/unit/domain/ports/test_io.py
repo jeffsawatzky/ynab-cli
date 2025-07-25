@@ -312,7 +312,7 @@ class TestStdIO:
     async def test_prompt_with_input(self, std_io: StdIO) -> None:
         """Test prompt method with regular input."""
         with patch("builtins.input", return_value="test_input") as mock_input:
-            result = await std_io.prompt("Enter value: ")
+            result = await std_io.prompt("Enter value")
 
             assert result == "test_input"
             mock_input.assert_called_once_with("Enter value: ")
@@ -321,7 +321,7 @@ class TestStdIO:
     async def test_prompt_with_password(self, std_io: StdIO) -> None:
         """Test prompt method with password flag."""
         with patch("ynab_cli.domain.ports.io.getpass", return_value="secret") as mock_getpass:
-            result = await std_io.prompt("Enter password: ", password=True)
+            result = await std_io.prompt("Enter password", password=True)
 
             assert result == "secret"
             mock_getpass.assert_called_once_with("Enter password: ")
@@ -330,7 +330,7 @@ class TestStdIO:
     async def test_prompt_without_password_flag(self, std_io: StdIO) -> None:
         """Test prompt method with explicit password=False."""
         with patch("builtins.input", return_value="regular_input") as mock_input:
-            result = await std_io.prompt("Enter value: ", password=False)
+            result = await std_io.prompt("Enter value", password=False)
 
             assert result == "regular_input"
             mock_input.assert_called_once_with("Enter value: ")
@@ -339,7 +339,7 @@ class TestStdIO:
     async def test_prompt_with_empty_string(self, std_io: StdIO) -> None:
         """Test prompt method with empty string input."""
         with patch("builtins.input", return_value="") as mock_input:
-            result = await std_io.prompt("Enter value: ")
+            result = await std_io.prompt("Enter value")
 
             assert result == ""
             mock_input.assert_called_once_with("Enter value: ")
@@ -351,14 +351,14 @@ class TestStdIO:
             result = await std_io.prompt("")
 
             assert result == "response"
-            mock_input.assert_called_once_with("")
+            mock_input.assert_called_once_with(": ")
 
     @pytest.mark.anyio
     async def test_prompt_with_special_characters(self, std_io: StdIO) -> None:
         """Test prompt method with special characters."""
         special_input = "Test with 特殊字符 and émojis 🚀"
         with patch("builtins.input", return_value=special_input) as mock_input:
-            result = await std_io.prompt("Enter value: ")
+            result = await std_io.prompt("Enter value")
 
             assert result == special_input
             mock_input.assert_called_once_with("Enter value: ")
@@ -368,7 +368,7 @@ class TestStdIO:
         """Test prompt method with multiline input."""
         multiline_input = "Line 1\nLine 2\nLine 3"
         with patch("builtins.input", return_value=multiline_input) as mock_input:
-            result = await std_io.prompt("Enter value: ")
+            result = await std_io.prompt("Enter value")
 
             assert result == multiline_input
             mock_input.assert_called_once_with("Enter value: ")
@@ -377,7 +377,7 @@ class TestStdIO:
     async def test_prompt_password_with_empty_input(self, std_io: StdIO) -> None:
         """Test password prompt with empty input."""
         with patch("ynab_cli.domain.ports.io.getpass", return_value="") as mock_getpass:
-            result = await std_io.prompt("Enter password: ", password=True)
+            result = await std_io.prompt("Enter password", password=True)
 
             assert result == ""
             mock_getpass.assert_called_once_with("Enter password: ")
@@ -387,7 +387,7 @@ class TestStdIO:
         """Test prompt method handling KeyboardInterrupt."""
         with patch("builtins.input", side_effect=KeyboardInterrupt()) as mock_input:
             with pytest.raises(KeyboardInterrupt):
-                await std_io.prompt("Enter value: ")
+                await std_io.prompt("Enter value")
 
             mock_input.assert_called_once_with("Enter value: ")
 
@@ -396,7 +396,7 @@ class TestStdIO:
         """Test prompt method handling EOFError."""
         with patch("builtins.input", side_effect=EOFError()) as mock_input:
             with pytest.raises(EOFError):
-                await std_io.prompt("Enter value: ")
+                await std_io.prompt("Enter value")
 
             mock_input.assert_called_once_with("Enter value: ")
 

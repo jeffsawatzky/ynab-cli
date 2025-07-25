@@ -1,11 +1,11 @@
 from typing import Any, Self
 
-from attrs import define as _attrs_define
+from attrs import define
 
 from ynab_cli.adapters.ynab import models
 
 
-@_attrs_define
+@define
 class TransactionRule:
     # List of rules that follow the rule-engine format for a transaction.
     #   See: https://zerosteiner.github.io/rule-engine/
@@ -34,7 +34,7 @@ class TransactionRule:
         return cls(rules=rules, patch=patch)
 
 
-@_attrs_define
+@define
 class TransactionRules:
     transaction_rules: list[TransactionRule]
 

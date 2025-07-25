@@ -54,9 +54,9 @@ class StdIO(IO):
     @override
     async def prompt(self, prompt: str, password: bool = False) -> str:
         if password:
-            return getpass(prompt)
+            return getpass(f"{prompt}: ")
         else:
-            return input(prompt)
+            return input(f"{prompt}: ")
 
     @override
     async def print(self, message: str) -> None:
