@@ -1,5 +1,6 @@
 .coverage
 .env
+*cookies.txt
 rules.json
 
 __pycache__/
