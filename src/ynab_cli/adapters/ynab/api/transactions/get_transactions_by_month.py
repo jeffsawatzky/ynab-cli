@@ -4,11 +4,10 @@ from typing import Any
 
 import httpx
 
-from ynab_cli.adapters.ynab import errors
 from ynab_cli.adapters.ynab.client import AuthenticatedClient, Client
 from ynab_cli.adapters.ynab.models.error_response import ErrorResponse
 from ynab_cli.adapters.ynab.models.get_transactions_by_month_type import GetTransactionsByMonthType
-from ynab_cli.adapters.ynab.models.hybrid_transactions_response import HybridTransactionsResponse
+from ynab_cli.adapters.ynab.models.transactions_response import TransactionsResponse
 from ynab_cli.adapters.ynab.types import UNSET, Response, Unset
 
 
@@ -48,24 +47,25 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ErrorResponse | HybridTransactionsResponse | None:
+) -> ErrorResponse | TransactionsResponse:
     if response.status_code == 200:
-        response_200 = HybridTransactionsResponse.from_dict(response.json())
+        response_200 = TransactionsResponse.from_dict(response.json())
 
         return response_200
+
     if response.status_code == 404:
         response_404 = ErrorResponse.from_dict(response.json())
 
         return response_404
-    if client.raise_on_unexpected_status:
-        raise errors.UnexpectedStatusError(response.status_code, response.content)
-    else:
-        return None
+
+    response_default = ErrorResponse.from_dict(response.json())
+
+    return response_default
 
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ErrorResponse | HybridTransactionsResponse]:
+) -> Response[ErrorResponse | TransactionsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +82,7 @@ def sync_detailed(
     since_date: Unset | datetime.date = UNSET,
     type_: Unset | GetTransactionsByMonthType = UNSET,
     last_knowledge_of_server: Unset | int = UNSET,
-) -> Response[ErrorResponse | HybridTransactionsResponse]:
+) -> Response[ErrorResponse | TransactionsResponse]:
     """List transactions in month, excluding any pending transactions
 
      Returns all transactions for a specified month
@@ -99,7 +99,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, HybridTransactionsResponse]]
+        Response[Union[ErrorResponse, TransactionsResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -125,7 +125,7 @@ def sync(
     since_date: Unset | datetime.date = UNSET,
     type_: Unset | GetTransactionsByMonthType = UNSET,
     last_knowledge_of_server: Unset | int = UNSET,
-) -> ErrorResponse | HybridTransactionsResponse | None:
+) -> ErrorResponse | TransactionsResponse | None:
     """List transactions in month, excluding any pending transactions
 
      Returns all transactions for a specified month
@@ -142,7 +142,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, HybridTransactionsResponse]
+        Union[ErrorResponse, TransactionsResponse]
     """
 
     return sync_detailed(
@@ -163,7 +163,7 @@ async def asyncio_detailed(
     since_date: Unset | datetime.date = UNSET,
     type_: Unset | GetTransactionsByMonthType = UNSET,
     last_knowledge_of_server: Unset | int = UNSET,
-) -> Response[ErrorResponse | HybridTransactionsResponse]:
+) -> Response[ErrorResponse | TransactionsResponse]:
     """List transactions in month, excluding any pending transactions
 
      Returns all transactions for a specified month
@@ -180,7 +180,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, HybridTransactionsResponse]]
+        Response[Union[ErrorResponse, TransactionsResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -204,7 +204,7 @@ async def asyncio(
     since_date: Unset | datetime.date = UNSET,
     type_: Unset | GetTransactionsByMonthType = UNSET,
     last_knowledge_of_server: Unset | int = UNSET,
-) -> ErrorResponse | HybridTransactionsResponse | None:
+) -> ErrorResponse | TransactionsResponse | None:
     """List transactions in month, excluding any pending transactions
 
      Returns all transactions for a specified month
@@ -221,7 +221,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, HybridTransactionsResponse]
+        Union[ErrorResponse, TransactionsResponse]
     """
 
     return (

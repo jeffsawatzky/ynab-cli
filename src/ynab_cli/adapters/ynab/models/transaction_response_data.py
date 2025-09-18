@@ -16,19 +16,24 @@ class TransactionResponseData:
     """
     Attributes:
         transaction (TransactionDetail):
+        server_knowledge (int): The knowledge of the server
     """
 
     transaction: "TransactionDetail"
+    server_knowledge: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         transaction = self.transaction.to_dict()
+
+        server_knowledge = self.server_knowledge
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "transaction": transaction,
+                "server_knowledge": server_knowledge,
             }
         )
 
@@ -41,8 +46,11 @@ class TransactionResponseData:
         d = dict(src_dict)
         transaction = TransactionDetail.from_dict(d.pop("transaction"))
 
+        server_knowledge = d.pop("server_knowledge")
+
         transaction_response_data = cls(
             transaction=transaction,
+            server_knowledge=server_knowledge,
         )
 
         transaction_response_data.additional_properties = d

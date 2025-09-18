@@ -101,7 +101,7 @@ class TestIODialogForm:
         assert len(compose_result) == 2
         assert isinstance(compose_result[0], Label)
         assert isinstance(compose_result[1], Input)
-        assert compose_result[0].renderable == "Enter username:"
+        assert compose_result[0].content == "Enter username:"
         assert compose_result[1].password is False
 
     def test_compose_with_password_input(self, password_dialog_form: IODialogForm) -> None:
@@ -183,7 +183,7 @@ class TestTextualIO:
 
         assert result == "user_input"
         mock_app.push_screen_wait.assert_called_once()
-        args, kwargs = mock_app.push_screen_wait.call_args
+        args, _ = mock_app.push_screen_wait.call_args
         screen = args[0]
         assert isinstance(screen, SaveCancelDialogScreen)
         assert isinstance(screen._dialog._form, IODialogForm)
@@ -197,7 +197,7 @@ class TestTextualIO:
 
         assert result == "secret"
         mock_app.push_screen_wait.assert_called_once()
-        args, kwargs = mock_app.push_screen_wait.call_args
+        args, _ = mock_app.push_screen_wait.call_args
         screen = args[0]
         assert isinstance(screen, SaveCancelDialogScreen)
         assert isinstance(screen._dialog._form, IODialogForm)
@@ -213,7 +213,7 @@ class TestTextualIO:
 
         assert result == ""
         mock_app.push_screen_wait.assert_called_once()
-        args, kwargs = mock_app.push_screen_wait.call_args
+        args, _ = mock_app.push_screen_wait.call_args
         screen = args[0]
         assert isinstance(screen, SaveCancelDialogScreen)
         assert isinstance(screen._dialog._form, IODialogForm)
@@ -227,7 +227,7 @@ class TestTextualIO:
 
         assert result == "response"
         mock_app.push_screen_wait.assert_called_once()
-        args, kwargs = mock_app.push_screen_wait.call_args
+        args, _ = mock_app.push_screen_wait.call_args
         screen = args[0]
         assert isinstance(screen, SaveCancelDialogScreen)
         assert isinstance(screen._dialog._form, IODialogForm)
@@ -241,7 +241,7 @@ class TestTextualIO:
         result = await textual_io_instance.prompt(special_prompt)
 
         assert result == "response"
-        args, kwargs = mock_app.push_screen_wait.call_args
+        args, _ = mock_app.push_screen_wait.call_args
         screen = args[0]
         assert screen._dialog._form._prompt == special_prompt
 

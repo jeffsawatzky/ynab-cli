@@ -39,8 +39,7 @@ class Account:
             (direct_import_linked=true) and the linked connection is not in a healthy state, this will be true.
         last_reconciled_at (Union[None, Unset, datetime.datetime]): A date/time specifying when the account was last
             reconciled.
-        debt_original_balance (Union[None, Unset, int]): The original debt/loan account balance, specified in milliunits
-            format.
+        debt_original_balance (Union[None, Unset, int]): This field is deprecated and will always be null.
         debt_interest_rates (Union['LoanAccountPeriodicValueType0', None, Unset]):
         debt_minimum_payments (Union['LoanAccountPeriodicValueType0', None, Unset]):
         debt_escrow_amounts (Union['LoanAccountPeriodicValueType0', None, Unset]):
