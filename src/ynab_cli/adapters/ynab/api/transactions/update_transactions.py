@@ -7,6 +7,7 @@ from ynab_cli.adapters.ynab import errors
 from ynab_cli.adapters.ynab.client import AuthenticatedClient, Client
 from ynab_cli.adapters.ynab.models.error_response import ErrorResponse
 from ynab_cli.adapters.ynab.models.patch_transactions_wrapper import PatchTransactionsWrapper
+from ynab_cli.adapters.ynab.models.save_transactions_response import SaveTransactionsResponse
 from ynab_cli.adapters.ynab.types import Response
 
 
@@ -22,27 +23,36 @@ def _get_kwargs(
         "url": f"/budgets/{budget_id}/transactions",
     }
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
     return _kwargs
 
 
-def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> ErrorResponse | None:
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> ErrorResponse | SaveTransactionsResponse | None:
+    if response.status_code == 209:
+        response_209 = SaveTransactionsResponse.from_dict(response.json())
+
+        return response_209
+
     if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
+
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatusError(response.status_code, response.content)
     else:
         return None
 
 
-def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Response[ErrorResponse]:
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[ErrorResponse | SaveTransactionsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -56,7 +66,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: PatchTransactionsWrapper,
-) -> Response[ErrorResponse]:
+) -> Response[ErrorResponse | SaveTransactionsResponse]:
     """Update multiple transactions
 
      Updates multiple transactions, by `id` or `import_id`.
@@ -70,7 +80,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse]
+        Response[Union[ErrorResponse, SaveTransactionsResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -90,7 +100,7 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     body: PatchTransactionsWrapper,
-) -> ErrorResponse | None:
+) -> ErrorResponse | SaveTransactionsResponse | None:
     """Update multiple transactions
 
      Updates multiple transactions, by `id` or `import_id`.
@@ -104,7 +114,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse
+        Union[ErrorResponse, SaveTransactionsResponse]
     """
 
     return sync_detailed(
@@ -119,7 +129,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: PatchTransactionsWrapper,
-) -> Response[ErrorResponse]:
+) -> Response[ErrorResponse | SaveTransactionsResponse]:
     """Update multiple transactions
 
      Updates multiple transactions, by `id` or `import_id`.
@@ -133,7 +143,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse]
+        Response[Union[ErrorResponse, SaveTransactionsResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -151,7 +161,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     body: PatchTransactionsWrapper,
-) -> ErrorResponse | None:
+) -> ErrorResponse | SaveTransactionsResponse | None:
     """Update multiple transactions
 
      Updates multiple transactions, by `id` or `import_id`.
@@ -165,7 +175,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse
+        Union[ErrorResponse, SaveTransactionsResponse]
     """
 
     return (

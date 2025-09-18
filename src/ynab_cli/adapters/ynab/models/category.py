@@ -66,6 +66,8 @@ class Category:
             period.
         goal_overall_left (Union[None, Unset, int]): The amount of funding still needed to complete the goal within the
             current goal period.
+        goal_snoozed_at (Union[None, Unset, datetime.datetime]): The date/time the goal was snoozed.  If the goal is not
+            snoozed, this will be null.
     """
 
     id: UUID
@@ -92,6 +94,7 @@ class Category:
     goal_under_funded: None | Unset | int = UNSET
     goal_overall_funded: None | Unset | int = UNSET
     goal_overall_left: None | Unset | int = UNSET
+    goal_snoozed_at: None | Unset | datetime.datetime = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -215,6 +218,14 @@ class Category:
         else:
             goal_overall_left = self.goal_overall_left
 
+        goal_snoozed_at: None | Unset | str
+        if isinstance(self.goal_snoozed_at, Unset):
+            goal_snoozed_at = UNSET
+        elif isinstance(self.goal_snoozed_at, datetime.datetime):
+            goal_snoozed_at = self.goal_snoozed_at.isoformat()
+        else:
+            goal_snoozed_at = self.goal_snoozed_at
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -261,6 +272,8 @@ class Category:
             field_dict["goal_overall_funded"] = goal_overall_funded
         if goal_overall_left is not UNSET:
             field_dict["goal_overall_left"] = goal_overall_left
+        if goal_snoozed_at is not UNSET:
+            field_dict["goal_snoozed_at"] = goal_snoozed_at
 
         return field_dict
 
@@ -472,6 +485,23 @@ class Category:
 
         goal_overall_left = _parse_goal_overall_left(d.pop("goal_overall_left", UNSET))
 
+        def _parse_goal_snoozed_at(data: object) -> None | Unset | datetime.datetime:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                goal_snoozed_at_type_0 = isoparse(data)
+
+                return goal_snoozed_at_type_0
+            except:  # noqa: E722
+                pass
+            return cast(None | Unset | datetime.datetime, data)
+
+        goal_snoozed_at = _parse_goal_snoozed_at(d.pop("goal_snoozed_at", UNSET))
+
         category = cls(
             id=id,
             category_group_id=category_group_id,
@@ -497,6 +527,7 @@ class Category:
             goal_under_funded=goal_under_funded,
             goal_overall_funded=goal_overall_funded,
             goal_overall_left=goal_overall_left,
+            goal_snoozed_at=goal_snoozed_at,
         )
 
         category.additional_properties = d

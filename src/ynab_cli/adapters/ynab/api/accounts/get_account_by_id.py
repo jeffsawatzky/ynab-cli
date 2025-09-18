@@ -4,7 +4,6 @@ from uuid import UUID
 
 import httpx
 
-from ynab_cli.adapters.ynab import errors
 from ynab_cli.adapters.ynab.client import AuthenticatedClient, Client
 from ynab_cli.adapters.ynab.models.account_response import AccountResponse
 from ynab_cli.adapters.ynab.models.error_response import ErrorResponse
@@ -25,19 +24,20 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> AccountResponse | ErrorResponse | None:
+) -> AccountResponse | ErrorResponse:
     if response.status_code == 200:
         response_200 = AccountResponse.from_dict(response.json())
 
         return response_200
+
     if response.status_code == 404:
         response_404 = ErrorResponse.from_dict(response.json())
 
         return response_404
-    if client.raise_on_unexpected_status:
-        raise errors.UnexpectedStatusError(response.status_code, response.content)
-    else:
-        return None
+
+    response_default = ErrorResponse.from_dict(response.json())
+
+    return response_default
 
 
 def _build_response(

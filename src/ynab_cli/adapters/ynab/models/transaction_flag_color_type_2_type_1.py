@@ -9,6 +9,7 @@ class TransactionFlagColorType2Type1(str, Enum):
     ORANGE = "orange"
     PURPLE = "purple"
     RED = "red"
+    VALUE_6 = ""
     YELLOW = "yellow"
 
     @override
