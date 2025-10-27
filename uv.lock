@@ -739,9 +739,6 @@ wheels = [
 linkify = [
     { name = "linkify-it-py" },
 ]
-plugins = [
-    { name = "mdit-py-plugins" },
-]
 
 [[package]]
 name = "markupsafe"
@@ -1679,18 +1676,19 @@ wheels = [
 
 [[package]]
 name = "textual"
-version = "6.3.0"
+version = "6.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "markdown-it-py", extra = ["linkify", "plugins"] },
+    { name = "markdown-it-py", extra = ["linkify"] },
+    { name = "mdit-py-plugins" },
     { name = "platformdirs" },
     { name = "pygments" },
     { name = "rich" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/51/51a0863339c4c3fa204f43044e52dfd688a7ee2ba2c987e021acc9583a42/textual-6.3.0.tar.gz", hash = "sha256:a89c557fa740611551dcf4f93643f33853eca488183ef5882200dde8e94315e8", size = 1573232, upload-time = "2025-10-11T11:17:01.888Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/23/6c/565521dc6dd00fa857845483ae0c070575fda1f9a56d92d732554fecfea4/textual-6.4.0.tar.gz", hash = "sha256:f40df9165a001c10249698d532f2f5a71708b70f0e4ef3fce081a9dd93ffeaaa", size = 1573599, upload-time = "2025-10-22T17:29:51.357Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ff/2a/bca677b0b05ee77b4105f73db0d8ef231a9f1db154d69388abd5c73f9dcc/textual-6.3.0-py3-none-any.whl", hash = "sha256:ec908b4b008662e7670af4a3e7c773847066b0950b1c50126c72fa939b514c97", size = 711457, upload-time = "2025-10-11T11:16:59.754Z" },
+    { url = "https://files.pythonhosted.org/packages/37/20/6eed0e55bdd2576475e9cea49cc71c47f8e56ab54f04cbe04b2fb56440de/textual-6.4.0-py3-none-any.whl", hash = "sha256:b346dbb8e12f17cefb33ddfdf7f19bdc9e66c29daf82fc981a8db6b7d985e115", size = 711663, upload-time = "2025-10-22T17:29:49.346Z" },
 ]
 
 [[package]]
