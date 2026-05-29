@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 
 from typing_extensions import override
 
 
-class TransactionFlagColorType2Type1(str, Enum):
+class TransactionFlagColorType2Type1(StrEnum):
     BLUE = "blue"
     GREEN = "green"
     ORANGE = "orange"

@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 
 from typing_extensions import override
 
 
-class TransactionSummaryDebtTransactionTypeType1(str, Enum):
+class TransactionSummaryDebtTransactionTypeType1(StrEnum):
     BALANCEADJUSTMENT = "balanceAdjustment"
     CHARGE = "charge"
     CREDIT = "credit"

@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 
 from typing_extensions import override
 
 
-class GetTransactionsByPayeeType(str, Enum):
+class GetTransactionsByPayeeType(StrEnum):
     UNAPPROVED = "unapproved"
     UNCATEGORIZED = "uncategorized"
 

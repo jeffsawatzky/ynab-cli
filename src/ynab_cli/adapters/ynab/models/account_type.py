@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 
 from typing_extensions import override
 
 
-class AccountType(str, Enum):
+class AccountType(StrEnum):
     AUTOLOAN = "autoLoan"
     CASH = "cash"
     CHECKING = "checking"

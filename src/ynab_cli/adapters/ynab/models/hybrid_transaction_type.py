@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 
 from typing_extensions import override
 
 
-class HybridTransactionType(str, Enum):
+class HybridTransactionType(StrEnum):
     SUBTRANSACTION = "subtransaction"
     TRANSACTION = "transaction"
 

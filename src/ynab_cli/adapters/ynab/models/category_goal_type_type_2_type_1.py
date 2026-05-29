@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 
 from typing_extensions import override
 
 
-class CategoryGoalTypeType2Type1(str, Enum):
+class CategoryGoalTypeType2Type1(StrEnum):
     DEBT = "DEBT"
     MF = "MF"
     NEED = "NEED"

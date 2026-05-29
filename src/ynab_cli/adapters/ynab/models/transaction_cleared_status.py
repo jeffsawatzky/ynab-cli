@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 
 from typing_extensions import override
 
 
-class TransactionClearedStatus(str, Enum):
+class TransactionClearedStatus(StrEnum):
     CLEARED = "cleared"
     RECONCILED = "reconciled"
     UNCLEARED = "uncleared"

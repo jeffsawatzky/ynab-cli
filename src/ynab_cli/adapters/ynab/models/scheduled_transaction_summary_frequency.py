@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 
 from typing_extensions import override
 
 
-class ScheduledTransactionSummaryFrequency(str, Enum):
+class ScheduledTransactionSummaryFrequency(StrEnum):
     DAILY = "daily"
     EVERY3MONTHS = "every3Months"
     EVERY4MONTHS = "every4Months"
