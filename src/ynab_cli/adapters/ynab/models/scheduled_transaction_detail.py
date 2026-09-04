@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -56,16 +56,16 @@ class ScheduledTransactionDetail:
     deleted: bool
     account_name: str
     subtransactions: list["ScheduledSubTransaction"]
-    memo: None | Unset | str = UNSET
+    memo: Unset | str | None = UNSET
     flag_color: (
-        None | TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset
+        TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset | None
     ) = UNSET
-    flag_name: None | Unset | str = UNSET
-    payee_id: None | UUID | Unset = UNSET
-    category_id: None | UUID | Unset = UNSET
-    transfer_account_id: None | UUID | Unset = UNSET
-    payee_name: None | Unset | str = UNSET
-    category_name: None | Unset | str = UNSET
+    flag_name: Unset | str | None = UNSET
+    payee_id: UUID | Unset | None = UNSET
+    category_id: UUID | Unset | None = UNSET
+    transfer_account_id: UUID | Unset | None = UNSET
+    payee_name: Unset | str | None = UNSET
+    category_name: Unset | str | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -90,31 +90,29 @@ class ScheduledTransactionDetail:
             subtransactions_item = subtransactions_item_data.to_dict()
             subtransactions.append(subtransactions_item)
 
-        memo: None | Unset | str
+        memo: Unset | str | None
         if isinstance(self.memo, Unset):
             memo = UNSET
         else:
             memo = self.memo
 
-        flag_color: None | Unset | str
+        flag_color: Unset | str | None
         if isinstance(self.flag_color, Unset):
             flag_color = UNSET
-        elif isinstance(self.flag_color, TransactionFlagColorType1):
-            flag_color = self.flag_color.value
-        elif isinstance(self.flag_color, TransactionFlagColorType2Type1):
-            flag_color = self.flag_color.value
-        elif isinstance(self.flag_color, TransactionFlagColorType3Type1):
+        elif isinstance(
+            self.flag_color, (TransactionFlagColorType1, TransactionFlagColorType2Type1, TransactionFlagColorType3Type1)
+        ):
             flag_color = self.flag_color.value
         else:
             flag_color = self.flag_color
 
-        flag_name: None | Unset | str
+        flag_name: Unset | str | None
         if isinstance(self.flag_name, Unset):
             flag_name = UNSET
         else:
             flag_name = self.flag_name
 
-        payee_id: None | Unset | str
+        payee_id: Unset | str | None
         if isinstance(self.payee_id, Unset):
             payee_id = UNSET
         elif isinstance(self.payee_id, UUID):
@@ -122,7 +120,7 @@ class ScheduledTransactionDetail:
         else:
             payee_id = self.payee_id
 
-        category_id: None | Unset | str
+        category_id: Unset | str | None
         if isinstance(self.category_id, Unset):
             category_id = UNSET
         elif isinstance(self.category_id, UUID):
@@ -130,7 +128,7 @@ class ScheduledTransactionDetail:
         else:
             category_id = self.category_id
 
-        transfer_account_id: None | Unset | str
+        transfer_account_id: Unset | str | None
         if isinstance(self.transfer_account_id, Unset):
             transfer_account_id = UNSET
         elif isinstance(self.transfer_account_id, UUID):
@@ -138,13 +136,13 @@ class ScheduledTransactionDetail:
         else:
             transfer_account_id = self.transfer_account_id
 
-        payee_name: None | Unset | str
+        payee_name: Unset | str | None
         if isinstance(self.payee_name, Unset):
             payee_name = UNSET
         else:
             payee_name = self.payee_name
 
-        category_name: None | Unset | str
+        category_name: Unset | str | None
         if isinstance(self.category_name, Unset):
             category_name = UNSET
         else:
@@ -185,7 +183,7 @@ class ScheduledTransactionDetail:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         from ynab_cli.adapters.ynab.models.scheduled_sub_transaction import ScheduledSubTransaction
 
         d = dict(src_dict)
@@ -212,18 +210,18 @@ class ScheduledTransactionDetail:
 
             subtransactions.append(subtransactions_item)
 
-        def _parse_memo(data: object) -> None | Unset | str:
+        def _parse_memo(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         memo = _parse_memo(d.pop("memo", UNSET))
 
         def _parse_flag_color(
             data: object,
-        ) -> None | TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset:
+        ) -> TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -253,26 +251,26 @@ class ScheduledTransactionDetail:
             except:  # noqa: E722
                 pass
             return cast(
-                None
-                | TransactionFlagColorType1
+                TransactionFlagColorType1
                 | TransactionFlagColorType2Type1
                 | TransactionFlagColorType3Type1
-                | Unset,
+                | Unset
+                | None,
                 data,
             )
 
         flag_color = _parse_flag_color(d.pop("flag_color", UNSET))
 
-        def _parse_flag_name(data: object) -> None | Unset | str:
+        def _parse_flag_name(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         flag_name = _parse_flag_name(d.pop("flag_name", UNSET))
 
-        def _parse_payee_id(data: object) -> None | UUID | Unset:
+        def _parse_payee_id(data: object) -> UUID | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -285,11 +283,11 @@ class ScheduledTransactionDetail:
                 return payee_id_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(UUID | Unset | None, data)
 
         payee_id = _parse_payee_id(d.pop("payee_id", UNSET))
 
-        def _parse_category_id(data: object) -> None | UUID | Unset:
+        def _parse_category_id(data: object) -> UUID | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -302,11 +300,11 @@ class ScheduledTransactionDetail:
                 return category_id_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(UUID | Unset | None, data)
 
         category_id = _parse_category_id(d.pop("category_id", UNSET))
 
-        def _parse_transfer_account_id(data: object) -> None | UUID | Unset:
+        def _parse_transfer_account_id(data: object) -> UUID | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -319,25 +317,25 @@ class ScheduledTransactionDetail:
                 return transfer_account_id_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(UUID | Unset | None, data)
 
         transfer_account_id = _parse_transfer_account_id(d.pop("transfer_account_id", UNSET))
 
-        def _parse_payee_name(data: object) -> None | Unset | str:
+        def _parse_payee_name(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         payee_name = _parse_payee_name(d.pop("payee_name", UNSET))
 
-        def _parse_category_name(data: object) -> None | Unset | str:
+        def _parse_category_name(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         category_name = _parse_category_name(d.pop("category_name", UNSET))
 

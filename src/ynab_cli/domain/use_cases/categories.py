@@ -10,9 +10,7 @@ from ynab_cli.domain.settings import Settings
 
 
 def _should_skip_category_or_group(category_or_group: models.Category | models.CategoryGroupWithCategories) -> bool:
-    if category_or_group.deleted:
-        return True
-    return False
+    return bool(category_or_group.deleted)
 
 
 class ListUnusedParams(TypedDict):
@@ -69,7 +67,7 @@ class ListUnused:
                     if not num_transactions:
                         yield category
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             if isinstance(e, util.ApiError) and e.status_code == 401:
                 await self._io.print("Invalid or expired access token. Please update your settings.")
             elif isinstance(e, util.ApiError) and e.status_code == 429:
@@ -121,7 +119,7 @@ class ListAll:
 
                     yield category
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             if isinstance(e, util.ApiError) and e.status_code == 401:
                 await self._io.print("Invalid or expired access token. Please update your settings.")
             elif isinstance(e, util.ApiError) and e.status_code == 429:

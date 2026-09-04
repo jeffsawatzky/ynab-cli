@@ -15,14 +15,12 @@ class TransactionsTabs(Widget):
 
     @override
     def compose(self) -> ComposeResult:
-        with TabbedContent():
-            with TabPane("Apply Rules", id="apply_rules"):
-                yield ApplyRulesCommand().data_bind(settings=TransactionsTabs.settings)
+        with TabbedContent(), TabPane("Apply Rules", id="apply_rules"):
+            yield ApplyRulesCommand().data_bind(settings=TransactionsTabs.settings)
 
     def active_command(self) -> CommandWidget:
         tabbed_content = self.query_one(TabbedContent)
-        if tabbed_content.active_pane:
-            if tabbed_content.active_pane.id == "apply_rules":
-                return self.query_one(ApplyRulesCommand)
+        if tabbed_content.active_pane and tabbed_content.active_pane.id == "apply_rules":
+            return self.query_one(ApplyRulesCommand)
 
         raise ValueError("No active command found in TransactionsTabs.")

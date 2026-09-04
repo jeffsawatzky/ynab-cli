@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, Self, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -79,28 +79,28 @@ class HybridTransaction:
     deleted: bool
     type_: HybridTransactionType
     account_name: str
-    memo: None | Unset | str = UNSET
+    memo: Unset | str | None = UNSET
     flag_color: (
-        None | TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset
+        TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset | None
     ) = UNSET
-    flag_name: None | Unset | str = UNSET
-    payee_id: None | UUID | Unset = UNSET
-    category_id: None | UUID | Unset = UNSET
-    transfer_account_id: None | UUID | Unset = UNSET
-    transfer_transaction_id: None | Unset | str = UNSET
-    matched_transaction_id: None | Unset | str = UNSET
-    import_id: None | Unset | str = UNSET
-    import_payee_name: None | Unset | str = UNSET
-    import_payee_name_original: None | Unset | str = UNSET
+    flag_name: Unset | str | None = UNSET
+    payee_id: UUID | Unset | None = UNSET
+    category_id: UUID | Unset | None = UNSET
+    transfer_account_id: UUID | Unset | None = UNSET
+    transfer_transaction_id: Unset | str | None = UNSET
+    matched_transaction_id: Unset | str | None = UNSET
+    import_id: Unset | str | None = UNSET
+    import_payee_name: Unset | str | None = UNSET
+    import_payee_name_original: Unset | str | None = UNSET
     debt_transaction_type: (
-        None
-        | TransactionSummaryDebtTransactionTypeType1
+        TransactionSummaryDebtTransactionTypeType1
         | TransactionSummaryDebtTransactionTypeType2Type1
         | TransactionSummaryDebtTransactionTypeType3Type1
         | Unset
+        | None
     ) = UNSET
-    parent_transaction_id: None | Unset | str = UNSET
-    payee_name: None | Unset | str = UNSET
+    parent_transaction_id: Unset | str | None = UNSET
+    payee_name: Unset | str | None = UNSET
     category_name: Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -123,31 +123,29 @@ class HybridTransaction:
 
         account_name = self.account_name
 
-        memo: None | Unset | str
+        memo: Unset | str | None
         if isinstance(self.memo, Unset):
             memo = UNSET
         else:
             memo = self.memo
 
-        flag_color: None | Unset | str
+        flag_color: Unset | str | None
         if isinstance(self.flag_color, Unset):
             flag_color = UNSET
-        elif isinstance(self.flag_color, TransactionFlagColorType1):
-            flag_color = self.flag_color.value
-        elif isinstance(self.flag_color, TransactionFlagColorType2Type1):
-            flag_color = self.flag_color.value
-        elif isinstance(self.flag_color, TransactionFlagColorType3Type1):
+        elif isinstance(
+            self.flag_color, (TransactionFlagColorType1, TransactionFlagColorType2Type1, TransactionFlagColorType3Type1)
+        ):
             flag_color = self.flag_color.value
         else:
             flag_color = self.flag_color
 
-        flag_name: None | Unset | str
+        flag_name: Unset | str | None
         if isinstance(self.flag_name, Unset):
             flag_name = UNSET
         else:
             flag_name = self.flag_name
 
-        payee_id: None | Unset | str
+        payee_id: Unset | str | None
         if isinstance(self.payee_id, Unset):
             payee_id = UNSET
         elif isinstance(self.payee_id, UUID):
@@ -155,7 +153,7 @@ class HybridTransaction:
         else:
             payee_id = self.payee_id
 
-        category_id: None | Unset | str
+        category_id: Unset | str | None
         if isinstance(self.category_id, Unset):
             category_id = UNSET
         elif isinstance(self.category_id, UUID):
@@ -163,7 +161,7 @@ class HybridTransaction:
         else:
             category_id = self.category_id
 
-        transfer_account_id: None | Unset | str
+        transfer_account_id: Unset | str | None
         if isinstance(self.transfer_account_id, Unset):
             transfer_account_id = UNSET
         elif isinstance(self.transfer_account_id, UUID):
@@ -171,55 +169,58 @@ class HybridTransaction:
         else:
             transfer_account_id = self.transfer_account_id
 
-        transfer_transaction_id: None | Unset | str
+        transfer_transaction_id: Unset | str | None
         if isinstance(self.transfer_transaction_id, Unset):
             transfer_transaction_id = UNSET
         else:
             transfer_transaction_id = self.transfer_transaction_id
 
-        matched_transaction_id: None | Unset | str
+        matched_transaction_id: Unset | str | None
         if isinstance(self.matched_transaction_id, Unset):
             matched_transaction_id = UNSET
         else:
             matched_transaction_id = self.matched_transaction_id
 
-        import_id: None | Unset | str
+        import_id: Unset | str | None
         if isinstance(self.import_id, Unset):
             import_id = UNSET
         else:
             import_id = self.import_id
 
-        import_payee_name: None | Unset | str
+        import_payee_name: Unset | str | None
         if isinstance(self.import_payee_name, Unset):
             import_payee_name = UNSET
         else:
             import_payee_name = self.import_payee_name
 
-        import_payee_name_original: None | Unset | str
+        import_payee_name_original: Unset | str | None
         if isinstance(self.import_payee_name_original, Unset):
             import_payee_name_original = UNSET
         else:
             import_payee_name_original = self.import_payee_name_original
 
-        debt_transaction_type: None | Unset | str
+        debt_transaction_type: Unset | str | None
         if isinstance(self.debt_transaction_type, Unset):
             debt_transaction_type = UNSET
-        elif isinstance(self.debt_transaction_type, TransactionSummaryDebtTransactionTypeType1):
-            debt_transaction_type = self.debt_transaction_type.value
-        elif isinstance(self.debt_transaction_type, TransactionSummaryDebtTransactionTypeType2Type1):
-            debt_transaction_type = self.debt_transaction_type.value
-        elif isinstance(self.debt_transaction_type, TransactionSummaryDebtTransactionTypeType3Type1):
+        elif isinstance(
+            self.debt_transaction_type,
+            (
+                TransactionSummaryDebtTransactionTypeType1,
+                TransactionSummaryDebtTransactionTypeType2Type1,
+                TransactionSummaryDebtTransactionTypeType3Type1,
+            ),
+        ):
             debt_transaction_type = self.debt_transaction_type.value
         else:
             debt_transaction_type = self.debt_transaction_type
 
-        parent_transaction_id: None | Unset | str
+        parent_transaction_id: Unset | str | None
         if isinstance(self.parent_transaction_id, Unset):
             parent_transaction_id = UNSET
         else:
             parent_transaction_id = self.parent_transaction_id
 
-        payee_name: None | Unset | str
+        payee_name: Unset | str | None
         if isinstance(self.payee_name, Unset):
             payee_name = UNSET
         else:
@@ -276,7 +277,7 @@ class HybridTransaction:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         d = dict(src_dict)
         id = d.pop("id")
 
@@ -296,18 +297,18 @@ class HybridTransaction:
 
         account_name = d.pop("account_name")
 
-        def _parse_memo(data: object) -> None | Unset | str:
+        def _parse_memo(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         memo = _parse_memo(d.pop("memo", UNSET))
 
         def _parse_flag_color(
             data: object,
-        ) -> None | TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset:
+        ) -> TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -337,26 +338,26 @@ class HybridTransaction:
             except:  # noqa: E722
                 pass
             return cast(
-                None
-                | TransactionFlagColorType1
+                TransactionFlagColorType1
                 | TransactionFlagColorType2Type1
                 | TransactionFlagColorType3Type1
-                | Unset,
+                | Unset
+                | None,
                 data,
             )
 
         flag_color = _parse_flag_color(d.pop("flag_color", UNSET))
 
-        def _parse_flag_name(data: object) -> None | Unset | str:
+        def _parse_flag_name(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         flag_name = _parse_flag_name(d.pop("flag_name", UNSET))
 
-        def _parse_payee_id(data: object) -> None | UUID | Unset:
+        def _parse_payee_id(data: object) -> UUID | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -369,11 +370,11 @@ class HybridTransaction:
                 return payee_id_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(UUID | Unset | None, data)
 
         payee_id = _parse_payee_id(d.pop("payee_id", UNSET))
 
-        def _parse_category_id(data: object) -> None | UUID | Unset:
+        def _parse_category_id(data: object) -> UUID | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -386,11 +387,11 @@ class HybridTransaction:
                 return category_id_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(UUID | Unset | None, data)
 
         category_id = _parse_category_id(d.pop("category_id", UNSET))
 
-        def _parse_transfer_account_id(data: object) -> None | UUID | Unset:
+        def _parse_transfer_account_id(data: object) -> UUID | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -403,63 +404,63 @@ class HybridTransaction:
                 return transfer_account_id_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(UUID | Unset | None, data)
 
         transfer_account_id = _parse_transfer_account_id(d.pop("transfer_account_id", UNSET))
 
-        def _parse_transfer_transaction_id(data: object) -> None | Unset | str:
+        def _parse_transfer_transaction_id(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         transfer_transaction_id = _parse_transfer_transaction_id(d.pop("transfer_transaction_id", UNSET))
 
-        def _parse_matched_transaction_id(data: object) -> None | Unset | str:
+        def _parse_matched_transaction_id(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         matched_transaction_id = _parse_matched_transaction_id(d.pop("matched_transaction_id", UNSET))
 
-        def _parse_import_id(data: object) -> None | Unset | str:
+        def _parse_import_id(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         import_id = _parse_import_id(d.pop("import_id", UNSET))
 
-        def _parse_import_payee_name(data: object) -> None | Unset | str:
+        def _parse_import_payee_name(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         import_payee_name = _parse_import_payee_name(d.pop("import_payee_name", UNSET))
 
-        def _parse_import_payee_name_original(data: object) -> None | Unset | str:
+        def _parse_import_payee_name_original(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         import_payee_name_original = _parse_import_payee_name_original(d.pop("import_payee_name_original", UNSET))
 
         def _parse_debt_transaction_type(
             data: object,
         ) -> (
-            None
-            | TransactionSummaryDebtTransactionTypeType1
+            TransactionSummaryDebtTransactionTypeType1
             | TransactionSummaryDebtTransactionTypeType2Type1
             | TransactionSummaryDebtTransactionTypeType3Type1
             | Unset
+            | None
         ):
             if data is None:
                 return data
@@ -490,31 +491,31 @@ class HybridTransaction:
             except:  # noqa: E722
                 pass
             return cast(
-                None
-                | TransactionSummaryDebtTransactionTypeType1
+                TransactionSummaryDebtTransactionTypeType1
                 | TransactionSummaryDebtTransactionTypeType2Type1
                 | TransactionSummaryDebtTransactionTypeType3Type1
-                | Unset,
+                | Unset
+                | None,
                 data,
             )
 
         debt_transaction_type = _parse_debt_transaction_type(d.pop("debt_transaction_type", UNSET))
 
-        def _parse_parent_transaction_id(data: object) -> None | Unset | str:
+        def _parse_parent_transaction_id(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         parent_transaction_id = _parse_parent_transaction_id(d.pop("parent_transaction_id", UNSET))
 
-        def _parse_payee_name(data: object) -> None | Unset | str:
+        def _parse_payee_name(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         payee_name = _parse_payee_name(d.pop("payee_name", UNSET))
 

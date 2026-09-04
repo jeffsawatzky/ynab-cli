@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, Self, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -79,22 +79,22 @@ class Category:
     balance: int
     deleted: bool
     category_group_name: Unset | str = UNSET
-    original_category_group_id: None | UUID | Unset = UNSET
-    note: None | Unset | str = UNSET
-    goal_type: CategoryGoalTypeType1 | CategoryGoalTypeType2Type1 | CategoryGoalTypeType3Type1 | None | Unset = UNSET
-    goal_needs_whole_amount: None | Unset | bool = UNSET
-    goal_day: None | Unset | int = UNSET
-    goal_cadence: None | Unset | int = UNSET
-    goal_cadence_frequency: None | Unset | int = UNSET
-    goal_creation_month: None | Unset | datetime.date = UNSET
-    goal_target: None | Unset | int = UNSET
-    goal_target_month: None | Unset | datetime.date = UNSET
-    goal_percentage_complete: None | Unset | int = UNSET
-    goal_months_to_budget: None | Unset | int = UNSET
-    goal_under_funded: None | Unset | int = UNSET
-    goal_overall_funded: None | Unset | int = UNSET
-    goal_overall_left: None | Unset | int = UNSET
-    goal_snoozed_at: None | Unset | datetime.datetime = UNSET
+    original_category_group_id: UUID | Unset | None = UNSET
+    note: Unset | str | None = UNSET
+    goal_type: CategoryGoalTypeType1 | CategoryGoalTypeType2Type1 | CategoryGoalTypeType3Type1 | Unset | None = UNSET
+    goal_needs_whole_amount: Unset | bool | None = UNSET
+    goal_day: Unset | int | None = UNSET
+    goal_cadence: Unset | int | None = UNSET
+    goal_cadence_frequency: Unset | int | None = UNSET
+    goal_creation_month: Unset | datetime.date | None = UNSET
+    goal_target: Unset | int | None = UNSET
+    goal_target_month: Unset | datetime.date | None = UNSET
+    goal_percentage_complete: Unset | int | None = UNSET
+    goal_months_to_budget: Unset | int | None = UNSET
+    goal_under_funded: Unset | int | None = UNSET
+    goal_overall_funded: Unset | int | None = UNSET
+    goal_overall_left: Unset | int | None = UNSET
+    goal_snoozed_at: Unset | datetime.datetime | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -116,7 +116,7 @@ class Category:
 
         category_group_name = self.category_group_name
 
-        original_category_group_id: None | Unset | str
+        original_category_group_id: Unset | str | None
         if isinstance(self.original_category_group_id, Unset):
             original_category_group_id = UNSET
         elif isinstance(self.original_category_group_id, UUID):
@@ -124,49 +124,47 @@ class Category:
         else:
             original_category_group_id = self.original_category_group_id
 
-        note: None | Unset | str
+        note: Unset | str | None
         if isinstance(self.note, Unset):
             note = UNSET
         else:
             note = self.note
 
-        goal_type: None | Unset | str
+        goal_type: Unset | str | None
         if isinstance(self.goal_type, Unset):
             goal_type = UNSET
-        elif isinstance(self.goal_type, CategoryGoalTypeType1):
-            goal_type = self.goal_type.value
-        elif isinstance(self.goal_type, CategoryGoalTypeType2Type1):
-            goal_type = self.goal_type.value
-        elif isinstance(self.goal_type, CategoryGoalTypeType3Type1):
+        elif isinstance(
+            self.goal_type, (CategoryGoalTypeType1, CategoryGoalTypeType2Type1, CategoryGoalTypeType3Type1)
+        ):
             goal_type = self.goal_type.value
         else:
             goal_type = self.goal_type
 
-        goal_needs_whole_amount: None | Unset | bool
+        goal_needs_whole_amount: Unset | bool | None
         if isinstance(self.goal_needs_whole_amount, Unset):
             goal_needs_whole_amount = UNSET
         else:
             goal_needs_whole_amount = self.goal_needs_whole_amount
 
-        goal_day: None | Unset | int
+        goal_day: Unset | int | None
         if isinstance(self.goal_day, Unset):
             goal_day = UNSET
         else:
             goal_day = self.goal_day
 
-        goal_cadence: None | Unset | int
+        goal_cadence: Unset | int | None
         if isinstance(self.goal_cadence, Unset):
             goal_cadence = UNSET
         else:
             goal_cadence = self.goal_cadence
 
-        goal_cadence_frequency: None | Unset | int
+        goal_cadence_frequency: Unset | int | None
         if isinstance(self.goal_cadence_frequency, Unset):
             goal_cadence_frequency = UNSET
         else:
             goal_cadence_frequency = self.goal_cadence_frequency
 
-        goal_creation_month: None | Unset | str
+        goal_creation_month: Unset | str | None
         if isinstance(self.goal_creation_month, Unset):
             goal_creation_month = UNSET
         elif isinstance(self.goal_creation_month, datetime.date):
@@ -174,13 +172,13 @@ class Category:
         else:
             goal_creation_month = self.goal_creation_month
 
-        goal_target: None | Unset | int
+        goal_target: Unset | int | None
         if isinstance(self.goal_target, Unset):
             goal_target = UNSET
         else:
             goal_target = self.goal_target
 
-        goal_target_month: None | Unset | str
+        goal_target_month: Unset | str | None
         if isinstance(self.goal_target_month, Unset):
             goal_target_month = UNSET
         elif isinstance(self.goal_target_month, datetime.date):
@@ -188,37 +186,37 @@ class Category:
         else:
             goal_target_month = self.goal_target_month
 
-        goal_percentage_complete: None | Unset | int
+        goal_percentage_complete: Unset | int | None
         if isinstance(self.goal_percentage_complete, Unset):
             goal_percentage_complete = UNSET
         else:
             goal_percentage_complete = self.goal_percentage_complete
 
-        goal_months_to_budget: None | Unset | int
+        goal_months_to_budget: Unset | int | None
         if isinstance(self.goal_months_to_budget, Unset):
             goal_months_to_budget = UNSET
         else:
             goal_months_to_budget = self.goal_months_to_budget
 
-        goal_under_funded: None | Unset | int
+        goal_under_funded: Unset | int | None
         if isinstance(self.goal_under_funded, Unset):
             goal_under_funded = UNSET
         else:
             goal_under_funded = self.goal_under_funded
 
-        goal_overall_funded: None | Unset | int
+        goal_overall_funded: Unset | int | None
         if isinstance(self.goal_overall_funded, Unset):
             goal_overall_funded = UNSET
         else:
             goal_overall_funded = self.goal_overall_funded
 
-        goal_overall_left: None | Unset | int
+        goal_overall_left: Unset | int | None
         if isinstance(self.goal_overall_left, Unset):
             goal_overall_left = UNSET
         else:
             goal_overall_left = self.goal_overall_left
 
-        goal_snoozed_at: None | Unset | str
+        goal_snoozed_at: Unset | str | None
         if isinstance(self.goal_snoozed_at, Unset):
             goal_snoozed_at = UNSET
         elif isinstance(self.goal_snoozed_at, datetime.datetime):
@@ -278,7 +276,7 @@ class Category:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         d = dict(src_dict)
         id = UUID(d.pop("id"))
 
@@ -298,7 +296,7 @@ class Category:
 
         category_group_name = d.pop("category_group_name", UNSET)
 
-        def _parse_original_category_group_id(data: object) -> None | UUID | Unset:
+        def _parse_original_category_group_id(data: object) -> UUID | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -311,22 +309,22 @@ class Category:
                 return original_category_group_id_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(UUID | Unset | None, data)
 
         original_category_group_id = _parse_original_category_group_id(d.pop("original_category_group_id", UNSET))
 
-        def _parse_note(data: object) -> None | Unset | str:
+        def _parse_note(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
         def _parse_goal_type(
             data: object,
-        ) -> CategoryGoalTypeType1 | CategoryGoalTypeType2Type1 | CategoryGoalTypeType3Type1 | None | Unset:
+        ) -> CategoryGoalTypeType1 | CategoryGoalTypeType2Type1 | CategoryGoalTypeType3Type1 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -356,48 +354,48 @@ class Category:
             except:  # noqa: E722
                 pass
             return cast(
-                CategoryGoalTypeType1 | CategoryGoalTypeType2Type1 | CategoryGoalTypeType3Type1 | None | Unset, data
+                CategoryGoalTypeType1 | CategoryGoalTypeType2Type1 | CategoryGoalTypeType3Type1 | Unset | None, data
             )
 
         goal_type = _parse_goal_type(d.pop("goal_type", UNSET))
 
-        def _parse_goal_needs_whole_amount(data: object) -> None | Unset | bool:
+        def _parse_goal_needs_whole_amount(data: object) -> Unset | bool | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | bool, data)
+            return cast(Unset | bool | None, data)
 
         goal_needs_whole_amount = _parse_goal_needs_whole_amount(d.pop("goal_needs_whole_amount", UNSET))
 
-        def _parse_goal_day(data: object) -> None | Unset | int:
+        def _parse_goal_day(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         goal_day = _parse_goal_day(d.pop("goal_day", UNSET))
 
-        def _parse_goal_cadence(data: object) -> None | Unset | int:
+        def _parse_goal_cadence(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         goal_cadence = _parse_goal_cadence(d.pop("goal_cadence", UNSET))
 
-        def _parse_goal_cadence_frequency(data: object) -> None | Unset | int:
+        def _parse_goal_cadence_frequency(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         goal_cadence_frequency = _parse_goal_cadence_frequency(d.pop("goal_cadence_frequency", UNSET))
 
-        def _parse_goal_creation_month(data: object) -> None | Unset | datetime.date:
+        def _parse_goal_creation_month(data: object) -> Unset | datetime.date | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -410,20 +408,20 @@ class Category:
                 return goal_creation_month_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | datetime.date, data)
+            return cast(Unset | datetime.date | None, data)
 
         goal_creation_month = _parse_goal_creation_month(d.pop("goal_creation_month", UNSET))
 
-        def _parse_goal_target(data: object) -> None | Unset | int:
+        def _parse_goal_target(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         goal_target = _parse_goal_target(d.pop("goal_target", UNSET))
 
-        def _parse_goal_target_month(data: object) -> None | Unset | datetime.date:
+        def _parse_goal_target_month(data: object) -> Unset | datetime.date | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -436,56 +434,56 @@ class Category:
                 return goal_target_month_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | datetime.date, data)
+            return cast(Unset | datetime.date | None, data)
 
         goal_target_month = _parse_goal_target_month(d.pop("goal_target_month", UNSET))
 
-        def _parse_goal_percentage_complete(data: object) -> None | Unset | int:
+        def _parse_goal_percentage_complete(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         goal_percentage_complete = _parse_goal_percentage_complete(d.pop("goal_percentage_complete", UNSET))
 
-        def _parse_goal_months_to_budget(data: object) -> None | Unset | int:
+        def _parse_goal_months_to_budget(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         goal_months_to_budget = _parse_goal_months_to_budget(d.pop("goal_months_to_budget", UNSET))
 
-        def _parse_goal_under_funded(data: object) -> None | Unset | int:
+        def _parse_goal_under_funded(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         goal_under_funded = _parse_goal_under_funded(d.pop("goal_under_funded", UNSET))
 
-        def _parse_goal_overall_funded(data: object) -> None | Unset | int:
+        def _parse_goal_overall_funded(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         goal_overall_funded = _parse_goal_overall_funded(d.pop("goal_overall_funded", UNSET))
 
-        def _parse_goal_overall_left(data: object) -> None | Unset | int:
+        def _parse_goal_overall_left(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         goal_overall_left = _parse_goal_overall_left(d.pop("goal_overall_left", UNSET))
 
-        def _parse_goal_snoozed_at(data: object) -> None | Unset | datetime.datetime:
+        def _parse_goal_snoozed_at(data: object) -> Unset | datetime.datetime | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -498,7 +496,7 @@ class Category:
                 return goal_snoozed_at_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | datetime.datetime, data)
+            return cast(Unset | datetime.datetime | None, data)
 
         goal_snoozed_at = _parse_goal_snoozed_at(d.pop("goal_snoozed_at", UNSET))
 

@@ -33,11 +33,11 @@ classifiers = [
 ]
 
 dependencies = [
-  "anyio~=4.12",
+  "anyio~=4.15",
   "attrs~=26.1",
   "click-default-group~=1.2",
-  "click~=8.3",
-  "httpx~=0.28",
+  "click~=8.5",
+  "httpx2>=2.12",
   "lagom~=2.7",
   "python-dateutil~=2.9",
   "python-dotenv~=1.2",
@@ -46,7 +46,7 @@ dependencies = [
   "rule-engine~=5.0",
   "textual-fspicker~=1.0",
   "textual~=8.2",
-  "typing-extensions~=4.15",
+  "typing-extensions~=4.16",
   "uvloop~=0.22",
 ]
 
@@ -63,18 +63,18 @@ ynab-cli = "ynab_cli.host.cli:main"
 
 [dependency-groups]
 dev = [
-  "commitizen~=4.12",
+  "commitizen~=4.18",
   "factory-boy~=3.3",
   "mkdocs-click~=0.9",
   "mkdocs-material~=9.7",
   "mkdocs~=1.6",
-  "mypy~=2.1",
-  "pytest-cov~=7.0",
+  "mypy~=2.3",
+  "pytest-cov~=7.1",
   "pytest-mock~=3.15",
-  "pytest~=9.0",
-  "ruff~=0.14",
+  "pytest~=9.1",
+  "ruff~=0.16",
   "textual-dev~=1.8",
-  "trio~=0.32",
+  "trio~=0.34",
   "types-python-dateutil~=2.9",
 ]
 

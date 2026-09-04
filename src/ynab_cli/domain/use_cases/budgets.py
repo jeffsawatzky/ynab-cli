@@ -36,7 +36,7 @@ class ListAll:
                 await self._io.progress.update(advance=1)
                 yield budget
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             if isinstance(e, util.ApiError) and e.status_code == 401:
                 await self._io.print("Invalid or expired access token. Please update your settings.")
             elif isinstance(e, util.ApiError) and e.status_code == 429:

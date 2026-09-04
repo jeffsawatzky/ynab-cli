@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, Self, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -9,8 +9,6 @@ T = TypeVar("T", bound="LoanAccountPeriodicValueType0")
 
 @_attrs_define
 class LoanAccountPeriodicValueType0:
-    """ """
-
     additional_properties: dict[str, int] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -20,7 +18,7 @@ class LoanAccountPeriodicValueType0:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         d = dict(src_dict)
         loan_account_periodic_value_type_0 = cls()
 

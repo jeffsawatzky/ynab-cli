@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, Union, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -59,8 +59,8 @@ class BudgetDetail:
     last_modified_on: Unset | datetime.datetime = UNSET
     first_month: Unset | datetime.date = UNSET
     last_month: Unset | datetime.date = UNSET
-    date_format: Union["DateFormatType0", None, Unset] = UNSET
-    currency_format: Union["CurrencyFormatType0", None, Unset] = UNSET
+    date_format: Union["DateFormatType0", Unset, None] = UNSET
+    currency_format: Union["CurrencyFormatType0", Unset, None] = UNSET
     accounts: Unset | list["Account"] = UNSET
     payees: Unset | list["Payee"] = UNSET
     payee_locations: Unset | list["PayeeLocation"] = UNSET
@@ -93,7 +93,7 @@ class BudgetDetail:
         if not isinstance(self.last_month, Unset):
             last_month = self.last_month.isoformat()
 
-        date_format: None | Unset | dict[str, Any]
+        date_format: Unset | dict[str, Any] | None
         if isinstance(self.date_format, Unset):
             date_format = UNSET
         elif isinstance(self.date_format, DateFormatType0):
@@ -101,7 +101,7 @@ class BudgetDetail:
         else:
             date_format = self.date_format
 
-        currency_format: None | Unset | dict[str, Any]
+        currency_format: Unset | dict[str, Any] | None
         if isinstance(self.currency_format, Unset):
             currency_format = UNSET
         elif isinstance(self.currency_format, CurrencyFormatType0):
@@ -221,7 +221,7 @@ class BudgetDetail:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         from ynab_cli.adapters.ynab.models.account import Account
         from ynab_cli.adapters.ynab.models.category import Category
         from ynab_cli.adapters.ynab.models.category_group import CategoryGroup
@@ -261,7 +261,7 @@ class BudgetDetail:
         else:
             last_month = isoparse(_last_month).date()
 
-        def _parse_date_format(data: object) -> Union["DateFormatType0", None, Unset]:
+        def _parse_date_format(data: object) -> Union["DateFormatType0", Unset, None]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -274,11 +274,11 @@ class BudgetDetail:
                 return componentsschemas_date_format_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["DateFormatType0", None, Unset], data)
+            return cast(Union["DateFormatType0", Unset, None], data)
 
         date_format = _parse_date_format(d.pop("date_format", UNSET))
 
-        def _parse_currency_format(data: object) -> Union["CurrencyFormatType0", None, Unset]:
+        def _parse_currency_format(data: object) -> Union["CurrencyFormatType0", Unset, None]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -291,7 +291,7 @@ class BudgetDetail:
                 return componentsschemas_currency_format_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["CurrencyFormatType0", None, Unset], data)
+            return cast(Union["CurrencyFormatType0", Unset, None], data)
 
         currency_format = _parse_currency_format(d.pop("currency_format", UNSET))
 

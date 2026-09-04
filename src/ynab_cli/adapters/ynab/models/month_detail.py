@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -40,8 +40,8 @@ class MonthDetail:
     to_be_budgeted: int
     deleted: bool
     categories: list["Category"]
-    note: None | Unset | str = UNSET
-    age_of_money: None | Unset | int = UNSET
+    note: Unset | str | None = UNSET
+    age_of_money: Unset | int | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -62,13 +62,13 @@ class MonthDetail:
             categories_item = categories_item_data.to_dict()
             categories.append(categories_item)
 
-        note: None | Unset | str
+        note: Unset | str | None
         if isinstance(self.note, Unset):
             note = UNSET
         else:
             note = self.note
 
-        age_of_money: None | Unset | int
+        age_of_money: Unset | int | None
         if isinstance(self.age_of_money, Unset):
             age_of_money = UNSET
         else:
@@ -95,7 +95,7 @@ class MonthDetail:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         from ynab_cli.adapters.ynab.models.category import Category
 
         d = dict(src_dict)
@@ -118,21 +118,21 @@ class MonthDetail:
 
             categories.append(categories_item)
 
-        def _parse_note(data: object) -> None | Unset | str:
+        def _parse_note(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
-        def _parse_age_of_money(data: object) -> None | Unset | int:
+        def _parse_age_of_money(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         age_of_money = _parse_age_of_money(d.pop("age_of_money", UNSET))
 

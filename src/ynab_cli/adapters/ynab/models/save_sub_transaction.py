@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, Self, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -26,16 +26,16 @@ class SaveSubTransaction:
     """
 
     amount: int
-    payee_id: None | UUID | Unset = UNSET
-    payee_name: None | Unset | str = UNSET
-    category_id: None | UUID | Unset = UNSET
-    memo: None | Unset | str = UNSET
+    payee_id: UUID | Unset | None = UNSET
+    payee_name: Unset | str | None = UNSET
+    category_id: UUID | Unset | None = UNSET
+    memo: Unset | str | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         amount = self.amount
 
-        payee_id: None | Unset | str
+        payee_id: Unset | str | None
         if isinstance(self.payee_id, Unset):
             payee_id = UNSET
         elif isinstance(self.payee_id, UUID):
@@ -43,13 +43,13 @@ class SaveSubTransaction:
         else:
             payee_id = self.payee_id
 
-        payee_name: None | Unset | str
+        payee_name: Unset | str | None
         if isinstance(self.payee_name, Unset):
             payee_name = UNSET
         else:
             payee_name = self.payee_name
 
-        category_id: None | Unset | str
+        category_id: Unset | str | None
         if isinstance(self.category_id, Unset):
             category_id = UNSET
         elif isinstance(self.category_id, UUID):
@@ -57,7 +57,7 @@ class SaveSubTransaction:
         else:
             category_id = self.category_id
 
-        memo: None | Unset | str
+        memo: Unset | str | None
         if isinstance(self.memo, Unset):
             memo = UNSET
         else:
@@ -82,11 +82,11 @@ class SaveSubTransaction:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         d = dict(src_dict)
         amount = d.pop("amount")
 
-        def _parse_payee_id(data: object) -> None | UUID | Unset:
+        def _parse_payee_id(data: object) -> UUID | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -99,20 +99,20 @@ class SaveSubTransaction:
                 return payee_id_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(UUID | Unset | None, data)
 
         payee_id = _parse_payee_id(d.pop("payee_id", UNSET))
 
-        def _parse_payee_name(data: object) -> None | Unset | str:
+        def _parse_payee_name(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         payee_name = _parse_payee_name(d.pop("payee_name", UNSET))
 
-        def _parse_category_id(data: object) -> None | UUID | Unset:
+        def _parse_category_id(data: object) -> UUID | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -125,16 +125,16 @@ class SaveSubTransaction:
                 return category_id_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(UUID | Unset | None, data)
 
         category_id = _parse_category_id(d.pop("category_id", UNSET))
 
-        def _parse_memo(data: object) -> None | Unset | str:
+        def _parse_memo(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         memo = _parse_memo(d.pop("memo", UNSET))
 

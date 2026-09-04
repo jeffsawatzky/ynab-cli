@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, Union, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -53,16 +53,16 @@ class Account:
     balance: int
     cleared_balance: int
     uncleared_balance: int
-    transfer_payee_id: None | UUID
+    transfer_payee_id: UUID | None
     deleted: bool
-    note: None | Unset | str = UNSET
+    note: Unset | str | None = UNSET
     direct_import_linked: Unset | bool = UNSET
     direct_import_in_error: Unset | bool = UNSET
-    last_reconciled_at: None | Unset | datetime.datetime = UNSET
-    debt_original_balance: None | Unset | int = UNSET
-    debt_interest_rates: Union["LoanAccountPeriodicValueType0", None, Unset] = UNSET
-    debt_minimum_payments: Union["LoanAccountPeriodicValueType0", None, Unset] = UNSET
-    debt_escrow_amounts: Union["LoanAccountPeriodicValueType0", None, Unset] = UNSET
+    last_reconciled_at: Unset | datetime.datetime | None = UNSET
+    debt_original_balance: Unset | int | None = UNSET
+    debt_interest_rates: Union["LoanAccountPeriodicValueType0", Unset, None] = UNSET
+    debt_minimum_payments: Union["LoanAccountPeriodicValueType0", Unset, None] = UNSET
+    debt_escrow_amounts: Union["LoanAccountPeriodicValueType0", Unset, None] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -84,7 +84,7 @@ class Account:
 
         uncleared_balance = self.uncleared_balance
 
-        transfer_payee_id: None | str
+        transfer_payee_id: str | None
         if isinstance(self.transfer_payee_id, UUID):
             transfer_payee_id = str(self.transfer_payee_id)
         else:
@@ -92,7 +92,7 @@ class Account:
 
         deleted = self.deleted
 
-        note: None | Unset | str
+        note: Unset | str | None
         if isinstance(self.note, Unset):
             note = UNSET
         else:
@@ -102,7 +102,7 @@ class Account:
 
         direct_import_in_error = self.direct_import_in_error
 
-        last_reconciled_at: None | Unset | str
+        last_reconciled_at: Unset | str | None
         if isinstance(self.last_reconciled_at, Unset):
             last_reconciled_at = UNSET
         elif isinstance(self.last_reconciled_at, datetime.datetime):
@@ -110,13 +110,13 @@ class Account:
         else:
             last_reconciled_at = self.last_reconciled_at
 
-        debt_original_balance: None | Unset | int
+        debt_original_balance: Unset | int | None
         if isinstance(self.debt_original_balance, Unset):
             debt_original_balance = UNSET
         else:
             debt_original_balance = self.debt_original_balance
 
-        debt_interest_rates: None | Unset | dict[str, Any]
+        debt_interest_rates: Unset | dict[str, Any] | None
         if isinstance(self.debt_interest_rates, Unset):
             debt_interest_rates = UNSET
         elif isinstance(self.debt_interest_rates, LoanAccountPeriodicValueType0):
@@ -124,7 +124,7 @@ class Account:
         else:
             debt_interest_rates = self.debt_interest_rates
 
-        debt_minimum_payments: None | Unset | dict[str, Any]
+        debt_minimum_payments: Unset | dict[str, Any] | None
         if isinstance(self.debt_minimum_payments, Unset):
             debt_minimum_payments = UNSET
         elif isinstance(self.debt_minimum_payments, LoanAccountPeriodicValueType0):
@@ -132,7 +132,7 @@ class Account:
         else:
             debt_minimum_payments = self.debt_minimum_payments
 
-        debt_escrow_amounts: None | Unset | dict[str, Any]
+        debt_escrow_amounts: Unset | dict[str, Any] | None
         if isinstance(self.debt_escrow_amounts, Unset):
             debt_escrow_amounts = UNSET
         elif isinstance(self.debt_escrow_amounts, LoanAccountPeriodicValueType0):
@@ -176,7 +176,7 @@ class Account:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         from ynab_cli.adapters.ynab.models.loan_account_periodic_value_type_0 import LoanAccountPeriodicValueType0
 
         d = dict(src_dict)
@@ -196,7 +196,7 @@ class Account:
 
         uncleared_balance = d.pop("uncleared_balance")
 
-        def _parse_transfer_payee_id(data: object) -> None | UUID:
+        def _parse_transfer_payee_id(data: object) -> UUID | None:
             if data is None:
                 return data
             try:
@@ -207,18 +207,18 @@ class Account:
                 return transfer_payee_id_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | UUID, data)
+            return cast(UUID | None, data)
 
         transfer_payee_id = _parse_transfer_payee_id(d.pop("transfer_payee_id"))
 
         deleted = d.pop("deleted")
 
-        def _parse_note(data: object) -> None | Unset | str:
+        def _parse_note(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
@@ -226,7 +226,7 @@ class Account:
 
         direct_import_in_error = d.pop("direct_import_in_error", UNSET)
 
-        def _parse_last_reconciled_at(data: object) -> None | Unset | datetime.datetime:
+        def _parse_last_reconciled_at(data: object) -> Unset | datetime.datetime | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -239,20 +239,20 @@ class Account:
                 return last_reconciled_at_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | datetime.datetime, data)
+            return cast(Unset | datetime.datetime | None, data)
 
         last_reconciled_at = _parse_last_reconciled_at(d.pop("last_reconciled_at", UNSET))
 
-        def _parse_debt_original_balance(data: object) -> None | Unset | int:
+        def _parse_debt_original_balance(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         debt_original_balance = _parse_debt_original_balance(d.pop("debt_original_balance", UNSET))
 
-        def _parse_debt_interest_rates(data: object) -> Union["LoanAccountPeriodicValueType0", None, Unset]:
+        def _parse_debt_interest_rates(data: object) -> Union["LoanAccountPeriodicValueType0", Unset, None]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -265,11 +265,11 @@ class Account:
                 return componentsschemas_loan_account_periodic_value_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["LoanAccountPeriodicValueType0", None, Unset], data)
+            return cast(Union["LoanAccountPeriodicValueType0", Unset, None], data)
 
         debt_interest_rates = _parse_debt_interest_rates(d.pop("debt_interest_rates", UNSET))
 
-        def _parse_debt_minimum_payments(data: object) -> Union["LoanAccountPeriodicValueType0", None, Unset]:
+        def _parse_debt_minimum_payments(data: object) -> Union["LoanAccountPeriodicValueType0", Unset, None]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -282,11 +282,11 @@ class Account:
                 return componentsschemas_loan_account_periodic_value_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["LoanAccountPeriodicValueType0", None, Unset], data)
+            return cast(Union["LoanAccountPeriodicValueType0", Unset, None], data)
 
         debt_minimum_payments = _parse_debt_minimum_payments(d.pop("debt_minimum_payments", UNSET))
 
-        def _parse_debt_escrow_amounts(data: object) -> Union["LoanAccountPeriodicValueType0", None, Unset]:
+        def _parse_debt_escrow_amounts(data: object) -> Union["LoanAccountPeriodicValueType0", Unset, None]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -299,7 +299,7 @@ class Account:
                 return componentsschemas_loan_account_periodic_value_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["LoanAccountPeriodicValueType0", None, Unset], data)
+            return cast(Union["LoanAccountPeriodicValueType0", Unset, None], data)
 
         debt_escrow_amounts = _parse_debt_escrow_amounts(d.pop("debt_escrow_amounts", UNSET))
 

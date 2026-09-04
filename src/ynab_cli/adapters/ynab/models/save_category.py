@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, Self, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -21,20 +21,20 @@ class SaveCategory:
             changed if the category already has a configured goal (goal_type != null).
     """
 
-    name: None | Unset | str = UNSET
-    note: None | Unset | str = UNSET
+    name: Unset | str | None = UNSET
+    note: Unset | str | None = UNSET
     category_group_id: Unset | UUID = UNSET
-    goal_target: None | Unset | int = UNSET
+    goal_target: Unset | int | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name: None | Unset | str
+        name: Unset | str | None
         if isinstance(self.name, Unset):
             name = UNSET
         else:
             name = self.name
 
-        note: None | Unset | str
+        note: Unset | str | None
         if isinstance(self.note, Unset):
             note = UNSET
         else:
@@ -44,7 +44,7 @@ class SaveCategory:
         if not isinstance(self.category_group_id, Unset):
             category_group_id = str(self.category_group_id)
 
-        goal_target: None | Unset | int
+        goal_target: Unset | int | None
         if isinstance(self.goal_target, Unset):
             goal_target = UNSET
         else:
@@ -65,24 +65,24 @@ class SaveCategory:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         d = dict(src_dict)
 
-        def _parse_name(data: object) -> None | Unset | str:
+        def _parse_name(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_note(data: object) -> None | Unset | str:
+        def _parse_note(data: object) -> Unset | str | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Unset | str | None, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
@@ -93,12 +93,12 @@ class SaveCategory:
         else:
             category_group_id = UUID(_category_group_id)
 
-        def _parse_goal_target(data: object) -> None | Unset | int:
+        def _parse_goal_target(data: object) -> Unset | int | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Unset | int | None, data)
 
         goal_target = _parse_goal_target(d.pop("goal_target", UNSET))
 

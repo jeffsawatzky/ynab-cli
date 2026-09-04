@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -30,13 +30,13 @@ class BudgetSettings:
         from ynab_cli.adapters.ynab.models.currency_format_type_0 import CurrencyFormatType0
         from ynab_cli.adapters.ynab.models.date_format_type_0 import DateFormatType0
 
-        date_format: None | dict[str, Any]
+        date_format: dict[str, Any] | None
         if isinstance(self.date_format, DateFormatType0):
             date_format = self.date_format.to_dict()
         else:
             date_format = self.date_format
 
-        currency_format: None | dict[str, Any]
+        currency_format: dict[str, Any] | None
         if isinstance(self.currency_format, CurrencyFormatType0):
             currency_format = self.currency_format.to_dict()
         else:
@@ -54,7 +54,7 @@ class BudgetSettings:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         from ynab_cli.adapters.ynab.models.currency_format_type_0 import CurrencyFormatType0
         from ynab_cli.adapters.ynab.models.date_format_type_0 import DateFormatType0
 

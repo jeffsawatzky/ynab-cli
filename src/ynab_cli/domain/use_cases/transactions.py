@@ -12,9 +12,7 @@ from ynab_cli.domain.settings import Settings
 
 
 def _should_skip_transaction(transaction: models.TransactionDetail) -> bool:
-    if transaction.deleted or transaction.category_name in ["Split"]:
-        return True
-    return False
+    return bool(transaction.deleted or transaction.category_name in ["Split"])
 
 
 def _get_save_transaction(
@@ -25,15 +23,17 @@ def _get_save_transaction(
 
     context = rule_engine.Context(default_value=None)
     for rule in transaction_rules.transaction_rules:
-        if any(rule_engine.Rule(rule_str, context=context).matches(transaction_detail_dict) for rule_str in rule.rules):
-            if rule.patch:
-                save_transaction_dict = rule.patch.to_dict()
-                save_transaction_dict["id"] = transaction_detail.id
-                save_transaction_dict["import_id"] = transaction_detail.import_id
+        if (
+            any(rule_engine.Rule(rule_str, context=context).matches(transaction_detail_dict) for rule_str in rule.rules)
+            and rule.patch
+        ):
+            save_transaction_dict = rule.patch.to_dict()
+            save_transaction_dict["id"] = transaction_detail.id
+            save_transaction_dict["import_id"] = transaction_detail.import_id
 
-                save_transaction = models.SaveTransactionWithIdOrImportId.from_dict(save_transaction_dict)
+            save_transaction = models.SaveTransactionWithIdOrImportId.from_dict(save_transaction_dict)
 
-                return save_transaction
+            return save_transaction
 
     return None
 
@@ -95,7 +95,7 @@ class ApplyRules:
                     body=models.PatchTransactionsWrapper(transactions=save_transactions),
                 )
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             if isinstance(e, util.ApiError) and e.status_code == 401:
                 await self._io.print("Invalid or expired access token. Please update your settings.")
             elif isinstance(e, util.ApiError) and e.status_code == 429:

@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Any
 
-import httpx
+import httpx2
 
 from ynab_cli.adapters.ynab import errors
 from ynab_cli.adapters.ynab.client import AuthenticatedClient, Client
@@ -23,7 +23,7 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
+    *, client: AuthenticatedClient | Client, response: httpx2.Response
 ) -> ErrorResponse | TransactionResponse | None:
     if response.status_code == 200:
         response_200 = TransactionResponse.from_dict(response.json())
@@ -42,7 +42,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
+    *, client: AuthenticatedClient | Client, response: httpx2.Response
 ) -> Response[ErrorResponse | TransactionResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -68,7 +68,7 @@ def sync_detailed(
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
         Response[Union[ErrorResponse, TransactionResponse]]
@@ -102,7 +102,7 @@ def sync(
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
         Union[ErrorResponse, TransactionResponse]
@@ -131,7 +131,7 @@ async def asyncio_detailed(
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
         Response[Union[ErrorResponse, TransactionResponse]]
@@ -163,7 +163,7 @@ async def asyncio(
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
         Union[ErrorResponse, TransactionResponse]
