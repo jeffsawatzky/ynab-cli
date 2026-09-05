@@ -1,5 +1,6 @@
 import re
 from collections.abc import AsyncIterator
+from datetime import date
 from typing import TypedDict
 from uuid import UUID
 
@@ -200,6 +201,7 @@ class ListUnused:
                         settings.ynab.budget_id,
                         str(payee.id),
                         client=self._client,
+                        since_date=date(1, 1, 1),
                     )
                 ).data.transactions
                 num_transactions = len(transactions)
