@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from datetime import date
 from typing import TypedDict
 
 from ynab_cli.adapters import ynab
@@ -59,6 +60,7 @@ class ListUnused:
                             settings.ynab.budget_id,
                             str(category.id),
                             client=self._client,
+                            since_date=date(1, 1, 1),
                         )
                     ).data.transactions
                     num_transactions = len(transactions)
