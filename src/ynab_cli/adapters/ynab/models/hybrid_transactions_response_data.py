@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
@@ -17,12 +19,12 @@ T = TypeVar("T", bound="HybridTransactionsResponseData")
 class HybridTransactionsResponseData:
     """
     Attributes:
-        transactions (list['HybridTransaction']):
-        server_knowledge (Union[Unset, int]): The knowledge of the server
+        transactions (list[HybridTransaction]):
+        server_knowledge (int | Unset): The knowledge of the server
     """
 
-    transactions: list["HybridTransaction"]
-    server_knowledge: Unset | int = UNSET
+    transactions: list[HybridTransaction]
+    server_knowledge: int | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

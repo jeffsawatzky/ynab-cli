@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
 from typing import Any, Self, TypeVar, cast
@@ -5,20 +7,19 @@ from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
 from ynab_cli.adapters.ynab.models.transaction_cleared_status import TransactionClearedStatus
 from ynab_cli.adapters.ynab.models.transaction_flag_color_type_1 import TransactionFlagColorType1
 from ynab_cli.adapters.ynab.models.transaction_flag_color_type_2_type_1 import TransactionFlagColorType2Type1
 from ynab_cli.adapters.ynab.models.transaction_flag_color_type_3_type_1 import TransactionFlagColorType3Type1
-from ynab_cli.adapters.ynab.models.transaction_summary_debt_transaction_type_type_1 import (
-    TransactionSummaryDebtTransactionTypeType1,
+from ynab_cli.adapters.ynab.models.transaction_summary_base_debt_transaction_type_type_1 import (
+    TransactionSummaryBaseDebtTransactionTypeType1,
 )
-from ynab_cli.adapters.ynab.models.transaction_summary_debt_transaction_type_type_2_type_1 import (
-    TransactionSummaryDebtTransactionTypeType2Type1,
+from ynab_cli.adapters.ynab.models.transaction_summary_base_debt_transaction_type_type_2_type_1 import (
+    TransactionSummaryBaseDebtTransactionTypeType2Type1,
 )
-from ynab_cli.adapters.ynab.models.transaction_summary_debt_transaction_type_type_3_type_1 import (
-    TransactionSummaryDebtTransactionTypeType3Type1,
+from ynab_cli.adapters.ynab.models.transaction_summary_base_debt_transaction_type_type_3_type_1 import (
+    TransactionSummaryBaseDebtTransactionTypeType3Type1,
 )
 from ynab_cli.adapters.ynab.types import UNSET, Unset
 
@@ -37,29 +38,31 @@ class TransactionSummary:
         account_id (UUID):
         deleted (bool): Whether or not the transaction has been deleted.  Deleted transactions will only be included in
             delta requests.
-        memo (Union[None, Unset, str]):
-        flag_color (Union[None, TransactionFlagColorType1, TransactionFlagColorType2Type1,
-            TransactionFlagColorType3Type1, Unset]): The transaction flag
-        flag_name (Union[None, Unset, str]): The customized name of a transaction flag
-        payee_id (Union[None, UUID, Unset]):
-        category_id (Union[None, UUID, Unset]):
-        transfer_account_id (Union[None, UUID, Unset]): If a transfer transaction, the account to which it transfers
-        transfer_transaction_id (Union[None, Unset, str]): If a transfer transaction, the id of transaction on the other
-            side of the transfer
-        matched_transaction_id (Union[None, Unset, str]): If transaction is matched, the id of the matched transaction
-        import_id (Union[None, Unset, str]): If the transaction was imported, this field is a unique (by account) import
+        memo (None | str | Unset):
+        flag_color (None | TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 |
+            Unset): The transaction flag
+        flag_name (None | str | Unset): The customized name of a transaction flag
+        payee_id (None | Unset | UUID):
+        category_id (None | Unset | UUID):
+        transfer_account_id (None | Unset | UUID): If a transfer transaction, the account to which it transfers
+        transfer_transaction_id (None | str | Unset): If a transfer transaction, the id of transaction on the other side
+            of the transfer
+        matched_transaction_id (None | str | Unset): If transaction is matched, the id of the matched transaction
+        import_id (None | str | Unset): If the transaction was imported, this field is a unique (by account) import
             identifier.  If this transaction was imported through File Based Import or Direct Import and not through the
             API, the import_id will have the format: 'YNAB:[milliunit_amount]:[iso_date]:[occurrence]'.  For example, a
             transaction dated 2015-12-30 in the amount of -$294.23 USD would have an import_id of
             'YNAB:-294230:2015-12-30:1'.  If a second transaction on the same account was imported and had the same date and
             same amount, its import_id would be 'YNAB:-294230:2015-12-30:2'.
-        import_payee_name (Union[None, Unset, str]): If the transaction was imported, the payee name that was used when
+        import_payee_name (None | str | Unset): If the transaction was imported, the payee name that was used when
             importing and before applying any payee rename rules
-        import_payee_name_original (Union[None, Unset, str]): If the transaction was imported, the original payee name
-            as it appeared on the statement
-        debt_transaction_type (Union[None, TransactionSummaryDebtTransactionTypeType1,
-            TransactionSummaryDebtTransactionTypeType2Type1, TransactionSummaryDebtTransactionTypeType3Type1, Unset]): If
-            the transaction is a debt/loan account transaction, the type of transaction
+        import_payee_name_original (None | str | Unset): If the transaction was imported, the original payee name as it
+            appeared on the statement
+        debt_transaction_type (None | TransactionSummaryBaseDebtTransactionTypeType1 |
+            TransactionSummaryBaseDebtTransactionTypeType2Type1 | TransactionSummaryBaseDebtTransactionTypeType3Type1 |
+            Unset): If the transaction is a debt/loan account transaction, the type of transaction
+        amount_formatted (str | Unset): The transaction amount formatted in the plan's currency format
+        amount_currency (float | Unset): The transaction amount as a decimal currency amount
     """
 
     id: str
@@ -69,26 +72,28 @@ class TransactionSummary:
     approved: bool
     account_id: UUID
     deleted: bool
-    memo: Unset | str | None = UNSET
+    memo: str | Unset | None = UNSET
     flag_color: (
         TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset | None
     ) = UNSET
-    flag_name: Unset | str | None = UNSET
-    payee_id: UUID | Unset | None = UNSET
-    category_id: UUID | Unset | None = UNSET
-    transfer_account_id: UUID | Unset | None = UNSET
-    transfer_transaction_id: Unset | str | None = UNSET
-    matched_transaction_id: Unset | str | None = UNSET
-    import_id: Unset | str | None = UNSET
-    import_payee_name: Unset | str | None = UNSET
-    import_payee_name_original: Unset | str | None = UNSET
+    flag_name: str | Unset | None = UNSET
+    payee_id: Unset | UUID | None = UNSET
+    category_id: Unset | UUID | None = UNSET
+    transfer_account_id: Unset | UUID | None = UNSET
+    transfer_transaction_id: str | Unset | None = UNSET
+    matched_transaction_id: str | Unset | None = UNSET
+    import_id: str | Unset | None = UNSET
+    import_payee_name: str | Unset | None = UNSET
+    import_payee_name_original: str | Unset | None = UNSET
     debt_transaction_type: (
-        TransactionSummaryDebtTransactionTypeType1
-        | TransactionSummaryDebtTransactionTypeType2Type1
-        | TransactionSummaryDebtTransactionTypeType3Type1
+        TransactionSummaryBaseDebtTransactionTypeType1
+        | TransactionSummaryBaseDebtTransactionTypeType2Type1
+        | TransactionSummaryBaseDebtTransactionTypeType3Type1
         | Unset
         | None
     ) = UNSET
+    amount_formatted: str | Unset = UNSET
+    amount_currency: float | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -106,13 +111,13 @@ class TransactionSummary:
 
         deleted = self.deleted
 
-        memo: Unset | str | None
+        memo: str | Unset | None
         if isinstance(self.memo, Unset):
             memo = UNSET
         else:
             memo = self.memo
 
-        flag_color: Unset | str | None
+        flag_color: str | Unset | None
         if isinstance(self.flag_color, Unset):
             flag_color = UNSET
         elif isinstance(
@@ -122,13 +127,13 @@ class TransactionSummary:
         else:
             flag_color = self.flag_color
 
-        flag_name: Unset | str | None
+        flag_name: str | Unset | None
         if isinstance(self.flag_name, Unset):
             flag_name = UNSET
         else:
             flag_name = self.flag_name
 
-        payee_id: Unset | str | None
+        payee_id: str | Unset | None
         if isinstance(self.payee_id, Unset):
             payee_id = UNSET
         elif isinstance(self.payee_id, UUID):
@@ -136,7 +141,7 @@ class TransactionSummary:
         else:
             payee_id = self.payee_id
 
-        category_id: Unset | str | None
+        category_id: str | Unset | None
         if isinstance(self.category_id, Unset):
             category_id = UNSET
         elif isinstance(self.category_id, UUID):
@@ -144,7 +149,7 @@ class TransactionSummary:
         else:
             category_id = self.category_id
 
-        transfer_account_id: Unset | str | None
+        transfer_account_id: str | Unset | None
         if isinstance(self.transfer_account_id, Unset):
             transfer_account_id = UNSET
         elif isinstance(self.transfer_account_id, UUID):
@@ -152,50 +157,54 @@ class TransactionSummary:
         else:
             transfer_account_id = self.transfer_account_id
 
-        transfer_transaction_id: Unset | str | None
+        transfer_transaction_id: str | Unset | None
         if isinstance(self.transfer_transaction_id, Unset):
             transfer_transaction_id = UNSET
         else:
             transfer_transaction_id = self.transfer_transaction_id
 
-        matched_transaction_id: Unset | str | None
+        matched_transaction_id: str | Unset | None
         if isinstance(self.matched_transaction_id, Unset):
             matched_transaction_id = UNSET
         else:
             matched_transaction_id = self.matched_transaction_id
 
-        import_id: Unset | str | None
+        import_id: str | Unset | None
         if isinstance(self.import_id, Unset):
             import_id = UNSET
         else:
             import_id = self.import_id
 
-        import_payee_name: Unset | str | None
+        import_payee_name: str | Unset | None
         if isinstance(self.import_payee_name, Unset):
             import_payee_name = UNSET
         else:
             import_payee_name = self.import_payee_name
 
-        import_payee_name_original: Unset | str | None
+        import_payee_name_original: str | Unset | None
         if isinstance(self.import_payee_name_original, Unset):
             import_payee_name_original = UNSET
         else:
             import_payee_name_original = self.import_payee_name_original
 
-        debt_transaction_type: Unset | str | None
+        debt_transaction_type: str | Unset | None
         if isinstance(self.debt_transaction_type, Unset):
             debt_transaction_type = UNSET
         elif isinstance(
             self.debt_transaction_type,
             (
-                TransactionSummaryDebtTransactionTypeType1,
-                TransactionSummaryDebtTransactionTypeType2Type1,
-                TransactionSummaryDebtTransactionTypeType3Type1,
+                TransactionSummaryBaseDebtTransactionTypeType1,
+                TransactionSummaryBaseDebtTransactionTypeType2Type1,
+                TransactionSummaryBaseDebtTransactionTypeType3Type1,
             ),
         ):
             debt_transaction_type = self.debt_transaction_type.value
         else:
             debt_transaction_type = self.debt_transaction_type
+
+        amount_formatted = self.amount_formatted
+
+        amount_currency = self.amount_currency
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -234,6 +243,10 @@ class TransactionSummary:
             field_dict["import_payee_name_original"] = import_payee_name_original
         if debt_transaction_type is not UNSET:
             field_dict["debt_transaction_type"] = debt_transaction_type
+        if amount_formatted is not UNSET:
+            field_dict["amount_formatted"] = amount_formatted
+        if amount_currency is not UNSET:
+            field_dict["amount_currency"] = amount_currency
 
         return field_dict
 
@@ -242,7 +255,7 @@ class TransactionSummary:
         d = dict(src_dict)
         id = d.pop("id")
 
-        date = isoparse(d.pop("date")).date()
+        date = datetime.date.fromisoformat(d.pop("date"))
 
         amount = d.pop("amount")
 
@@ -254,12 +267,12 @@ class TransactionSummary:
 
         deleted = d.pop("deleted")
 
-        def _parse_memo(data: object) -> Unset | str | None:
+        def _parse_memo(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         memo = _parse_memo(d.pop("memo", UNSET))
 
@@ -276,7 +289,7 @@ class TransactionSummary:
                 componentsschemas_transaction_flag_color_type_1 = TransactionFlagColorType1(data)
 
                 return componentsschemas_transaction_flag_color_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             try:
                 if not isinstance(data, str):
@@ -284,7 +297,7 @@ class TransactionSummary:
                 componentsschemas_transaction_flag_color_type_2_type_1 = TransactionFlagColorType2Type1(data)
 
                 return componentsschemas_transaction_flag_color_type_2_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             try:
                 if not isinstance(data, str):
@@ -292,7 +305,7 @@ class TransactionSummary:
                 componentsschemas_transaction_flag_color_type_3_type_1 = TransactionFlagColorType3Type1(data)
 
                 return componentsschemas_transaction_flag_color_type_3_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(
                 TransactionFlagColorType1
@@ -305,16 +318,16 @@ class TransactionSummary:
 
         flag_color = _parse_flag_color(d.pop("flag_color", UNSET))
 
-        def _parse_flag_name(data: object) -> Unset | str | None:
+        def _parse_flag_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         flag_name = _parse_flag_name(d.pop("flag_name", UNSET))
 
-        def _parse_payee_id(data: object) -> UUID | Unset | None:
+        def _parse_payee_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -325,13 +338,13 @@ class TransactionSummary:
                 payee_id_type_0 = UUID(data)
 
                 return payee_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(UUID | Unset | None, data)
+            return cast(Unset | UUID | None, data)
 
         payee_id = _parse_payee_id(d.pop("payee_id", UNSET))
 
-        def _parse_category_id(data: object) -> UUID | Unset | None:
+        def _parse_category_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -342,13 +355,13 @@ class TransactionSummary:
                 category_id_type_0 = UUID(data)
 
                 return category_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(UUID | Unset | None, data)
+            return cast(Unset | UUID | None, data)
 
         category_id = _parse_category_id(d.pop("category_id", UNSET))
 
-        def _parse_transfer_account_id(data: object) -> UUID | Unset | None:
+        def _parse_transfer_account_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -359,63 +372,63 @@ class TransactionSummary:
                 transfer_account_id_type_0 = UUID(data)
 
                 return transfer_account_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(UUID | Unset | None, data)
+            return cast(Unset | UUID | None, data)
 
         transfer_account_id = _parse_transfer_account_id(d.pop("transfer_account_id", UNSET))
 
-        def _parse_transfer_transaction_id(data: object) -> Unset | str | None:
+        def _parse_transfer_transaction_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         transfer_transaction_id = _parse_transfer_transaction_id(d.pop("transfer_transaction_id", UNSET))
 
-        def _parse_matched_transaction_id(data: object) -> Unset | str | None:
+        def _parse_matched_transaction_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         matched_transaction_id = _parse_matched_transaction_id(d.pop("matched_transaction_id", UNSET))
 
-        def _parse_import_id(data: object) -> Unset | str | None:
+        def _parse_import_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         import_id = _parse_import_id(d.pop("import_id", UNSET))
 
-        def _parse_import_payee_name(data: object) -> Unset | str | None:
+        def _parse_import_payee_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         import_payee_name = _parse_import_payee_name(d.pop("import_payee_name", UNSET))
 
-        def _parse_import_payee_name_original(data: object) -> Unset | str | None:
+        def _parse_import_payee_name_original(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         import_payee_name_original = _parse_import_payee_name_original(d.pop("import_payee_name_original", UNSET))
 
         def _parse_debt_transaction_type(
             data: object,
         ) -> (
-            TransactionSummaryDebtTransactionTypeType1
-            | TransactionSummaryDebtTransactionTypeType2Type1
-            | TransactionSummaryDebtTransactionTypeType3Type1
+            TransactionSummaryBaseDebtTransactionTypeType1
+            | TransactionSummaryBaseDebtTransactionTypeType2Type1
+            | TransactionSummaryBaseDebtTransactionTypeType3Type1
             | Unset
             | None
         ):
@@ -426,37 +439,41 @@ class TransactionSummary:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                debt_transaction_type_type_1 = TransactionSummaryDebtTransactionTypeType1(data)
+                debt_transaction_type_type_1 = TransactionSummaryBaseDebtTransactionTypeType1(data)
 
                 return debt_transaction_type_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                debt_transaction_type_type_2_type_1 = TransactionSummaryDebtTransactionTypeType2Type1(data)
+                debt_transaction_type_type_2_type_1 = TransactionSummaryBaseDebtTransactionTypeType2Type1(data)
 
                 return debt_transaction_type_type_2_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                debt_transaction_type_type_3_type_1 = TransactionSummaryDebtTransactionTypeType3Type1(data)
+                debt_transaction_type_type_3_type_1 = TransactionSummaryBaseDebtTransactionTypeType3Type1(data)
 
                 return debt_transaction_type_type_3_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(
-                TransactionSummaryDebtTransactionTypeType1
-                | TransactionSummaryDebtTransactionTypeType2Type1
-                | TransactionSummaryDebtTransactionTypeType3Type1
+                TransactionSummaryBaseDebtTransactionTypeType1
+                | TransactionSummaryBaseDebtTransactionTypeType2Type1
+                | TransactionSummaryBaseDebtTransactionTypeType3Type1
                 | Unset
                 | None,
                 data,
             )
 
         debt_transaction_type = _parse_debt_transaction_type(d.pop("debt_transaction_type", UNSET))
+
+        amount_formatted = d.pop("amount_formatted", UNSET)
+
+        amount_currency = d.pop("amount_currency", UNSET)
 
         transaction_summary = cls(
             id=id,
@@ -478,6 +495,8 @@ class TransactionSummary:
             import_payee_name=import_payee_name,
             import_payee_name_original=import_payee_name_original,
             debt_transaction_type=debt_transaction_type,
+            amount_formatted=amount_formatted,
+            amount_currency=amount_currency,
         )
 
         transaction_summary.additional_properties = d

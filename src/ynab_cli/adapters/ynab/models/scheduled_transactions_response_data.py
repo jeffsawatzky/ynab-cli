@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
@@ -15,11 +17,11 @@ T = TypeVar("T", bound="ScheduledTransactionsResponseData")
 class ScheduledTransactionsResponseData:
     """
     Attributes:
-        scheduled_transactions (list['ScheduledTransactionDetail']):
+        scheduled_transactions (list[ScheduledTransactionDetail]):
         server_knowledge (int): The knowledge of the server
     """
 
-    scheduled_transactions: list["ScheduledTransactionDetail"]
+    scheduled_transactions: list[ScheduledTransactionDetail]
     server_knowledge: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

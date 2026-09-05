@@ -10,7 +10,7 @@ from ynab_cli.domain.settings import Settings
 
 
 def _should_skip_category_or_group(category_or_group: models.Category | models.CategoryGroupWithCategories) -> bool:
-    return bool(category_or_group.deleted)
+    return bool(category_or_group.deleted) or bool(category_or_group.internal) or bool(category_or_group.hidden)
 
 
 class ListUnusedParams(TypedDict):

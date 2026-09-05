@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Self, TypeVar
 from uuid import UUID
@@ -15,6 +17,7 @@ class CategoryGroup:
         id (UUID):
         name (str):
         hidden (bool): Whether or not the category group is hidden
+        internal (bool): Whether or not the category group is internal
         deleted (bool): Whether or not the category group has been deleted.  Deleted category groups will only be
             included in delta requests.
     """
@@ -22,6 +25,7 @@ class CategoryGroup:
     id: UUID
     name: str
     hidden: bool
+    internal: bool
     deleted: bool
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -32,6 +36,8 @@ class CategoryGroup:
 
         hidden = self.hidden
 
+        internal = self.internal
+
         deleted = self.deleted
 
         field_dict: dict[str, Any] = {}
@@ -41,6 +47,7 @@ class CategoryGroup:
                 "id": id,
                 "name": name,
                 "hidden": hidden,
+                "internal": internal,
                 "deleted": deleted,
             }
         )
@@ -56,12 +63,15 @@ class CategoryGroup:
 
         hidden = d.pop("hidden")
 
+        internal = d.pop("internal")
+
         deleted = d.pop("deleted")
 
         category_group = cls(
             id=id,
             name=name,
             hidden=hidden,
+            internal=internal,
             deleted=deleted,
         )
 

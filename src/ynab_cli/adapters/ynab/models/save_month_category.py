@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Self, TypeVar
 
@@ -11,7 +13,7 @@ T = TypeVar("T", bound="SaveMonthCategory")
 class SaveMonthCategory:
     """
     Attributes:
-        budgeted (int): Budgeted amount in milliunits format
+        budgeted (int): Assigned (budgeted) amount in milliunits format
     """
 
     budgeted: int

@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from typing import Any
+from urllib.parse import quote
 
 import httpx2
 
@@ -12,7 +13,7 @@ from ynab_cli.adapters.ynab.types import Response
 
 
 def _get_kwargs(
-    budget_id: str,
+    plan_id: str,
     *,
     body: PostTransactionsWrapper,
 ) -> dict[str, Any]:
@@ -20,7 +21,9 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": f"/budgets/{budget_id}/transactions",
+        "url": "/plans/{plan_id}/transactions".format(
+            plan_id=quote(str(plan_id), safe=""),
+        ),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -67,7 +70,7 @@ def _build_response(
 
 
 def sync_detailed(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PostTransactionsWrapper,
@@ -80,7 +83,7 @@ def sync_detailed(
     with a future date) cannot be created on this endpoint.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PostTransactionsWrapper):
 
     Raises:
@@ -88,11 +91,11 @@ def sync_detailed(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, SaveTransactionsResponse]]
+        Response[ErrorResponse | SaveTransactionsResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         body=body,
     )
 
@@ -104,7 +107,7 @@ def sync_detailed(
 
 
 def sync(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PostTransactionsWrapper,
@@ -117,7 +120,7 @@ def sync(
     with a future date) cannot be created on this endpoint.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PostTransactionsWrapper):
 
     Raises:
@@ -125,18 +128,18 @@ def sync(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, SaveTransactionsResponse]
+        ErrorResponse | SaveTransactionsResponse
     """
 
     return sync_detailed(
-        budget_id=budget_id,
+        plan_id=plan_id,
         client=client,
         body=body,
     ).parsed
 
 
 async def asyncio_detailed(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PostTransactionsWrapper,
@@ -149,7 +152,7 @@ async def asyncio_detailed(
     with a future date) cannot be created on this endpoint.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PostTransactionsWrapper):
 
     Raises:
@@ -157,11 +160,11 @@ async def asyncio_detailed(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, SaveTransactionsResponse]]
+        Response[ErrorResponse | SaveTransactionsResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         body=body,
     )
 
@@ -171,7 +174,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PostTransactionsWrapper,
@@ -184,7 +187,7 @@ async def asyncio(
     with a future date) cannot be created on this endpoint.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PostTransactionsWrapper):
 
     Raises:
@@ -192,12 +195,12 @@ async def asyncio(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, SaveTransactionsResponse]
+        ErrorResponse | SaveTransactionsResponse
     """
 
     return (
         await asyncio_detailed(
-            budget_id=budget_id,
+            plan_id=plan_id,
             client=client,
             body=body,
         )

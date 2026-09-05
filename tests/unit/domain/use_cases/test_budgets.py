@@ -13,16 +13,16 @@ from ynab_cli.domain.use_cases import budgets as use_cases
 
 @pytest.mark.anyio
 async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
-    mock_get_budgets = mocker.patch("ynab_cli.domain.use_cases.budgets.get_budgets")
+    mock_get_budgets = mocker.patch("ynab_cli.domain.use_cases.budgets.get_plans")
     mock_get_budgets.asyncio_detailed = AsyncMock()
     mock_get_budgets.asyncio_detailed.return_value = Response(
         status_code=HTTPStatus.OK,
         content=b"",
         headers={},
-        parsed=models.BudgetSummaryResponse(
-            data=models.BudgetSummaryResponseData(
-                budgets=[
-                    models.BudgetSummary(id=UUID("00000000-0000-0000-0000-000000000001"), name="Budget 1"),
+        parsed=models.PlanSummaryResponse(
+            data=models.PlanSummaryResponseData(
+                plans=[
+                    models.PlanSummary(id=UUID("00000000-0000-0000-0000-000000000001"), name="Plan 1"),
                 ],
             )
         ),
@@ -35,7 +35,7 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
     budgets = [budget async for budget in use_case(settings, params)]
 
     assert len(budgets) == 1
-    assert budgets[0].name == "Budget 1"
+    assert budgets[0].name == "Plan 1"
 
 
 @pytest.mark.parametrize(
@@ -50,7 +50,7 @@ async def test_list_all(mocker: MockerFixture, mock_io: MagicMock) -> None:
 async def test_list_all_exception(
     exception: Exception, expected_print: str, mocker: MockerFixture, mock_io: MagicMock
 ) -> None:
-    mock_get_budgets = mocker.patch("ynab_cli.domain.use_cases.budgets.get_budgets")
+    mock_get_budgets = mocker.patch("ynab_cli.domain.use_cases.budgets.get_plans")
     mock_get_budgets.asyncio_detailed = AsyncMock()
     mock_get_budgets.asyncio_detailed.side_effect = exception
 

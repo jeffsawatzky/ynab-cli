@@ -1,9 +1,11 @@
 import datetime
 from http import HTTPStatus
 from typing import Any
+from urllib.parse import quote
 
 import httpx2
 
+from ynab_cli.adapters.ynab import errors
 from ynab_cli.adapters.ynab.client import AuthenticatedClient, Client
 from ynab_cli.adapters.ynab.models.error_response import ErrorResponse
 from ynab_cli.adapters.ynab.models.get_transactions_by_month_type import GetTransactionsByMonthType
@@ -12,21 +14,28 @@ from ynab_cli.adapters.ynab.types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    budget_id: str,
+    plan_id: str,
     month: str,
     *,
-    since_date: Unset | datetime.date = UNSET,
-    type_: Unset | GetTransactionsByMonthType = UNSET,
-    last_knowledge_of_server: Unset | int = UNSET,
+    since_date: datetime.date | Unset = UNSET,
+    until_date: datetime.date | Unset = UNSET,
+    type_: GetTransactionsByMonthType | Unset = UNSET,
+    last_knowledge_of_server: int | Unset = UNSET,
 ) -> dict[str, Any]:
+
     params: dict[str, Any] = {}
 
-    json_since_date: Unset | str = UNSET
+    json_since_date: str | Unset = UNSET
     if not isinstance(since_date, Unset):
         json_since_date = since_date.isoformat()
     params["since_date"] = json_since_date
 
-    json_type_: Unset | str = UNSET
+    json_until_date: str | Unset = UNSET
+    if not isinstance(until_date, Unset):
+        json_until_date = until_date.isoformat()
+    params["until_date"] = json_until_date
+
+    json_type_: str | Unset = UNSET
     if not isinstance(type_, Unset):
         json_type_ = type_.value
 
@@ -38,7 +47,10 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": f"/budgets/{budget_id}/months/{month}/transactions",
+        "url": "/plans/{plan_id}/months/{month}/transactions".format(
+            plan_id=quote(str(plan_id), safe=""),
+            month=quote(str(month), safe=""),
+        ),
         "params": params,
     }
 
@@ -47,7 +59,7 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx2.Response
-) -> ErrorResponse | TransactionsResponse:
+) -> ErrorResponse | TransactionsResponse | None:
     if response.status_code == 200:
         response_200 = TransactionsResponse.from_dict(response.json())
 
@@ -58,9 +70,10 @@ def _parse_response(
 
         return response_404
 
-    response_default = ErrorResponse.from_dict(response.json())
-
-    return response_default
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatusError(response.status_code, response.content)
+    else:
+        return None
 
 
 def _build_response(
@@ -75,37 +88,40 @@ def _build_response(
 
 
 def sync_detailed(
-    budget_id: str,
+    plan_id: str,
     month: str,
     *,
     client: AuthenticatedClient | Client,
-    since_date: Unset | datetime.date = UNSET,
-    type_: Unset | GetTransactionsByMonthType = UNSET,
-    last_knowledge_of_server: Unset | int = UNSET,
+    since_date: datetime.date | Unset = UNSET,
+    until_date: datetime.date | Unset = UNSET,
+    type_: GetTransactionsByMonthType | Unset = UNSET,
+    last_knowledge_of_server: int | Unset = UNSET,
 ) -> Response[ErrorResponse | TransactionsResponse]:
-    """List transactions in month, excluding any pending transactions
+    """Get plan month transactions
 
-     Returns all transactions for a specified month
+     Returns all transactions for a specified month, excluding any pending transactions
 
     Args:
-        budget_id (str):
+        plan_id (str):
         month (str):
-        since_date (Union[Unset, datetime.date]):
-        type_ (Union[Unset, GetTransactionsByMonthType]):
-        last_knowledge_of_server (Union[Unset, int]):
+        since_date (datetime.date | Unset):
+        until_date (datetime.date | Unset):
+        type_ (GetTransactionsByMonthType | Unset):
+        last_knowledge_of_server (int | Unset):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, TransactionsResponse]]
+        Response[ErrorResponse | TransactionsResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         month=month,
         since_date=since_date,
+        until_date=until_date,
         type_=type_,
         last_knowledge_of_server=last_knowledge_of_server,
     )
@@ -118,75 +134,81 @@ def sync_detailed(
 
 
 def sync(
-    budget_id: str,
+    plan_id: str,
     month: str,
     *,
     client: AuthenticatedClient | Client,
-    since_date: Unset | datetime.date = UNSET,
-    type_: Unset | GetTransactionsByMonthType = UNSET,
-    last_knowledge_of_server: Unset | int = UNSET,
+    since_date: datetime.date | Unset = UNSET,
+    until_date: datetime.date | Unset = UNSET,
+    type_: GetTransactionsByMonthType | Unset = UNSET,
+    last_knowledge_of_server: int | Unset = UNSET,
 ) -> ErrorResponse | TransactionsResponse | None:
-    """List transactions in month, excluding any pending transactions
+    """Get plan month transactions
 
-     Returns all transactions for a specified month
+     Returns all transactions for a specified month, excluding any pending transactions
 
     Args:
-        budget_id (str):
+        plan_id (str):
         month (str):
-        since_date (Union[Unset, datetime.date]):
-        type_ (Union[Unset, GetTransactionsByMonthType]):
-        last_knowledge_of_server (Union[Unset, int]):
+        since_date (datetime.date | Unset):
+        until_date (datetime.date | Unset):
+        type_ (GetTransactionsByMonthType | Unset):
+        last_knowledge_of_server (int | Unset):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, TransactionsResponse]
+        ErrorResponse | TransactionsResponse
     """
 
     return sync_detailed(
-        budget_id=budget_id,
+        plan_id=plan_id,
         month=month,
         client=client,
         since_date=since_date,
+        until_date=until_date,
         type_=type_,
         last_knowledge_of_server=last_knowledge_of_server,
     ).parsed
 
 
 async def asyncio_detailed(
-    budget_id: str,
+    plan_id: str,
     month: str,
     *,
     client: AuthenticatedClient | Client,
-    since_date: Unset | datetime.date = UNSET,
-    type_: Unset | GetTransactionsByMonthType = UNSET,
-    last_knowledge_of_server: Unset | int = UNSET,
+    since_date: datetime.date | Unset = UNSET,
+    until_date: datetime.date | Unset = UNSET,
+    type_: GetTransactionsByMonthType | Unset = UNSET,
+    last_knowledge_of_server: int | Unset = UNSET,
 ) -> Response[ErrorResponse | TransactionsResponse]:
-    """List transactions in month, excluding any pending transactions
+    """Get plan month transactions
 
-     Returns all transactions for a specified month
+     Returns all transactions for a specified month, excluding any pending transactions
 
     Args:
-        budget_id (str):
+        plan_id (str):
         month (str):
-        since_date (Union[Unset, datetime.date]):
-        type_ (Union[Unset, GetTransactionsByMonthType]):
-        last_knowledge_of_server (Union[Unset, int]):
+        since_date (datetime.date | Unset):
+        until_date (datetime.date | Unset):
+        type_ (GetTransactionsByMonthType | Unset):
+        last_knowledge_of_server (int | Unset):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, TransactionsResponse]]
+        Response[ErrorResponse | TransactionsResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         month=month,
         since_date=since_date,
+        until_date=until_date,
         type_=type_,
         last_knowledge_of_server=last_knowledge_of_server,
     )
@@ -197,39 +219,42 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    budget_id: str,
+    plan_id: str,
     month: str,
     *,
     client: AuthenticatedClient | Client,
-    since_date: Unset | datetime.date = UNSET,
-    type_: Unset | GetTransactionsByMonthType = UNSET,
-    last_knowledge_of_server: Unset | int = UNSET,
+    since_date: datetime.date | Unset = UNSET,
+    until_date: datetime.date | Unset = UNSET,
+    type_: GetTransactionsByMonthType | Unset = UNSET,
+    last_knowledge_of_server: int | Unset = UNSET,
 ) -> ErrorResponse | TransactionsResponse | None:
-    """List transactions in month, excluding any pending transactions
+    """Get plan month transactions
 
-     Returns all transactions for a specified month
+     Returns all transactions for a specified month, excluding any pending transactions
 
     Args:
-        budget_id (str):
+        plan_id (str):
         month (str):
-        since_date (Union[Unset, datetime.date]):
-        type_ (Union[Unset, GetTransactionsByMonthType]):
-        last_knowledge_of_server (Union[Unset, int]):
+        since_date (datetime.date | Unset):
+        until_date (datetime.date | Unset):
+        type_ (GetTransactionsByMonthType | Unset):
+        last_knowledge_of_server (int | Unset):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, TransactionsResponse]
+        ErrorResponse | TransactionsResponse
     """
 
     return (
         await asyncio_detailed(
-            budget_id=budget_id,
+            plan_id=plan_id,
             month=month,
             client=client,
             since_date=since_date,
+            until_date=until_date,
             type_=type_,
             last_knowledge_of_server=last_knowledge_of_server,
         )

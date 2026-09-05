@@ -13,8 +13,8 @@ from ynab_cli.host.cli import cli
 
 
 def test_list_all(runner: CliRunner, container: Container, empty_uuid: UUID) -> None:
-    async def list_all(*args: Any, **kwargs: Any) -> AsyncIterator[models.BudgetSummary]:
-        yield models.BudgetSummary(id=empty_uuid, name="Test Budget")
+    async def list_all(*args: Any, **kwargs: Any) -> AsyncIterator[models.PlanSummary]:
+        yield models.PlanSummary(id=empty_uuid, name="Test Budget")
 
     use_case = MagicMock(wraps=list_all)
     container[use_cases.ListAll] = use_case

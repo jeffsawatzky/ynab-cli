@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Self, TypeVar
 
@@ -9,11 +11,10 @@ T = TypeVar("T", bound="DateFormatType0")
 
 @_attrs_define
 class DateFormatType0:
-    """The date format setting for the budget.  In some cases the format will not be available and will be specified as
-    null.
+    """The date format setting for the plan.  In some cases the format will not be available and will be specified as null.
 
-        Attributes:
-            format_ (str):
+    Attributes:
+        format_ (str):
     """
 
     format_: str

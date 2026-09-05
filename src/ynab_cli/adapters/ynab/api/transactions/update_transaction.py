@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from typing import Any
+from urllib.parse import quote
 
 import httpx2
 
@@ -12,7 +13,7 @@ from ynab_cli.adapters.ynab.types import Response
 
 
 def _get_kwargs(
-    budget_id: str,
+    plan_id: str,
     transaction_id: str,
     *,
     body: PutTransactionWrapper,
@@ -21,7 +22,10 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "put",
-        "url": f"/budgets/{budget_id}/transactions/{transaction_id}",
+        "url": "/plans/{plan_id}/transactions/{transaction_id}".format(
+            plan_id=quote(str(plan_id), safe=""),
+            transaction_id=quote(str(transaction_id), safe=""),
+        ),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -63,18 +67,18 @@ def _build_response(
 
 
 def sync_detailed(
-    budget_id: str,
+    plan_id: str,
     transaction_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PutTransactionWrapper,
 ) -> Response[ErrorResponse | TransactionResponse]:
-    """Updates an existing transaction
+    """Update a transaction
 
      Updates a single transaction
 
     Args:
-        budget_id (str):
+        plan_id (str):
         transaction_id (str):
         body (PutTransactionWrapper):
 
@@ -83,11 +87,11 @@ def sync_detailed(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, TransactionResponse]]
+        Response[ErrorResponse | TransactionResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         transaction_id=transaction_id,
         body=body,
     )
@@ -100,18 +104,18 @@ def sync_detailed(
 
 
 def sync(
-    budget_id: str,
+    plan_id: str,
     transaction_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PutTransactionWrapper,
 ) -> ErrorResponse | TransactionResponse | None:
-    """Updates an existing transaction
+    """Update a transaction
 
      Updates a single transaction
 
     Args:
-        budget_id (str):
+        plan_id (str):
         transaction_id (str):
         body (PutTransactionWrapper):
 
@@ -120,11 +124,11 @@ def sync(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, TransactionResponse]
+        ErrorResponse | TransactionResponse
     """
 
     return sync_detailed(
-        budget_id=budget_id,
+        plan_id=plan_id,
         transaction_id=transaction_id,
         client=client,
         body=body,
@@ -132,18 +136,18 @@ def sync(
 
 
 async def asyncio_detailed(
-    budget_id: str,
+    plan_id: str,
     transaction_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PutTransactionWrapper,
 ) -> Response[ErrorResponse | TransactionResponse]:
-    """Updates an existing transaction
+    """Update a transaction
 
      Updates a single transaction
 
     Args:
-        budget_id (str):
+        plan_id (str):
         transaction_id (str):
         body (PutTransactionWrapper):
 
@@ -152,11 +156,11 @@ async def asyncio_detailed(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, TransactionResponse]]
+        Response[ErrorResponse | TransactionResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         transaction_id=transaction_id,
         body=body,
     )
@@ -167,18 +171,18 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    budget_id: str,
+    plan_id: str,
     transaction_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PutTransactionWrapper,
 ) -> ErrorResponse | TransactionResponse | None:
-    """Updates an existing transaction
+    """Update a transaction
 
      Updates a single transaction
 
     Args:
-        budget_id (str):
+        plan_id (str):
         transaction_id (str):
         body (PutTransactionWrapper):
 
@@ -187,12 +191,12 @@ async def asyncio(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, TransactionResponse]
+        ErrorResponse | TransactionResponse
     """
 
     return (
         await asyncio_detailed(
-            budget_id=budget_id,
+            plan_id=plan_id,
             transaction_id=transaction_id,
             client=client,
             body=body,

@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from typing import Any
+from urllib.parse import quote
 
 import httpx2
 
@@ -11,11 +12,14 @@ from ynab_cli.adapters.ynab.types import Response
 
 
 def _get_kwargs(
-    budget_id: str,
+    plan_id: str,
 ) -> dict[str, Any]:
+
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": f"/budgets/{budget_id}/transactions/import",
+        "url": "/plans/{plan_id}/transactions/import".format(
+            plan_id=quote(str(plan_id), safe=""),
+        ),
     }
 
     return _kwargs
@@ -57,31 +61,31 @@ def _build_response(
 
 
 def sync_detailed(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
 ) -> Response[ErrorResponse | TransactionsImportResponse]:
-    r"""Import transactions
+    """Import transactions
 
-     Imports available transactions on all linked accounts for the given budget.  Linked accounts allow
+     Imports available transactions on all linked accounts for the given plan.  Linked accounts allow
     transactions to be imported directly from a specified financial institution and this endpoint
-    initiates that import.  Sending a request to this endpoint is the equivalent of clicking \"Import\"
-    on each account in the web application or tapping the \"New Transactions\" banner in the mobile
+    initiates that import.  Sending a request to this endpoint is the equivalent of clicking "Import" on
+    each account in the web application or tapping the "New Transactions" banner in the mobile
     applications.  The response for this endpoint contains the transaction ids that have been imported.
 
     Args:
-        budget_id (str):
+        plan_id (str):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, TransactionsImportResponse]]
+        Response[ErrorResponse | TransactionsImportResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
     )
 
     response = client.get_httpx_client().request(
@@ -92,61 +96,61 @@ def sync_detailed(
 
 
 def sync(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
 ) -> ErrorResponse | TransactionsImportResponse | None:
-    r"""Import transactions
+    """Import transactions
 
-     Imports available transactions on all linked accounts for the given budget.  Linked accounts allow
+     Imports available transactions on all linked accounts for the given plan.  Linked accounts allow
     transactions to be imported directly from a specified financial institution and this endpoint
-    initiates that import.  Sending a request to this endpoint is the equivalent of clicking \"Import\"
-    on each account in the web application or tapping the \"New Transactions\" banner in the mobile
+    initiates that import.  Sending a request to this endpoint is the equivalent of clicking "Import" on
+    each account in the web application or tapping the "New Transactions" banner in the mobile
     applications.  The response for this endpoint contains the transaction ids that have been imported.
 
     Args:
-        budget_id (str):
+        plan_id (str):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, TransactionsImportResponse]
+        ErrorResponse | TransactionsImportResponse
     """
 
     return sync_detailed(
-        budget_id=budget_id,
+        plan_id=plan_id,
         client=client,
     ).parsed
 
 
 async def asyncio_detailed(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
 ) -> Response[ErrorResponse | TransactionsImportResponse]:
-    r"""Import transactions
+    """Import transactions
 
-     Imports available transactions on all linked accounts for the given budget.  Linked accounts allow
+     Imports available transactions on all linked accounts for the given plan.  Linked accounts allow
     transactions to be imported directly from a specified financial institution and this endpoint
-    initiates that import.  Sending a request to this endpoint is the equivalent of clicking \"Import\"
-    on each account in the web application or tapping the \"New Transactions\" banner in the mobile
+    initiates that import.  Sending a request to this endpoint is the equivalent of clicking "Import" on
+    each account in the web application or tapping the "New Transactions" banner in the mobile
     applications.  The response for this endpoint contains the transaction ids that have been imported.
 
     Args:
-        budget_id (str):
+        plan_id (str):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, TransactionsImportResponse]]
+        Response[ErrorResponse | TransactionsImportResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -155,32 +159,32 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
 ) -> ErrorResponse | TransactionsImportResponse | None:
-    r"""Import transactions
+    """Import transactions
 
-     Imports available transactions on all linked accounts for the given budget.  Linked accounts allow
+     Imports available transactions on all linked accounts for the given plan.  Linked accounts allow
     transactions to be imported directly from a specified financial institution and this endpoint
-    initiates that import.  Sending a request to this endpoint is the equivalent of clicking \"Import\"
-    on each account in the web application or tapping the \"New Transactions\" banner in the mobile
+    initiates that import.  Sending a request to this endpoint is the equivalent of clicking "Import" on
+    each account in the web application or tapping the "New Transactions" banner in the mobile
     applications.  The response for this endpoint contains the transaction ids that have been imported.
 
     Args:
-        budget_id (str):
+        plan_id (str):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, TransactionsImportResponse]
+        ErrorResponse | TransactionsImportResponse
     """
 
     return (
         await asyncio_detailed(
-            budget_id=budget_id,
+            plan_id=plan_id,
             client=client,
         )
     ).parsed

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
@@ -19,7 +21,7 @@ class SaveCategoryResponseData:
         server_knowledge (int): The knowledge of the server
     """
 
-    category: "Category"
+    category: Category
     server_knowledge: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

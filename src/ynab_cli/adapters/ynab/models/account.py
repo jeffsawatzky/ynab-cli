@@ -1,11 +1,12 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
 from ynab_cli.adapters.ynab.models.account_type import AccountType
 from ynab_cli.adapters.ynab.types import UNSET, Unset
@@ -24,25 +25,36 @@ class Account:
         id (UUID):
         name (str):
         type_ (AccountType): The type of account
-        on_budget (bool): Whether this account is on budget or not
+        on_budget (bool): Whether this account is "on budget" or not
         closed (bool): Whether this account is closed or not
-        balance (int): The current balance of the account in milliunits format
+        balance (int): The current available balance of the account in milliunits format
         cleared_balance (int): The current cleared balance of the account in milliunits format
         uncleared_balance (int): The current uncleared balance of the account in milliunits format
-        transfer_payee_id (Union[None, UUID]): The payee id which should be used when transferring to this account
+        transfer_payee_id (None | UUID): The payee id which should be used when transferring to this account
         deleted (bool): Whether or not the account has been deleted.  Deleted accounts will only be included in delta
             requests.
-        note (Union[None, Unset, str]):
-        direct_import_linked (Union[Unset, bool]): Whether or not the account is linked to a financial institution for
+        note (None | str | Unset):
+        direct_import_linked (bool | Unset): Whether or not the account is linked to a financial institution for
             automatic transaction import.
-        direct_import_in_error (Union[Unset, bool]): If an account linked to a financial institution
+        direct_import_in_error (bool | Unset): If an account linked to a financial institution
             (direct_import_linked=true) and the linked connection is not in a healthy state, this will be true.
-        last_reconciled_at (Union[None, Unset, datetime.datetime]): A date/time specifying when the account was last
+        last_reconciled_at (datetime.datetime | None | Unset): A date/time specifying when the account was last
             reconciled.
-        debt_original_balance (Union[None, Unset, int]): This field is deprecated and will always be null.
-        debt_interest_rates (Union['LoanAccountPeriodicValueType0', None, Unset]):
-        debt_minimum_payments (Union['LoanAccountPeriodicValueType0', None, Unset]):
-        debt_escrow_amounts (Union['LoanAccountPeriodicValueType0', None, Unset]):
+        debt_original_balance (int | None | Unset): This field is deprecated and will always be null.
+        debt_interest_rates (LoanAccountPeriodicValueType0 | None | Unset):
+        debt_minimum_payments (LoanAccountPeriodicValueType0 | None | Unset):
+        debt_escrow_amounts (LoanAccountPeriodicValueType0 | None | Unset):
+        balance_formatted (str | Unset): The current available balance of the account formatted in the plan's currency
+            format
+        balance_currency (float | Unset): The current available balance of the account as a decimal currency amount
+        cleared_balance_formatted (str | Unset): The current cleared balance of the account formatted in the plan's
+            currency format
+        cleared_balance_currency (float | Unset): The current cleared balance of the account as a decimal currency
+            amount
+        uncleared_balance_formatted (str | Unset): The current uncleared balance of the account formatted in the plan's
+            currency format
+        uncleared_balance_currency (float | Unset): The current uncleared balance of the account as a decimal currency
+            amount
     """
 
     id: UUID
@@ -55,14 +67,20 @@ class Account:
     uncleared_balance: int
     transfer_payee_id: UUID | None
     deleted: bool
-    note: Unset | str | None = UNSET
-    direct_import_linked: Unset | bool = UNSET
-    direct_import_in_error: Unset | bool = UNSET
-    last_reconciled_at: Unset | datetime.datetime | None = UNSET
-    debt_original_balance: Unset | int | None = UNSET
-    debt_interest_rates: Union["LoanAccountPeriodicValueType0", Unset, None] = UNSET
-    debt_minimum_payments: Union["LoanAccountPeriodicValueType0", Unset, None] = UNSET
-    debt_escrow_amounts: Union["LoanAccountPeriodicValueType0", Unset, None] = UNSET
+    note: str | Unset | None = UNSET
+    direct_import_linked: bool | Unset = UNSET
+    direct_import_in_error: bool | Unset = UNSET
+    last_reconciled_at: datetime.datetime | Unset | None = UNSET
+    debt_original_balance: int | Unset | None = UNSET
+    debt_interest_rates: LoanAccountPeriodicValueType0 | Unset | None = UNSET
+    debt_minimum_payments: LoanAccountPeriodicValueType0 | Unset | None = UNSET
+    debt_escrow_amounts: LoanAccountPeriodicValueType0 | Unset | None = UNSET
+    balance_formatted: str | Unset = UNSET
+    balance_currency: float | Unset = UNSET
+    cleared_balance_formatted: str | Unset = UNSET
+    cleared_balance_currency: float | Unset = UNSET
+    uncleared_balance_formatted: str | Unset = UNSET
+    uncleared_balance_currency: float | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -92,7 +110,7 @@ class Account:
 
         deleted = self.deleted
 
-        note: Unset | str | None
+        note: str | Unset | None
         if isinstance(self.note, Unset):
             note = UNSET
         else:
@@ -102,7 +120,7 @@ class Account:
 
         direct_import_in_error = self.direct_import_in_error
 
-        last_reconciled_at: Unset | str | None
+        last_reconciled_at: str | Unset | None
         if isinstance(self.last_reconciled_at, Unset):
             last_reconciled_at = UNSET
         elif isinstance(self.last_reconciled_at, datetime.datetime):
@@ -110,13 +128,13 @@ class Account:
         else:
             last_reconciled_at = self.last_reconciled_at
 
-        debt_original_balance: Unset | int | None
+        debt_original_balance: int | Unset | None
         if isinstance(self.debt_original_balance, Unset):
             debt_original_balance = UNSET
         else:
             debt_original_balance = self.debt_original_balance
 
-        debt_interest_rates: Unset | dict[str, Any] | None
+        debt_interest_rates: dict[str, Any] | Unset | None
         if isinstance(self.debt_interest_rates, Unset):
             debt_interest_rates = UNSET
         elif isinstance(self.debt_interest_rates, LoanAccountPeriodicValueType0):
@@ -124,7 +142,7 @@ class Account:
         else:
             debt_interest_rates = self.debt_interest_rates
 
-        debt_minimum_payments: Unset | dict[str, Any] | None
+        debt_minimum_payments: dict[str, Any] | Unset | None
         if isinstance(self.debt_minimum_payments, Unset):
             debt_minimum_payments = UNSET
         elif isinstance(self.debt_minimum_payments, LoanAccountPeriodicValueType0):
@@ -132,13 +150,25 @@ class Account:
         else:
             debt_minimum_payments = self.debt_minimum_payments
 
-        debt_escrow_amounts: Unset | dict[str, Any] | None
+        debt_escrow_amounts: dict[str, Any] | Unset | None
         if isinstance(self.debt_escrow_amounts, Unset):
             debt_escrow_amounts = UNSET
         elif isinstance(self.debt_escrow_amounts, LoanAccountPeriodicValueType0):
             debt_escrow_amounts = self.debt_escrow_amounts.to_dict()
         else:
             debt_escrow_amounts = self.debt_escrow_amounts
+
+        balance_formatted = self.balance_formatted
+
+        balance_currency = self.balance_currency
+
+        cleared_balance_formatted = self.cleared_balance_formatted
+
+        cleared_balance_currency = self.cleared_balance_currency
+
+        uncleared_balance_formatted = self.uncleared_balance_formatted
+
+        uncleared_balance_currency = self.uncleared_balance_currency
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -172,6 +202,18 @@ class Account:
             field_dict["debt_minimum_payments"] = debt_minimum_payments
         if debt_escrow_amounts is not UNSET:
             field_dict["debt_escrow_amounts"] = debt_escrow_amounts
+        if balance_formatted is not UNSET:
+            field_dict["balance_formatted"] = balance_formatted
+        if balance_currency is not UNSET:
+            field_dict["balance_currency"] = balance_currency
+        if cleared_balance_formatted is not UNSET:
+            field_dict["cleared_balance_formatted"] = cleared_balance_formatted
+        if cleared_balance_currency is not UNSET:
+            field_dict["cleared_balance_currency"] = cleared_balance_currency
+        if uncleared_balance_formatted is not UNSET:
+            field_dict["uncleared_balance_formatted"] = uncleared_balance_formatted
+        if uncleared_balance_currency is not UNSET:
+            field_dict["uncleared_balance_currency"] = uncleared_balance_currency
 
         return field_dict
 
@@ -205,7 +247,7 @@ class Account:
                 transfer_payee_id_type_0 = UUID(data)
 
                 return transfer_payee_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(UUID | None, data)
 
@@ -213,12 +255,12 @@ class Account:
 
         deleted = d.pop("deleted")
 
-        def _parse_note(data: object) -> Unset | str | None:
+        def _parse_note(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
@@ -226,7 +268,7 @@ class Account:
 
         direct_import_in_error = d.pop("direct_import_in_error", UNSET)
 
-        def _parse_last_reconciled_at(data: object) -> Unset | datetime.datetime | None:
+        def _parse_last_reconciled_at(data: object) -> datetime.datetime | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -234,25 +276,25 @@ class Account:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                last_reconciled_at_type_0 = isoparse(data)
+                last_reconciled_at_type_0 = datetime.datetime.fromisoformat(data)
 
                 return last_reconciled_at_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Unset | datetime.datetime | None, data)
+            return cast(datetime.datetime | Unset | None, data)
 
         last_reconciled_at = _parse_last_reconciled_at(d.pop("last_reconciled_at", UNSET))
 
-        def _parse_debt_original_balance(data: object) -> Unset | int | None:
+        def _parse_debt_original_balance(data: object) -> int | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | int | None, data)
+            return cast(int | Unset | None, data)
 
         debt_original_balance = _parse_debt_original_balance(d.pop("debt_original_balance", UNSET))
 
-        def _parse_debt_interest_rates(data: object) -> Union["LoanAccountPeriodicValueType0", Unset, None]:
+        def _parse_debt_interest_rates(data: object) -> LoanAccountPeriodicValueType0 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -263,13 +305,13 @@ class Account:
                 componentsschemas_loan_account_periodic_value_type_0 = LoanAccountPeriodicValueType0.from_dict(data)
 
                 return componentsschemas_loan_account_periodic_value_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["LoanAccountPeriodicValueType0", Unset, None], data)
+            return cast(LoanAccountPeriodicValueType0 | Unset | None, data)
 
         debt_interest_rates = _parse_debt_interest_rates(d.pop("debt_interest_rates", UNSET))
 
-        def _parse_debt_minimum_payments(data: object) -> Union["LoanAccountPeriodicValueType0", Unset, None]:
+        def _parse_debt_minimum_payments(data: object) -> LoanAccountPeriodicValueType0 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -280,13 +322,13 @@ class Account:
                 componentsschemas_loan_account_periodic_value_type_0 = LoanAccountPeriodicValueType0.from_dict(data)
 
                 return componentsschemas_loan_account_periodic_value_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["LoanAccountPeriodicValueType0", Unset, None], data)
+            return cast(LoanAccountPeriodicValueType0 | Unset | None, data)
 
         debt_minimum_payments = _parse_debt_minimum_payments(d.pop("debt_minimum_payments", UNSET))
 
-        def _parse_debt_escrow_amounts(data: object) -> Union["LoanAccountPeriodicValueType0", Unset, None]:
+        def _parse_debt_escrow_amounts(data: object) -> LoanAccountPeriodicValueType0 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -297,11 +339,23 @@ class Account:
                 componentsschemas_loan_account_periodic_value_type_0 = LoanAccountPeriodicValueType0.from_dict(data)
 
                 return componentsschemas_loan_account_periodic_value_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["LoanAccountPeriodicValueType0", Unset, None], data)
+            return cast(LoanAccountPeriodicValueType0 | Unset | None, data)
 
         debt_escrow_amounts = _parse_debt_escrow_amounts(d.pop("debt_escrow_amounts", UNSET))
+
+        balance_formatted = d.pop("balance_formatted", UNSET)
+
+        balance_currency = d.pop("balance_currency", UNSET)
+
+        cleared_balance_formatted = d.pop("cleared_balance_formatted", UNSET)
+
+        cleared_balance_currency = d.pop("cleared_balance_currency", UNSET)
+
+        uncleared_balance_formatted = d.pop("uncleared_balance_formatted", UNSET)
+
+        uncleared_balance_currency = d.pop("uncleared_balance_currency", UNSET)
 
         account = cls(
             id=id,
@@ -322,6 +376,12 @@ class Account:
             debt_interest_rates=debt_interest_rates,
             debt_minimum_payments=debt_minimum_payments,
             debt_escrow_amounts=debt_escrow_amounts,
+            balance_formatted=balance_formatted,
+            balance_currency=balance_currency,
+            cleared_balance_formatted=cleared_balance_formatted,
+            cleared_balance_currency=cleared_balance_currency,
+            uncleared_balance_formatted=uncleared_balance_formatted,
+            uncleared_balance_currency=uncleared_balance_currency,
         )
 
         account.additional_properties = d

@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from typing import Any
+from urllib.parse import quote
 
 import httpx2
 
@@ -12,7 +13,7 @@ from ynab_cli.adapters.ynab.types import Response
 
 
 def _get_kwargs(
-    budget_id: str,
+    plan_id: str,
     category_id: str,
     *,
     body: PatchCategoryWrapper,
@@ -21,7 +22,10 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "patch",
-        "url": f"/budgets/{budget_id}/categories/{category_id}",
+        "url": "/plans/{plan_id}/categories/{category_id}".format(
+            plan_id=quote(str(plan_id), safe=""),
+            category_id=quote(str(category_id), safe=""),
+        ),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -63,7 +67,7 @@ def _build_response(
 
 
 def sync_detailed(
-    budget_id: str,
+    plan_id: str,
     category_id: str,
     *,
     client: AuthenticatedClient | Client,
@@ -74,7 +78,7 @@ def sync_detailed(
      Update a category
 
     Args:
-        budget_id (str):
+        plan_id (str):
         category_id (str):
         body (PatchCategoryWrapper):
 
@@ -83,11 +87,11 @@ def sync_detailed(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, SaveCategoryResponse]]
+        Response[ErrorResponse | SaveCategoryResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         category_id=category_id,
         body=body,
     )
@@ -100,7 +104,7 @@ def sync_detailed(
 
 
 def sync(
-    budget_id: str,
+    plan_id: str,
     category_id: str,
     *,
     client: AuthenticatedClient | Client,
@@ -111,7 +115,7 @@ def sync(
      Update a category
 
     Args:
-        budget_id (str):
+        plan_id (str):
         category_id (str):
         body (PatchCategoryWrapper):
 
@@ -120,11 +124,11 @@ def sync(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, SaveCategoryResponse]
+        ErrorResponse | SaveCategoryResponse
     """
 
     return sync_detailed(
-        budget_id=budget_id,
+        plan_id=plan_id,
         category_id=category_id,
         client=client,
         body=body,
@@ -132,7 +136,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    budget_id: str,
+    plan_id: str,
     category_id: str,
     *,
     client: AuthenticatedClient | Client,
@@ -143,7 +147,7 @@ async def asyncio_detailed(
      Update a category
 
     Args:
-        budget_id (str):
+        plan_id (str):
         category_id (str):
         body (PatchCategoryWrapper):
 
@@ -152,11 +156,11 @@ async def asyncio_detailed(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, SaveCategoryResponse]]
+        Response[ErrorResponse | SaveCategoryResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         category_id=category_id,
         body=body,
     )
@@ -167,7 +171,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    budget_id: str,
+    plan_id: str,
     category_id: str,
     *,
     client: AuthenticatedClient | Client,
@@ -178,7 +182,7 @@ async def asyncio(
      Update a category
 
     Args:
-        budget_id (str):
+        plan_id (str):
         category_id (str):
         body (PatchCategoryWrapper):
 
@@ -187,12 +191,12 @@ async def asyncio(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, SaveCategoryResponse]
+        ErrorResponse | SaveCategoryResponse
     """
 
     return (
         await asyncio_detailed(
-            budget_id=budget_id,
+            plan_id=plan_id,
             category_id=category_id,
             client=client,
             body=body,

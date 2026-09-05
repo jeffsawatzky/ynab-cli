@@ -22,7 +22,6 @@ FileTypes = (
     # (filename, file (or bytes), content_type, headers)
     | tuple[str | None, FileContent, str | None, Mapping[str, str]]
 )
-
 RequestFiles = list[tuple[str, FileTypes]]
 
 

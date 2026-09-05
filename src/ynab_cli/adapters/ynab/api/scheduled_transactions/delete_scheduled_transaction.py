@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from typing import Any
+from urllib.parse import quote
 
 import httpx2
 
@@ -11,12 +12,16 @@ from ynab_cli.adapters.ynab.types import Response
 
 
 def _get_kwargs(
-    budget_id: str,
+    plan_id: str,
     scheduled_transaction_id: str,
 ) -> dict[str, Any]:
+
     _kwargs: dict[str, Any] = {
         "method": "delete",
-        "url": f"/budgets/{budget_id}/scheduled_transactions/{scheduled_transaction_id}",
+        "url": "/plans/{plan_id}/scheduled_transactions/{scheduled_transaction_id}".format(
+            plan_id=quote(str(plan_id), safe=""),
+            scheduled_transaction_id=quote(str(scheduled_transaction_id), safe=""),
+        ),
     }
 
     return _kwargs
@@ -53,17 +58,17 @@ def _build_response(
 
 
 def sync_detailed(
-    budget_id: str,
+    plan_id: str,
     scheduled_transaction_id: str,
     *,
     client: AuthenticatedClient | Client,
 ) -> Response[ErrorResponse | ScheduledTransactionResponse]:
-    """Deletes an existing scheduled transaction
+    """Delete a scheduled transaction
 
      Deletes a scheduled transaction
 
     Args:
-        budget_id (str):
+        plan_id (str):
         scheduled_transaction_id (str):
 
     Raises:
@@ -71,11 +76,11 @@ def sync_detailed(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, ScheduledTransactionResponse]]
+        Response[ErrorResponse | ScheduledTransactionResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         scheduled_transaction_id=scheduled_transaction_id,
     )
 
@@ -87,17 +92,17 @@ def sync_detailed(
 
 
 def sync(
-    budget_id: str,
+    plan_id: str,
     scheduled_transaction_id: str,
     *,
     client: AuthenticatedClient | Client,
 ) -> ErrorResponse | ScheduledTransactionResponse | None:
-    """Deletes an existing scheduled transaction
+    """Delete a scheduled transaction
 
      Deletes a scheduled transaction
 
     Args:
-        budget_id (str):
+        plan_id (str):
         scheduled_transaction_id (str):
 
     Raises:
@@ -105,28 +110,28 @@ def sync(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, ScheduledTransactionResponse]
+        ErrorResponse | ScheduledTransactionResponse
     """
 
     return sync_detailed(
-        budget_id=budget_id,
+        plan_id=plan_id,
         scheduled_transaction_id=scheduled_transaction_id,
         client=client,
     ).parsed
 
 
 async def asyncio_detailed(
-    budget_id: str,
+    plan_id: str,
     scheduled_transaction_id: str,
     *,
     client: AuthenticatedClient | Client,
 ) -> Response[ErrorResponse | ScheduledTransactionResponse]:
-    """Deletes an existing scheduled transaction
+    """Delete a scheduled transaction
 
      Deletes a scheduled transaction
 
     Args:
-        budget_id (str):
+        plan_id (str):
         scheduled_transaction_id (str):
 
     Raises:
@@ -134,11 +139,11 @@ async def asyncio_detailed(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, ScheduledTransactionResponse]]
+        Response[ErrorResponse | ScheduledTransactionResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         scheduled_transaction_id=scheduled_transaction_id,
     )
 
@@ -148,17 +153,17 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    budget_id: str,
+    plan_id: str,
     scheduled_transaction_id: str,
     *,
     client: AuthenticatedClient | Client,
 ) -> ErrorResponse | ScheduledTransactionResponse | None:
-    """Deletes an existing scheduled transaction
+    """Delete a scheduled transaction
 
      Deletes a scheduled transaction
 
     Args:
-        budget_id (str):
+        plan_id (str):
         scheduled_transaction_id (str):
 
     Raises:
@@ -166,12 +171,12 @@ async def asyncio(
         httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, ScheduledTransactionResponse]
+        ErrorResponse | ScheduledTransactionResponse
     """
 
     return (
         await asyncio_detailed(
-            budget_id=budget_id,
+            plan_id=plan_id,
             scheduled_transaction_id=scheduled_transaction_id,
             client=client,
         )

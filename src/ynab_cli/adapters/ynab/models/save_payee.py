@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Self, TypeVar
 
@@ -13,10 +15,10 @@ T = TypeVar("T", bound="SavePayee")
 class SavePayee:
     """
     Attributes:
-        name (Union[Unset, str]): The name of the payee. The name must be a maximum of 500 characters.
+        name (str | Unset): The name of the payee.
     """
 
-    name: Unset | str = UNSET
+    name: str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

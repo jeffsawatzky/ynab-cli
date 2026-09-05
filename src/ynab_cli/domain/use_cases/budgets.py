@@ -3,7 +3,7 @@ from typing import TypedDict
 
 from ynab_cli.adapters import ynab
 from ynab_cli.adapters.ynab import models, util
-from ynab_cli.adapters.ynab.api.budgets import get_budgets
+from ynab_cli.adapters.ynab.api.plans import get_plans
 from ynab_cli.domain import ports
 from ynab_cli.domain.settings import Settings
 
@@ -19,15 +19,15 @@ class ListAll:
         self._io = io
         self._client = client
 
-    async def __call__(self, settings: Settings, params: ListAllParams) -> AsyncIterator[models.BudgetSummary]:
+    async def __call__(self, settings: Settings, params: ListAllParams) -> AsyncIterator[models.PlanSummary]:
         try:
             progress_total = 0
 
             budgets = (
                 await util.get_asyncio_detailed(
-                    self._io, get_budgets.asyncio_detailed, include_accounts=False, client=self._client
+                    self._io, get_plans.asyncio_detailed, include_accounts=False, client=self._client
                 )
-            ).data.budgets
+            ).data.plans
             budgets.sort(key=lambda b: b.name)
 
             progress_total = len(budgets)

@@ -63,14 +63,14 @@ class Client:
         return evolve(self, cookies={**self._cookies, **cookies})
 
     def with_timeout(self, timeout: httpx2.Timeout) -> "Client":
-        """Get a new client matching this one with a new timeout (in seconds)"""
+        """Get a new client matching this one with a new timeout configuration"""
         if self._client is not None:
             self._client.timeout = timeout
         if self._async_client is not None:
             self._async_client.timeout = timeout
         return evolve(self, timeout=timeout)
 
-    def set_httpx_client(self, client: httpx2.Client) -> "Client":
+    def set_httpx_client(self, client: httpx2.Client) -> Self:
         """Manually set the underlying httpx2.Client
 
         **NOTE**: This will override any other settings on the client, including cookies, headers, and timeout.
@@ -106,8 +106,8 @@ class Client:
         """Exit a context manager for internal httpx2.Client (see httpx2 docs)"""
         self.get_httpx_client().__exit__(exc_type, exc_value, traceback)
 
-    def set_async_httpx_client(self, async_client: httpx2.AsyncClient) -> "Client":
-        """Manually the underlying httpx2.AsyncClient
+    def set_async_httpx_client(self, async_client: httpx2.AsyncClient) -> Self:
+        """Manually set the underlying httpx2.AsyncClient
 
         **NOTE**: This will override any other settings on the client, including cookies, headers, and timeout.
         """
@@ -207,7 +207,7 @@ class AuthenticatedClient:
         return evolve(self, cookies={**self._cookies, **cookies})
 
     def with_timeout(self, timeout: httpx2.Timeout) -> "AuthenticatedClient":
-        """Get a new client matching this one with a new timeout (in seconds)"""
+        """Get a new client matching this one with a new timeout configuration"""
         if self._client is not None:
             self._client.timeout = timeout
         if self._async_client is not None:
@@ -224,7 +224,7 @@ class AuthenticatedClient:
         if self._async_client is not None:
             self._async_client.headers[self.auth_header_name] = auth_header
 
-    def set_httpx_client(self, client: httpx2.Client) -> "AuthenticatedClient":
+    def set_httpx_client(self, client: httpx2.Client) -> Self:
         """Manually set the underlying httpx2.Client
 
         **NOTE**: This will override any other settings on the client, including cookies, headers, and timeout.
@@ -261,8 +261,8 @@ class AuthenticatedClient:
         """Exit a context manager for internal httpx2.Client (see httpx2 docs)"""
         self.get_httpx_client().__exit__(exc_type, exc_value, traceback)
 
-    def set_async_httpx_client(self, async_client: httpx2.AsyncClient) -> "AuthenticatedClient":
-        """Manually the underlying httpx2.AsyncClient
+    def set_async_httpx_client(self, async_client: httpx2.AsyncClient) -> Self:
+        """Manually set the underlying httpx2.AsyncClient
 
         **NOTE**: This will override any other settings on the client, including cookies, headers, and timeout.
         """

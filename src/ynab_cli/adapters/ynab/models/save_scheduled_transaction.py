@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
 from typing import Any, Self, TypeVar, cast
@@ -5,7 +7,6 @@ from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
 from ynab_cli.adapters.ynab.models.scheduled_transaction_frequency import ScheduledTransactionFrequency
 from ynab_cli.adapters.ynab.models.transaction_flag_color_type_1 import TransactionFlagColorType1
@@ -23,32 +24,32 @@ class SaveScheduledTransaction:
         account_id (UUID):
         date (datetime.date): The scheduled transaction date in ISO format (e.g. 2016-12-01).  This should be a future
             date no more than 5 years into the future.
-        amount (Union[Unset, int]): The scheduled transaction amount in milliunits format.
-        payee_id (Union[None, UUID, Unset]): The payee for the scheduled transaction.  To create a transfer between two
+        amount (int | Unset): The scheduled transaction amount in milliunits format.
+        payee_id (None | Unset | UUID): The payee for the scheduled transaction.  To create a transfer between two
             accounts, use the account transfer payee pointing to the target account.  Account transfer payees are specified
             as `transfer_payee_id` on the account resource.
-        payee_name (Union[None, Unset, str]): The payee name for the the scheduled transaction.  If a `payee_name` value
-            is provided and `payee_id` has a null value, the `payee_name` value will be used to resolve the payee by either
-            (1) a payee with the same name or (2) creation of a new payee.
-        category_id (Union[None, UUID, Unset]): The category for the scheduled transaction. Credit Card Payment
-            categories are not permitted. Creating a split scheduled transaction is not currently supported.
-        memo (Union[None, Unset, str]):
-        flag_color (Union[None, TransactionFlagColorType1, TransactionFlagColorType2Type1,
-            TransactionFlagColorType3Type1, Unset]): The transaction flag
-        frequency (Union[Unset, ScheduledTransactionFrequency]): The scheduled transaction frequency
+        payee_name (None | str | Unset): The payee name for the the scheduled transaction.  If a `payee_name` value is
+            provided and `payee_id` has a null value, the `payee_name` value will be used to resolve the payee by either (1)
+            a payee with the same name or (2) creation of a new payee.
+        category_id (None | Unset | UUID): The category for the scheduled transaction. Credit Card Payment categories
+            are not permitted. Creating a split scheduled transaction is not currently supported.
+        memo (None | str | Unset):
+        flag_color (None | TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 |
+            Unset): The transaction flag
+        frequency (ScheduledTransactionFrequency | Unset): The scheduled transaction frequency
     """
 
     account_id: UUID
     date: datetime.date
-    amount: Unset | int = UNSET
-    payee_id: UUID | Unset | None = UNSET
-    payee_name: Unset | str | None = UNSET
-    category_id: UUID | Unset | None = UNSET
-    memo: Unset | str | None = UNSET
+    amount: int | Unset = UNSET
+    payee_id: Unset | UUID | None = UNSET
+    payee_name: str | Unset | None = UNSET
+    category_id: Unset | UUID | None = UNSET
+    memo: str | Unset | None = UNSET
     flag_color: (
         TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset | None
     ) = UNSET
-    frequency: Unset | ScheduledTransactionFrequency = UNSET
+    frequency: ScheduledTransactionFrequency | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,7 +59,7 @@ class SaveScheduledTransaction:
 
         amount = self.amount
 
-        payee_id: Unset | str | None
+        payee_id: str | Unset | None
         if isinstance(self.payee_id, Unset):
             payee_id = UNSET
         elif isinstance(self.payee_id, UUID):
@@ -66,13 +67,13 @@ class SaveScheduledTransaction:
         else:
             payee_id = self.payee_id
 
-        payee_name: Unset | str | None
+        payee_name: str | Unset | None
         if isinstance(self.payee_name, Unset):
             payee_name = UNSET
         else:
             payee_name = self.payee_name
 
-        category_id: Unset | str | None
+        category_id: str | Unset | None
         if isinstance(self.category_id, Unset):
             category_id = UNSET
         elif isinstance(self.category_id, UUID):
@@ -80,13 +81,13 @@ class SaveScheduledTransaction:
         else:
             category_id = self.category_id
 
-        memo: Unset | str | None
+        memo: str | Unset | None
         if isinstance(self.memo, Unset):
             memo = UNSET
         else:
             memo = self.memo
 
-        flag_color: Unset | str | None
+        flag_color: str | Unset | None
         if isinstance(self.flag_color, Unset):
             flag_color = UNSET
         elif isinstance(
@@ -96,7 +97,7 @@ class SaveScheduledTransaction:
         else:
             flag_color = self.flag_color
 
-        frequency: Unset | str = UNSET
+        frequency: str | Unset = UNSET
         if not isinstance(self.frequency, Unset):
             frequency = self.frequency.value
 
@@ -130,11 +131,11 @@ class SaveScheduledTransaction:
         d = dict(src_dict)
         account_id = UUID(d.pop("account_id"))
 
-        date = isoparse(d.pop("date")).date()
+        date = datetime.date.fromisoformat(d.pop("date"))
 
         amount = d.pop("amount", UNSET)
 
-        def _parse_payee_id(data: object) -> UUID | Unset | None:
+        def _parse_payee_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -145,22 +146,22 @@ class SaveScheduledTransaction:
                 payee_id_type_0 = UUID(data)
 
                 return payee_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(UUID | Unset | None, data)
+            return cast(Unset | UUID | None, data)
 
         payee_id = _parse_payee_id(d.pop("payee_id", UNSET))
 
-        def _parse_payee_name(data: object) -> Unset | str | None:
+        def _parse_payee_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         payee_name = _parse_payee_name(d.pop("payee_name", UNSET))
 
-        def _parse_category_id(data: object) -> UUID | Unset | None:
+        def _parse_category_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -171,18 +172,18 @@ class SaveScheduledTransaction:
                 category_id_type_0 = UUID(data)
 
                 return category_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(UUID | Unset | None, data)
+            return cast(Unset | UUID | None, data)
 
         category_id = _parse_category_id(d.pop("category_id", UNSET))
 
-        def _parse_memo(data: object) -> Unset | str | None:
+        def _parse_memo(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         memo = _parse_memo(d.pop("memo", UNSET))
 
@@ -199,7 +200,7 @@ class SaveScheduledTransaction:
                 componentsschemas_transaction_flag_color_type_1 = TransactionFlagColorType1(data)
 
                 return componentsschemas_transaction_flag_color_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             try:
                 if not isinstance(data, str):
@@ -207,7 +208,7 @@ class SaveScheduledTransaction:
                 componentsschemas_transaction_flag_color_type_2_type_1 = TransactionFlagColorType2Type1(data)
 
                 return componentsschemas_transaction_flag_color_type_2_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             try:
                 if not isinstance(data, str):
@@ -215,7 +216,7 @@ class SaveScheduledTransaction:
                 componentsschemas_transaction_flag_color_type_3_type_1 = TransactionFlagColorType3Type1(data)
 
                 return componentsschemas_transaction_flag_color_type_3_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(
                 TransactionFlagColorType1
@@ -229,7 +230,7 @@ class SaveScheduledTransaction:
         flag_color = _parse_flag_color(d.pop("flag_color", UNSET))
 
         _frequency = d.pop("frequency", UNSET)
-        frequency: Unset | ScheduledTransactionFrequency
+        frequency: ScheduledTransactionFrequency | Unset
         if isinstance(_frequency, Unset):
             frequency = UNSET
         else:

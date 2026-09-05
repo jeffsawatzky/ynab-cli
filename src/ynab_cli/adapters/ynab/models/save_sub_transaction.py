@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Self, TypeVar, cast
 from uuid import UUID
@@ -15,27 +17,27 @@ class SaveSubTransaction:
     """
     Attributes:
         amount (int): The subtransaction amount in milliunits format.
-        payee_id (Union[None, UUID, Unset]): The payee for the subtransaction.
-        payee_name (Union[None, Unset, str]): The payee name.  If a `payee_name` value is provided and `payee_id` has a
-            null value, the `payee_name` value will be used to resolve the payee by either (1) a matching payee rename rule
-            (only if import_id is also specified on parent transaction) or (2) a payee with the same name or (3) creation of
-            a new payee.
-        category_id (Union[None, UUID, Unset]): The category for the subtransaction.  Credit Card Payment categories are
-            not permitted and will be ignored if supplied.
-        memo (Union[None, Unset, str]):
+        payee_id (None | Unset | UUID): The payee for the subtransaction.
+        payee_name (None | str | Unset): The payee name.  If a `payee_name` value is provided and `payee_id` has a null
+            value, the `payee_name` value will be used to resolve the payee by either (1) a matching payee rename rule (only
+            if import_id is also specified on parent transaction) or (2) a payee with the same name or (3) creation of a new
+            payee.
+        category_id (None | Unset | UUID): The category for the subtransaction.  Credit Card Payment categories are not
+            permitted and will be ignored if supplied.
+        memo (None | str | Unset):
     """
 
     amount: int
-    payee_id: UUID | Unset | None = UNSET
-    payee_name: Unset | str | None = UNSET
-    category_id: UUID | Unset | None = UNSET
-    memo: Unset | str | None = UNSET
+    payee_id: Unset | UUID | None = UNSET
+    payee_name: str | Unset | None = UNSET
+    category_id: Unset | UUID | None = UNSET
+    memo: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         amount = self.amount
 
-        payee_id: Unset | str | None
+        payee_id: str | Unset | None
         if isinstance(self.payee_id, Unset):
             payee_id = UNSET
         elif isinstance(self.payee_id, UUID):
@@ -43,13 +45,13 @@ class SaveSubTransaction:
         else:
             payee_id = self.payee_id
 
-        payee_name: Unset | str | None
+        payee_name: str | Unset | None
         if isinstance(self.payee_name, Unset):
             payee_name = UNSET
         else:
             payee_name = self.payee_name
 
-        category_id: Unset | str | None
+        category_id: str | Unset | None
         if isinstance(self.category_id, Unset):
             category_id = UNSET
         elif isinstance(self.category_id, UUID):
@@ -57,7 +59,7 @@ class SaveSubTransaction:
         else:
             category_id = self.category_id
 
-        memo: Unset | str | None
+        memo: str | Unset | None
         if isinstance(self.memo, Unset):
             memo = UNSET
         else:
@@ -86,7 +88,7 @@ class SaveSubTransaction:
         d = dict(src_dict)
         amount = d.pop("amount")
 
-        def _parse_payee_id(data: object) -> UUID | Unset | None:
+        def _parse_payee_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -97,22 +99,22 @@ class SaveSubTransaction:
                 payee_id_type_0 = UUID(data)
 
                 return payee_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(UUID | Unset | None, data)
+            return cast(Unset | UUID | None, data)
 
         payee_id = _parse_payee_id(d.pop("payee_id", UNSET))
 
-        def _parse_payee_name(data: object) -> Unset | str | None:
+        def _parse_payee_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         payee_name = _parse_payee_name(d.pop("payee_name", UNSET))
 
-        def _parse_category_id(data: object) -> UUID | Unset | None:
+        def _parse_category_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -123,18 +125,18 @@ class SaveSubTransaction:
                 category_id_type_0 = UUID(data)
 
                 return category_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(UUID | Unset | None, data)
+            return cast(Unset | UUID | None, data)
 
         category_id = _parse_category_id(d.pop("category_id", UNSET))
 
-        def _parse_memo(data: object) -> Unset | str | None:
+        def _parse_memo(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Unset | str | None, data)
+            return cast(str | Unset | None, data)
 
         memo = _parse_memo(d.pop("memo", UNSET))
 

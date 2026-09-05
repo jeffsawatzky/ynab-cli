@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self, TypeVar
 
@@ -15,10 +17,10 @@ T = TypeVar("T", bound="PayeeLocationsResponseData")
 class PayeeLocationsResponseData:
     """
     Attributes:
-        payee_locations (list['PayeeLocation']):
+        payee_locations (list[PayeeLocation]):
     """
 
-    payee_locations: list["PayeeLocation"]
+    payee_locations: list[PayeeLocation]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
