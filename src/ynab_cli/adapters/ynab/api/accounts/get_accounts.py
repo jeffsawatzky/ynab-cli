@@ -1,8 +1,10 @@
 from http import HTTPStatus
 from typing import Any
+from urllib.parse import quote
 
-import httpx
+import httpx2
 
+from ynab_cli.adapters.ynab import errors
 from ynab_cli.adapters.ynab.client import AuthenticatedClient, Client
 from ynab_cli.adapters.ynab.models.accounts_response import AccountsResponse
 from ynab_cli.adapters.ynab.models.error_response import ErrorResponse
@@ -10,10 +12,11 @@ from ynab_cli.adapters.ynab.types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    budget_id: str,
+    plan_id: str,
     *,
-    last_knowledge_of_server: Unset | int = UNSET,
+    last_knowledge_of_server: int | Unset = UNSET,
 ) -> dict[str, Any]:
+
     params: dict[str, Any] = {}
 
     params["last_knowledge_of_server"] = last_knowledge_of_server
@@ -22,7 +25,9 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": f"/budgets/{budget_id}/accounts",
+        "url": "/plans/{plan_id}/accounts".format(
+            plan_id=quote(str(plan_id), safe=""),
+        ),
         "params": params,
     }
 
@@ -30,8 +35,8 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> AccountsResponse | ErrorResponse:
+    *, client: AuthenticatedClient | Client, response: httpx2.Response
+) -> AccountsResponse | ErrorResponse | None:
     if response.status_code == 200:
         response_200 = AccountsResponse.from_dict(response.json())
 
@@ -42,13 +47,14 @@ def _parse_response(
 
         return response_404
 
-    response_default = ErrorResponse.from_dict(response.json())
-
-    return response_default
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatusError(response.status_code, response.content)
+    else:
+        return None
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
+    *, client: AuthenticatedClient | Client, response: httpx2.Response
 ) -> Response[AccountsResponse | ErrorResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -59,29 +65,29 @@ def _build_response(
 
 
 def sync_detailed(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
-    last_knowledge_of_server: Unset | int = UNSET,
+    last_knowledge_of_server: int | Unset = UNSET,
 ) -> Response[AccountsResponse | ErrorResponse]:
-    """Account list
+    """Get all accounts
 
      Returns all accounts
 
     Args:
-        budget_id (str):
-        last_knowledge_of_server (Union[Unset, int]):
+        plan_id (str):
+        last_knowledge_of_server (int | Unset):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[AccountsResponse, ErrorResponse]]
+        Response[AccountsResponse | ErrorResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         last_knowledge_of_server=last_knowledge_of_server,
     )
 
@@ -93,58 +99,58 @@ def sync_detailed(
 
 
 def sync(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
-    last_knowledge_of_server: Unset | int = UNSET,
+    last_knowledge_of_server: int | Unset = UNSET,
 ) -> AccountsResponse | ErrorResponse | None:
-    """Account list
+    """Get all accounts
 
      Returns all accounts
 
     Args:
-        budget_id (str):
-        last_knowledge_of_server (Union[Unset, int]):
+        plan_id (str):
+        last_knowledge_of_server (int | Unset):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[AccountsResponse, ErrorResponse]
+        AccountsResponse | ErrorResponse
     """
 
     return sync_detailed(
-        budget_id=budget_id,
+        plan_id=plan_id,
         client=client,
         last_knowledge_of_server=last_knowledge_of_server,
     ).parsed
 
 
 async def asyncio_detailed(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
-    last_knowledge_of_server: Unset | int = UNSET,
+    last_knowledge_of_server: int | Unset = UNSET,
 ) -> Response[AccountsResponse | ErrorResponse]:
-    """Account list
+    """Get all accounts
 
      Returns all accounts
 
     Args:
-        budget_id (str):
-        last_knowledge_of_server (Union[Unset, int]):
+        plan_id (str):
+        last_knowledge_of_server (int | Unset):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[AccountsResponse, ErrorResponse]]
+        Response[AccountsResponse | ErrorResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         last_knowledge_of_server=last_knowledge_of_server,
     )
 
@@ -154,30 +160,30 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
-    last_knowledge_of_server: Unset | int = UNSET,
+    last_knowledge_of_server: int | Unset = UNSET,
 ) -> AccountsResponse | ErrorResponse | None:
-    """Account list
+    """Get all accounts
 
      Returns all accounts
 
     Args:
-        budget_id (str):
-        last_knowledge_of_server (Union[Unset, int]):
+        plan_id (str):
+        last_knowledge_of_server (int | Unset):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[AccountsResponse, ErrorResponse]
+        AccountsResponse | ErrorResponse
     """
 
     return (
         await asyncio_detailed(
-            budget_id=budget_id,
+            plan_id=plan_id,
             client=client,
             last_knowledge_of_server=last_knowledge_of_server,
         )

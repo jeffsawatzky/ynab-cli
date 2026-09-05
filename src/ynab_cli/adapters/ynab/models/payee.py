@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, Self, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -18,14 +20,13 @@ class Payee:
         name (str):
         deleted (bool): Whether or not the payee has been deleted.  Deleted payees will only be included in delta
             requests.
-        transfer_account_id (Union[None, Unset, str]): If a transfer payee, the `account_id` to which this payee
-            transfers to
+        transfer_account_id (None | str | Unset): If a transfer payee, the `account_id` to which this payee transfers to
     """
 
     id: UUID
     name: str
     deleted: bool
-    transfer_account_id: None | Unset | str = UNSET
+    transfer_account_id: str | Unset | None = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,7 +36,7 @@ class Payee:
 
         deleted = self.deleted
 
-        transfer_account_id: None | Unset | str
+        transfer_account_id: str | Unset | None
         if isinstance(self.transfer_account_id, Unset):
             transfer_account_id = UNSET
         else:
@@ -56,7 +57,7 @@ class Payee:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         d = dict(src_dict)
         id = UUID(d.pop("id"))
 
@@ -64,12 +65,12 @@ class Payee:
 
         deleted = d.pop("deleted")
 
-        def _parse_transfer_account_id(data: object) -> None | Unset | str:
+        def _parse_transfer_account_id(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(str | Unset | None, data)
 
         transfer_account_id = _parse_transfer_account_id(d.pop("transfer_account_id", UNSET))
 

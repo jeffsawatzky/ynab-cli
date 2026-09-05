@@ -1,7 +1,8 @@
 from http import HTTPStatus
 from typing import Any
+from urllib.parse import quote
 
-import httpx
+import httpx2
 
 from ynab_cli.adapters.ynab import errors
 from ynab_cli.adapters.ynab.client import AuthenticatedClient, Client
@@ -12,7 +13,7 @@ from ynab_cli.adapters.ynab.types import Response
 
 
 def _get_kwargs(
-    budget_id: str,
+    plan_id: str,
     *,
     body: PatchTransactionsWrapper,
 ) -> dict[str, Any]:
@@ -20,7 +21,9 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "patch",
-        "url": f"/budgets/{budget_id}/transactions",
+        "url": "/plans/{plan_id}/transactions".format(
+            plan_id=quote(str(plan_id), safe=""),
+        ),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -32,12 +35,12 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
+    *, client: AuthenticatedClient | Client, response: httpx2.Response
 ) -> ErrorResponse | SaveTransactionsResponse | None:
-    if response.status_code == 209:
-        response_209 = SaveTransactionsResponse.from_dict(response.json())
+    if response.status_code == 200:
+        response_200 = SaveTransactionsResponse.from_dict(response.json())
 
-        return response_209
+        return response_200
 
     if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
@@ -51,7 +54,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
+    *, client: AuthenticatedClient | Client, response: httpx2.Response
 ) -> Response[ErrorResponse | SaveTransactionsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -62,7 +65,7 @@ def _build_response(
 
 
 def sync_detailed(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PatchTransactionsWrapper,
@@ -72,19 +75,19 @@ def sync_detailed(
      Updates multiple transactions, by `id` or `import_id`.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PatchTransactionsWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, SaveTransactionsResponse]]
+        Response[ErrorResponse | SaveTransactionsResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         body=body,
     )
 
@@ -96,7 +99,7 @@ def sync_detailed(
 
 
 def sync(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PatchTransactionsWrapper,
@@ -106,26 +109,26 @@ def sync(
      Updates multiple transactions, by `id` or `import_id`.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PatchTransactionsWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, SaveTransactionsResponse]
+        ErrorResponse | SaveTransactionsResponse
     """
 
     return sync_detailed(
-        budget_id=budget_id,
+        plan_id=plan_id,
         client=client,
         body=body,
     ).parsed
 
 
 async def asyncio_detailed(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PatchTransactionsWrapper,
@@ -135,19 +138,19 @@ async def asyncio_detailed(
      Updates multiple transactions, by `id` or `import_id`.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PatchTransactionsWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, SaveTransactionsResponse]]
+        Response[ErrorResponse | SaveTransactionsResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         body=body,
     )
 
@@ -157,7 +160,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PatchTransactionsWrapper,
@@ -167,20 +170,20 @@ async def asyncio(
      Updates multiple transactions, by `id` or `import_id`.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PatchTransactionsWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, SaveTransactionsResponse]
+        ErrorResponse | SaveTransactionsResponse
     """
 
     return (
         await asyncio_detailed(
-            budget_id=budget_id,
+            plan_id=plan_id,
             client=client,
             body=body,
         )

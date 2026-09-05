@@ -15,15 +15,13 @@ from ynab_cli.domain.settings import Settings
 
 
 def _should_skip_payee(payee: models.Payee) -> bool:
-    if (
+    return bool(
         payee.deleted
         or (payee.transfer_account_id and isinstance(payee.transfer_account_id, str))
         or payee.name.startswith("Transfer : ")
         or payee.name.startswith(UNUSED_PREFIX)
         or payee.name in ["Starting Balance", "Manual Balance Adjustment", "Reconciliation Balance Adjustment"]
-    ):
-        return True
-    return False
+    )
 
 
 def _normalize_name(name: str) -> str:
@@ -86,7 +84,7 @@ class NormalizeNames:
                             body=models.PatchPayeeWrapper(payee=models.SavePayee(name=normalized_name)),
                         )
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             if isinstance(e, util.ApiError) and e.status_code == 401:
                 await self._io.print("Invalid or expired access token. Please update your settings.")
             elif isinstance(e, util.ApiError) and e.status_code == 429:
@@ -143,9 +141,8 @@ class ListDuplicates:
                     if fuzz.ratio(normalized_payee_name, normalized_filtered_payee_name) > 70:
                         # Check to see if we already tracked this possible duplicate in the other direction
                         existing_possible_duplicates = possible_duplicates.get((filtered_payee.id, filtered_payee.name))
-                        if existing_possible_duplicates:
-                            if (payee.id, payee.name) in existing_possible_duplicates:
-                                continue
+                        if existing_possible_duplicates and (payee.id, payee.name) in existing_possible_duplicates:
+                            continue
 
                         possible_duplicates[(payee.id, payee.name)] = possible_duplicates.get(
                             (payee.id, payee.name), []
@@ -154,7 +151,7 @@ class ListDuplicates:
 
                         yield (payee, filtered_payee)
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             if isinstance(e, util.ApiError) and e.status_code == 401:
                 await self._io.print("Invalid or expired access token. Please update your settings.")
             elif isinstance(e, util.ApiError) and e.status_code == 429:
@@ -225,10 +222,10 @@ class ListUnused:
                                 client=self._client,
                                 body=models.PatchPayeeWrapper(payee=models.SavePayee(name=payee.name)),
                             )
-                        except Exception as e:
+                        except Exception as e:  # noqa: BLE001
                             await self._io.print(f"Failed to rename payee {payee.name}: {e}")
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             if isinstance(e, util.ApiError) and e.status_code == 401:
                 await self._io.print("Invalid or expired access token. Please update your settings.")
             elif isinstance(e, util.ApiError) and e.status_code == 429:
@@ -271,7 +268,7 @@ class ListAll:
 
                 yield payee
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             if isinstance(e, util.ApiError) and e.status_code == 401:
                 await self._io.print("Invalid or expired access token. Please update your settings.")
             elif isinstance(e, util.ApiError) and e.status_code == 429:

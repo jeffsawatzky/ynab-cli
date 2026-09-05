@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,11 +17,11 @@ T = TypeVar("T", bound="MonthSummariesResponseData")
 class MonthSummariesResponseData:
     """
     Attributes:
-        months (list['MonthSummary']):
+        months (list[MonthSummary]):
         server_knowledge (int): The knowledge of the server
     """
 
-    months: list["MonthSummary"]
+    months: list[MonthSummary]
     server_knowledge: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -43,7 +45,7 @@ class MonthSummariesResponseData:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         from ynab_cli.adapters.ynab.models.month_summary import MonthSummary
 
         d = dict(src_dict)

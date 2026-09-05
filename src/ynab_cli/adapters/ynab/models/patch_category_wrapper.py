@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ynab_cli.adapters.ynab.models.save_category import SaveCategory
+    from ynab_cli.adapters.ynab.models.existing_category import ExistingCategory
 
 
 T = TypeVar("T", bound="PatchCategoryWrapper")
@@ -15,10 +17,10 @@ T = TypeVar("T", bound="PatchCategoryWrapper")
 class PatchCategoryWrapper:
     """
     Attributes:
-        category (SaveCategory):
+        category (ExistingCategory):
     """
 
-    category: "SaveCategory"
+    category: ExistingCategory
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,11 +37,11 @@ class PatchCategoryWrapper:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ynab_cli.adapters.ynab.models.save_category import SaveCategory
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
+        from ynab_cli.adapters.ynab.models.existing_category import ExistingCategory
 
         d = dict(src_dict)
-        category = SaveCategory.from_dict(d.pop("category"))
+        category = ExistingCategory.from_dict(d.pop("category"))
 
         patch_category_wrapper = cls(
             category=category,

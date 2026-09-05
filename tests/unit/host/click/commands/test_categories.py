@@ -18,10 +18,11 @@ def test_list_unused(runner: CliRunner, container: Container, empty_uuid: UUID) 
             id=empty_uuid,
             category_group_id=empty_uuid,
             name="Category",
+            hidden=False,
+            internal=False,
             activity=0,
             balance=0,
             budgeted=0,
-            hidden=False,
             deleted=False,
         )
 
@@ -44,10 +45,11 @@ def test_list_all(runner: CliRunner, container: Container, empty_uuid: UUID) -> 
             id=empty_uuid,
             category_group_id=empty_uuid,
             name="Category",
+            hidden=False,
+            internal=False,
             activity=0,
             balance=0,
             budgeted=0,
-            hidden=False,
             deleted=False,
         )
 

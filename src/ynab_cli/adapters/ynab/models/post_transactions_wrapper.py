@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,20 +19,20 @@ T = TypeVar("T", bound="PostTransactionsWrapper")
 class PostTransactionsWrapper:
     """
     Attributes:
-        transaction (Union[Unset, NewTransaction]):
-        transactions (Union[Unset, list['NewTransaction']]):
+        transaction (NewTransaction | Unset):
+        transactions (list[NewTransaction] | Unset):
     """
 
-    transaction: Union[Unset, "NewTransaction"] = UNSET
-    transactions: Unset | list["NewTransaction"] = UNSET
+    transaction: NewTransaction | Unset = UNSET
+    transactions: list[NewTransaction] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        transaction: Unset | dict[str, Any] = UNSET
+        transaction: dict[str, Any] | Unset = UNSET
         if not isinstance(self.transaction, Unset):
             transaction = self.transaction.to_dict()
 
-        transactions: Unset | list[dict[str, Any]] = UNSET
+        transactions: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.transactions, Unset):
             transactions = []
             for transactions_item_data in self.transactions:
@@ -48,23 +50,25 @@ class PostTransactionsWrapper:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         from ynab_cli.adapters.ynab.models.new_transaction import NewTransaction
 
         d = dict(src_dict)
         _transaction = d.pop("transaction", UNSET)
-        transaction: Unset | NewTransaction
+        transaction: NewTransaction | Unset
         if isinstance(_transaction, Unset):
             transaction = UNSET
         else:
             transaction = NewTransaction.from_dict(_transaction)
 
-        transactions = []
         _transactions = d.pop("transactions", UNSET)
-        for transactions_item_data in _transactions or []:
-            transactions_item = NewTransaction.from_dict(transactions_item_data)
+        transactions: list[NewTransaction] | Unset = UNSET
+        if _transactions is not UNSET:
+            transactions = []
+            for transactions_item_data in _transactions:
+                transactions_item = NewTransaction.from_dict(transactions_item_data)
 
-            transactions.append(transactions_item)
+                transactions.append(transactions_item)
 
         post_transactions_wrapper = cls(
             transaction=transaction,

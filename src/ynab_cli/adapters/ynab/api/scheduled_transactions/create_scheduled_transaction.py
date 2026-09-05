@@ -1,7 +1,8 @@
 from http import HTTPStatus
 from typing import Any
+from urllib.parse import quote
 
-import httpx
+import httpx2
 
 from ynab_cli.adapters.ynab import errors
 from ynab_cli.adapters.ynab.client import AuthenticatedClient, Client
@@ -12,7 +13,7 @@ from ynab_cli.adapters.ynab.types import Response
 
 
 def _get_kwargs(
-    budget_id: str,
+    plan_id: str,
     *,
     body: PostScheduledTransactionWrapper,
 ) -> dict[str, Any]:
@@ -20,7 +21,9 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": f"/budgets/{budget_id}/scheduled_transactions",
+        "url": "/plans/{plan_id}/scheduled_transactions".format(
+            plan_id=quote(str(plan_id), safe=""),
+        ),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -32,7 +35,7 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
+    *, client: AuthenticatedClient | Client, response: httpx2.Response
 ) -> ErrorResponse | ScheduledTransactionResponse | None:
     if response.status_code == 201:
         response_201 = ScheduledTransactionResponse.from_dict(response.json())
@@ -51,7 +54,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
+    *, client: AuthenticatedClient | Client, response: httpx2.Response
 ) -> Response[ErrorResponse | ScheduledTransactionResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -62,29 +65,29 @@ def _build_response(
 
 
 def sync_detailed(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PostScheduledTransactionWrapper,
 ) -> Response[ErrorResponse | ScheduledTransactionResponse]:
-    """Create a single scheduled transaction
+    """Create a scheduled transaction
 
      Creates a single scheduled transaction (a transaction with a future date).
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PostScheduledTransactionWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, ScheduledTransactionResponse]]
+        Response[ErrorResponse | ScheduledTransactionResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         body=body,
     )
 
@@ -96,58 +99,58 @@ def sync_detailed(
 
 
 def sync(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PostScheduledTransactionWrapper,
 ) -> ErrorResponse | ScheduledTransactionResponse | None:
-    """Create a single scheduled transaction
+    """Create a scheduled transaction
 
      Creates a single scheduled transaction (a transaction with a future date).
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PostScheduledTransactionWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, ScheduledTransactionResponse]
+        ErrorResponse | ScheduledTransactionResponse
     """
 
     return sync_detailed(
-        budget_id=budget_id,
+        plan_id=plan_id,
         client=client,
         body=body,
     ).parsed
 
 
 async def asyncio_detailed(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PostScheduledTransactionWrapper,
 ) -> Response[ErrorResponse | ScheduledTransactionResponse]:
-    """Create a single scheduled transaction
+    """Create a scheduled transaction
 
      Creates a single scheduled transaction (a transaction with a future date).
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PostScheduledTransactionWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, ScheduledTransactionResponse]]
+        Response[ErrorResponse | ScheduledTransactionResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         body=body,
     )
 
@@ -157,30 +160,30 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    budget_id: str,
+    plan_id: str,
     *,
     client: AuthenticatedClient | Client,
     body: PostScheduledTransactionWrapper,
 ) -> ErrorResponse | ScheduledTransactionResponse | None:
-    """Create a single scheduled transaction
+    """Create a scheduled transaction
 
      Creates a single scheduled transaction (a transaction with a future date).
 
     Args:
-        budget_id (str):
+        plan_id (str):
         body (PostScheduledTransactionWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, ScheduledTransactionResponse]
+        ErrorResponse | ScheduledTransactionResponse
     """
 
     return (
         await asyncio_detailed(
-            budget_id=budget_id,
+            plan_id=plan_id,
             client=client,
             body=body,
         )

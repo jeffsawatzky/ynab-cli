@@ -54,14 +54,14 @@ async def run_asyncio_detailed(
                 prompt="API rate limit exceeded. Enter a new access token", password=True
             )
             if not new_access_token:
-                raise e
+                raise
 
             client.update_token(new_access_token)
 
             response = await asyncio_detailed(*args, **kwargs)
             parsed_data = get_parsed_response_data(response)
         else:
-            raise e
+            raise
 
     return parsed_data
 

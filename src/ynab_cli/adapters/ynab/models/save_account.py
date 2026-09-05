@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, Self, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ynab_cli.adapters.ynab.models.account_type import AccountType
+from ynab_cli.adapters.ynab.models.save_account_type import SaveAccountType
 
 T = TypeVar("T", bound="SaveAccount")
 
@@ -14,12 +16,12 @@ class SaveAccount:
     """
     Attributes:
         name (str): The name of the account
-        type_ (AccountType): The type of account
+        type_ (SaveAccountType): The type of account to create or update
         balance (int): The current balance of the account in milliunits format
     """
 
     name: str
-    type_: AccountType
+    type_: SaveAccountType
     balance: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -43,11 +45,11 @@ class SaveAccount:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         d = dict(src_dict)
         name = d.pop("name")
 
-        type_ = AccountType(d.pop("type"))
+        type_ = SaveAccountType(d.pop("type"))
 
         balance = d.pop("balance")
 

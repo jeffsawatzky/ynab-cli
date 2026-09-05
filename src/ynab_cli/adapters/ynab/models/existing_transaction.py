@@ -1,11 +1,12 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
 from ynab_cli.adapters.ynab.models.transaction_cleared_status import TransactionClearedStatus
 from ynab_cli.adapters.ynab.models.transaction_flag_color_type_1 import TransactionFlagColorType1
@@ -24,59 +25,61 @@ T = TypeVar("T", bound="ExistingTransaction")
 class ExistingTransaction:
     """
     Attributes:
-        account_id (Union[Unset, UUID]):
-        date (Union[Unset, datetime.date]): The transaction date in ISO format (e.g. 2016-12-01).  Future dates
-            (scheduled transactions) are not permitted.  Split transaction dates cannot be changed and if a different date
-            is supplied it will be ignored.
-        amount (Union[Unset, int]): The transaction amount in milliunits format.  Split transaction amounts cannot be
-            changed and if a different amount is supplied it will be ignored.
-        payee_id (Union[None, UUID, Unset]): The payee for the transaction.  To create a transfer between two accounts,
-            use the account transfer payee pointing to the target account.  Account transfer payees are specified as
+        account_id (UUID | Unset):
+        date (datetime.date | Unset): The transaction date in ISO format (e.g. 2016-12-01).  Future dates (scheduled
+            transactions) are not permitted.  Split transaction dates cannot be changed and if a different date is supplied
+            it will be ignored.
+        amount (int | Unset): The transaction amount in milliunits format.  Split transaction amounts cannot be changed
+            and if a different amount is supplied it will be ignored.
+        payee_id (None | Unset | UUID): The payee for the transaction.  To create a transfer between two accounts, use
+            the account transfer payee pointing to the target account.  Account transfer payees are specified as
             `transfer_payee_id` on the account resource.
-        payee_name (Union[None, Unset, str]): The payee name.  If a `payee_name` value is provided and `payee_id` has a
-            null value, the `payee_name` value will be used to resolve the payee by either (1) a matching payee rename rule
-            (only if `import_id` is also specified) or (2) a payee with the same name or (3) creation of a new payee.
-        category_id (Union[None, UUID, Unset]): The category for the transaction.  To configure a split transaction, you
-            can specify null for `category_id` and provide a `subtransactions` array as part of the transaction object.  If
-            an existing transaction is a split, the `category_id` cannot be changed.  Credit Card Payment categories are not
+        payee_name (None | str | Unset): The payee name.  If a `payee_name` value is provided and `payee_id` has a null
+            value, the `payee_name` value will be used to resolve the payee by either (1) a matching payee rename rule (only
+            if `import_id` is also specified) or (2) a payee with the same name or (3) creation of a new payee.
+        category_id (None | Unset | UUID): The category for the transaction.  To configure a split transaction, you can
+            specify null for `category_id` and provide a `subtransactions` array as part of the transaction object.  If an
+            existing transaction is a split, the `category_id` cannot be changed.  Credit Card Payment categories are not
             permitted and will be ignored if supplied.
-        memo (Union[None, Unset, str]):
-        cleared (Union[Unset, TransactionClearedStatus]): The cleared status of the transaction
-        approved (Union[Unset, bool]): Whether or not the transaction is approved.  If not supplied, transaction will be
+        memo (None | str | Unset):
+        cleared (TransactionClearedStatus | Unset): The cleared status of the transaction
+        approved (bool | Unset): Whether or not the transaction is approved.  If not supplied, transaction will be
             unapproved by default.
-        flag_color (Union[None, TransactionFlagColorType1, TransactionFlagColorType2Type1,
-            TransactionFlagColorType3Type1, Unset]): The transaction flag
-        subtransactions (Union[Unset, list['SaveSubTransaction']]): An array of subtransactions to configure a
-            transaction as a split. Updating `subtransactions` on an existing split transaction is not supported.
+        flag_color (None | TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 |
+            Unset): The transaction flag
+        subtransactions (list[SaveSubTransaction] | Unset): An array of subtransactions to configure a transaction as a
+            split. Updating `subtransactions` on an existing split transaction is not supported and will return an error.
+            Splits are not allowed on tracking accounts or on transfers between on-budget accounts; a transfer to a tracking
+            account can be a split.
     """
 
-    account_id: Unset | UUID = UNSET
-    date: Unset | datetime.date = UNSET
-    amount: Unset | int = UNSET
-    payee_id: None | UUID | Unset = UNSET
-    payee_name: None | Unset | str = UNSET
-    category_id: None | UUID | Unset = UNSET
-    memo: None | Unset | str = UNSET
-    cleared: Unset | TransactionClearedStatus = UNSET
-    approved: Unset | bool = UNSET
+    account_id: UUID | Unset = UNSET
+    date: datetime.date | Unset = UNSET
+    amount: int | Unset = UNSET
+    payee_id: Unset | UUID | None = UNSET
+    payee_name: str | Unset | None = UNSET
+    category_id: Unset | UUID | None = UNSET
+    memo: str | Unset | None = UNSET
+    cleared: TransactionClearedStatus | Unset = UNSET
+    approved: bool | Unset = UNSET
     flag_color: (
-        None | TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset
+        TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset | None
     ) = UNSET
-    subtransactions: Unset | list["SaveSubTransaction"] = UNSET
+    subtransactions: list[SaveSubTransaction] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        account_id: Unset | str = UNSET
+        account_id: str | Unset = UNSET
         if not isinstance(self.account_id, Unset):
             account_id = str(self.account_id)
 
-        date: Unset | str = UNSET
+        date: str | Unset = UNSET
         if not isinstance(self.date, Unset):
             date = self.date.isoformat()
 
         amount = self.amount
 
-        payee_id: None | Unset | str
+        payee_id: str | Unset | None
         if isinstance(self.payee_id, Unset):
             payee_id = UNSET
         elif isinstance(self.payee_id, UUID):
@@ -84,13 +87,13 @@ class ExistingTransaction:
         else:
             payee_id = self.payee_id
 
-        payee_name: None | Unset | str
+        payee_name: str | Unset | None
         if isinstance(self.payee_name, Unset):
             payee_name = UNSET
         else:
             payee_name = self.payee_name
 
-        category_id: None | Unset | str
+        category_id: str | Unset | None
         if isinstance(self.category_id, Unset):
             category_id = UNSET
         elif isinstance(self.category_id, UUID):
@@ -98,31 +101,29 @@ class ExistingTransaction:
         else:
             category_id = self.category_id
 
-        memo: None | Unset | str
+        memo: str | Unset | None
         if isinstance(self.memo, Unset):
             memo = UNSET
         else:
             memo = self.memo
 
-        cleared: Unset | str = UNSET
+        cleared: str | Unset = UNSET
         if not isinstance(self.cleared, Unset):
             cleared = self.cleared.value
 
         approved = self.approved
 
-        flag_color: None | Unset | str
+        flag_color: str | Unset | None
         if isinstance(self.flag_color, Unset):
             flag_color = UNSET
-        elif isinstance(self.flag_color, TransactionFlagColorType1):
-            flag_color = self.flag_color.value
-        elif isinstance(self.flag_color, TransactionFlagColorType2Type1):
-            flag_color = self.flag_color.value
-        elif isinstance(self.flag_color, TransactionFlagColorType3Type1):
+        elif isinstance(
+            self.flag_color, (TransactionFlagColorType1, TransactionFlagColorType2Type1, TransactionFlagColorType3Type1)
+        ):
             flag_color = self.flag_color.value
         else:
             flag_color = self.flag_color
 
-        subtransactions: Unset | list[dict[str, Any]] = UNSET
+        subtransactions: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.subtransactions, Unset):
             subtransactions = []
             for subtransactions_item_data in self.subtransactions:
@@ -158,27 +159,27 @@ class ExistingTransaction:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         from ynab_cli.adapters.ynab.models.save_sub_transaction import SaveSubTransaction
 
         d = dict(src_dict)
         _account_id = d.pop("account_id", UNSET)
-        account_id: Unset | UUID
+        account_id: UUID | Unset
         if isinstance(_account_id, Unset):
             account_id = UNSET
         else:
             account_id = UUID(_account_id)
 
         _date = d.pop("date", UNSET)
-        date: Unset | datetime.date
+        date: datetime.date | Unset
         if isinstance(_date, Unset):
             date = UNSET
         else:
-            date = isoparse(_date).date()
+            date = datetime.date.fromisoformat(_date)
 
         amount = d.pop("amount", UNSET)
 
-        def _parse_payee_id(data: object) -> None | UUID | Unset:
+        def _parse_payee_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -189,22 +190,22 @@ class ExistingTransaction:
                 payee_id_type_0 = UUID(data)
 
                 return payee_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(Unset | UUID | None, data)
 
         payee_id = _parse_payee_id(d.pop("payee_id", UNSET))
 
-        def _parse_payee_name(data: object) -> None | Unset | str:
+        def _parse_payee_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(str | Unset | None, data)
 
         payee_name = _parse_payee_name(d.pop("payee_name", UNSET))
 
-        def _parse_category_id(data: object) -> None | UUID | Unset:
+        def _parse_category_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -215,23 +216,23 @@ class ExistingTransaction:
                 category_id_type_0 = UUID(data)
 
                 return category_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(Unset | UUID | None, data)
 
         category_id = _parse_category_id(d.pop("category_id", UNSET))
 
-        def _parse_memo(data: object) -> None | Unset | str:
+        def _parse_memo(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(str | Unset | None, data)
 
         memo = _parse_memo(d.pop("memo", UNSET))
 
         _cleared = d.pop("cleared", UNSET)
-        cleared: Unset | TransactionClearedStatus
+        cleared: TransactionClearedStatus | Unset
         if isinstance(_cleared, Unset):
             cleared = UNSET
         else:
@@ -241,7 +242,7 @@ class ExistingTransaction:
 
         def _parse_flag_color(
             data: object,
-        ) -> None | TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset:
+        ) -> TransactionFlagColorType1 | TransactionFlagColorType2Type1 | TransactionFlagColorType3Type1 | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -252,7 +253,7 @@ class ExistingTransaction:
                 componentsschemas_transaction_flag_color_type_1 = TransactionFlagColorType1(data)
 
                 return componentsschemas_transaction_flag_color_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             try:
                 if not isinstance(data, str):
@@ -260,7 +261,7 @@ class ExistingTransaction:
                 componentsschemas_transaction_flag_color_type_2_type_1 = TransactionFlagColorType2Type1(data)
 
                 return componentsschemas_transaction_flag_color_type_2_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             try:
                 if not isinstance(data, str):
@@ -268,25 +269,27 @@ class ExistingTransaction:
                 componentsschemas_transaction_flag_color_type_3_type_1 = TransactionFlagColorType3Type1(data)
 
                 return componentsschemas_transaction_flag_color_type_3_type_1
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(
-                None
-                | TransactionFlagColorType1
+                TransactionFlagColorType1
                 | TransactionFlagColorType2Type1
                 | TransactionFlagColorType3Type1
-                | Unset,
+                | Unset
+                | None,
                 data,
             )
 
         flag_color = _parse_flag_color(d.pop("flag_color", UNSET))
 
-        subtransactions = []
         _subtransactions = d.pop("subtransactions", UNSET)
-        for subtransactions_item_data in _subtransactions or []:
-            subtransactions_item = SaveSubTransaction.from_dict(subtransactions_item_data)
+        subtransactions: list[SaveSubTransaction] | Unset = UNSET
+        if _subtransactions is not UNSET:
+            subtransactions = []
+            for subtransactions_item_data in _subtransactions:
+                subtransactions_item = SaveSubTransaction.from_dict(subtransactions_item_data)
 
-            subtransactions.append(subtransactions_item)
+                subtransactions.append(subtransactions_item)
 
         existing_transaction = cls(
             account_id=account_id,

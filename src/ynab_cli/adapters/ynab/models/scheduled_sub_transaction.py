@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, Self, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -19,25 +21,29 @@ class ScheduledSubTransaction:
         amount (int): The scheduled subtransaction amount in milliunits format
         deleted (bool): Whether or not the scheduled subtransaction has been deleted. Deleted scheduled subtransactions
             will only be included in delta requests.
-        memo (Union[None, Unset, str]):
-        payee_id (Union[None, UUID, Unset]):
-        payee_name (Union[None, Unset, str]):
-        category_id (Union[None, UUID, Unset]):
-        category_name (Union[None, Unset, str]):
-        transfer_account_id (Union[None, UUID, Unset]): If a transfer, the account_id which the scheduled subtransaction
+        memo (None | str | Unset):
+        payee_id (None | Unset | UUID):
+        payee_name (None | str | Unset):
+        category_id (None | Unset | UUID):
+        category_name (None | str | Unset):
+        transfer_account_id (None | Unset | UUID): If a transfer, the account_id which the scheduled subtransaction
             transfers to
+        amount_formatted (str | Unset): The scheduled subtransaction amount formatted in the plan's currency format
+        amount_currency (float | Unset): The scheduled subtransaction amount as a decimal currency amount
     """
 
     id: UUID
     scheduled_transaction_id: UUID
     amount: int
     deleted: bool
-    memo: None | Unset | str = UNSET
-    payee_id: None | UUID | Unset = UNSET
-    payee_name: None | Unset | str = UNSET
-    category_id: None | UUID | Unset = UNSET
-    category_name: None | Unset | str = UNSET
-    transfer_account_id: None | UUID | Unset = UNSET
+    memo: str | Unset | None = UNSET
+    payee_id: Unset | UUID | None = UNSET
+    payee_name: str | Unset | None = UNSET
+    category_id: Unset | UUID | None = UNSET
+    category_name: str | Unset | None = UNSET
+    transfer_account_id: Unset | UUID | None = UNSET
+    amount_formatted: str | Unset = UNSET
+    amount_currency: float | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -49,13 +55,13 @@ class ScheduledSubTransaction:
 
         deleted = self.deleted
 
-        memo: None | Unset | str
+        memo: str | Unset | None
         if isinstance(self.memo, Unset):
             memo = UNSET
         else:
             memo = self.memo
 
-        payee_id: None | Unset | str
+        payee_id: str | Unset | None
         if isinstance(self.payee_id, Unset):
             payee_id = UNSET
         elif isinstance(self.payee_id, UUID):
@@ -63,13 +69,13 @@ class ScheduledSubTransaction:
         else:
             payee_id = self.payee_id
 
-        payee_name: None | Unset | str
+        payee_name: str | Unset | None
         if isinstance(self.payee_name, Unset):
             payee_name = UNSET
         else:
             payee_name = self.payee_name
 
-        category_id: None | Unset | str
+        category_id: str | Unset | None
         if isinstance(self.category_id, Unset):
             category_id = UNSET
         elif isinstance(self.category_id, UUID):
@@ -77,19 +83,23 @@ class ScheduledSubTransaction:
         else:
             category_id = self.category_id
 
-        category_name: None | Unset | str
+        category_name: str | Unset | None
         if isinstance(self.category_name, Unset):
             category_name = UNSET
         else:
             category_name = self.category_name
 
-        transfer_account_id: None | Unset | str
+        transfer_account_id: str | Unset | None
         if isinstance(self.transfer_account_id, Unset):
             transfer_account_id = UNSET
         elif isinstance(self.transfer_account_id, UUID):
             transfer_account_id = str(self.transfer_account_id)
         else:
             transfer_account_id = self.transfer_account_id
+
+        amount_formatted = self.amount_formatted
+
+        amount_currency = self.amount_currency
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -113,11 +123,15 @@ class ScheduledSubTransaction:
             field_dict["category_name"] = category_name
         if transfer_account_id is not UNSET:
             field_dict["transfer_account_id"] = transfer_account_id
+        if amount_formatted is not UNSET:
+            field_dict["amount_formatted"] = amount_formatted
+        if amount_currency is not UNSET:
+            field_dict["amount_currency"] = amount_currency
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         d = dict(src_dict)
         id = UUID(d.pop("id"))
 
@@ -127,16 +141,16 @@ class ScheduledSubTransaction:
 
         deleted = d.pop("deleted")
 
-        def _parse_memo(data: object) -> None | Unset | str:
+        def _parse_memo(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(str | Unset | None, data)
 
         memo = _parse_memo(d.pop("memo", UNSET))
 
-        def _parse_payee_id(data: object) -> None | UUID | Unset:
+        def _parse_payee_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -147,22 +161,22 @@ class ScheduledSubTransaction:
                 payee_id_type_0 = UUID(data)
 
                 return payee_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(Unset | UUID | None, data)
 
         payee_id = _parse_payee_id(d.pop("payee_id", UNSET))
 
-        def _parse_payee_name(data: object) -> None | Unset | str:
+        def _parse_payee_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(str | Unset | None, data)
 
         payee_name = _parse_payee_name(d.pop("payee_name", UNSET))
 
-        def _parse_category_id(data: object) -> None | UUID | Unset:
+        def _parse_category_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -173,22 +187,22 @@ class ScheduledSubTransaction:
                 category_id_type_0 = UUID(data)
 
                 return category_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(Unset | UUID | None, data)
 
         category_id = _parse_category_id(d.pop("category_id", UNSET))
 
-        def _parse_category_name(data: object) -> None | Unset | str:
+        def _parse_category_name(data: object) -> str | Unset | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(str | Unset | None, data)
 
         category_name = _parse_category_name(d.pop("category_name", UNSET))
 
-        def _parse_transfer_account_id(data: object) -> None | UUID | Unset:
+        def _parse_transfer_account_id(data: object) -> Unset | UUID | None:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -199,11 +213,15 @@ class ScheduledSubTransaction:
                 transfer_account_id_type_0 = UUID(data)
 
                 return transfer_account_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | UUID | Unset, data)
+            return cast(Unset | UUID | None, data)
 
         transfer_account_id = _parse_transfer_account_id(d.pop("transfer_account_id", UNSET))
+
+        amount_formatted = d.pop("amount_formatted", UNSET)
+
+        amount_currency = d.pop("amount_currency", UNSET)
 
         scheduled_sub_transaction = cls(
             id=id,
@@ -216,6 +234,8 @@ class ScheduledSubTransaction:
             category_id=category_id,
             category_name=category_name,
             transfer_account_id=transfer_account_id,
+            amount_formatted=amount_formatted,
+            amount_currency=amount_currency,
         )
 
         scheduled_sub_transaction.additional_properties = d

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, Self, TypeVar
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -19,17 +21,19 @@ class CategoryGroupWithCategories:
         id (UUID):
         name (str):
         hidden (bool): Whether or not the category group is hidden
+        internal (bool): Whether or not the category group is internal
         deleted (bool): Whether or not the category group has been deleted.  Deleted category groups will only be
             included in delta requests.
-        categories (list['Category']): Category group categories.  Amounts (budgeted, activity, balance, etc.) are
-            specific to the current budget month (UTC).
+        categories (list[Category]): Category group categories.  Amounts (assigned, activity, available, etc.) are
+            specific to the current plan month (UTC).
     """
 
     id: UUID
     name: str
     hidden: bool
+    internal: bool
     deleted: bool
-    categories: list["Category"]
+    categories: list[Category]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,6 +42,8 @@ class CategoryGroupWithCategories:
         name = self.name
 
         hidden = self.hidden
+
+        internal = self.internal
 
         deleted = self.deleted
 
@@ -53,6 +59,7 @@ class CategoryGroupWithCategories:
                 "id": id,
                 "name": name,
                 "hidden": hidden,
+                "internal": internal,
                 "deleted": deleted,
                 "categories": categories,
             }
@@ -61,7 +68,7 @@ class CategoryGroupWithCategories:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         from ynab_cli.adapters.ynab.models.category import Category
 
         d = dict(src_dict)
@@ -70,6 +77,8 @@ class CategoryGroupWithCategories:
         name = d.pop("name")
 
         hidden = d.pop("hidden")
+
+        internal = d.pop("internal")
 
         deleted = d.pop("deleted")
 
@@ -84,6 +93,7 @@ class CategoryGroupWithCategories:
             id=id,
             name=name,
             hidden=hidden,
+            internal=internal,
             deleted=deleted,
             categories=categories,
         )

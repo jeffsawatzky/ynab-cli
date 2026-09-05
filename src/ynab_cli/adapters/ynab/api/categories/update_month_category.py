@@ -1,8 +1,9 @@
 import datetime
 from http import HTTPStatus
 from typing import Any
+from urllib.parse import quote
 
-import httpx
+import httpx2
 
 from ynab_cli.adapters.ynab import errors
 from ynab_cli.adapters.ynab.client import AuthenticatedClient, Client
@@ -13,7 +14,7 @@ from ynab_cli.adapters.ynab.types import Response
 
 
 def _get_kwargs(
-    budget_id: str,
+    plan_id: str,
     month: datetime.date,
     category_id: str,
     *,
@@ -23,7 +24,11 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "patch",
-        "url": f"/budgets/{budget_id}/months/{month}/categories/{category_id}",
+        "url": "/plans/{plan_id}/months/{month}/categories/{category_id}".format(
+            plan_id=quote(str(plan_id), safe=""),
+            month=quote(str(month), safe=""),
+            category_id=quote(str(category_id), safe=""),
+        ),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -35,7 +40,7 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
+    *, client: AuthenticatedClient | Client, response: httpx2.Response
 ) -> ErrorResponse | SaveCategoryResponse | None:
     if response.status_code == 200:
         response_200 = SaveCategoryResponse.from_dict(response.json())
@@ -54,7 +59,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
+    *, client: AuthenticatedClient | Client, response: httpx2.Response
 ) -> Response[ErrorResponse | SaveCategoryResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -65,7 +70,7 @@ def _build_response(
 
 
 def sync_detailed(
-    budget_id: str,
+    plan_id: str,
     month: datetime.date,
     category_id: str,
     *,
@@ -74,24 +79,24 @@ def sync_detailed(
 ) -> Response[ErrorResponse | SaveCategoryResponse]:
     """Update a category for a specific month
 
-     Update a category for a specific month.  Only `budgeted` amount can be updated.
+     Update a category for a specific month.  Only `budgeted` (assigned) amount can be updated.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         month (datetime.date):
         category_id (str):
         body (PatchMonthCategoryWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, SaveCategoryResponse]]
+        Response[ErrorResponse | SaveCategoryResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         month=month,
         category_id=category_id,
         body=body,
@@ -105,7 +110,7 @@ def sync_detailed(
 
 
 def sync(
-    budget_id: str,
+    plan_id: str,
     month: datetime.date,
     category_id: str,
     *,
@@ -114,24 +119,24 @@ def sync(
 ) -> ErrorResponse | SaveCategoryResponse | None:
     """Update a category for a specific month
 
-     Update a category for a specific month.  Only `budgeted` amount can be updated.
+     Update a category for a specific month.  Only `budgeted` (assigned) amount can be updated.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         month (datetime.date):
         category_id (str):
         body (PatchMonthCategoryWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, SaveCategoryResponse]
+        ErrorResponse | SaveCategoryResponse
     """
 
     return sync_detailed(
-        budget_id=budget_id,
+        plan_id=plan_id,
         month=month,
         category_id=category_id,
         client=client,
@@ -140,7 +145,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    budget_id: str,
+    plan_id: str,
     month: datetime.date,
     category_id: str,
     *,
@@ -149,24 +154,24 @@ async def asyncio_detailed(
 ) -> Response[ErrorResponse | SaveCategoryResponse]:
     """Update a category for a specific month
 
-     Update a category for a specific month.  Only `budgeted` amount can be updated.
+     Update a category for a specific month.  Only `budgeted` (assigned) amount can be updated.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         month (datetime.date):
         category_id (str):
         body (PatchMonthCategoryWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, SaveCategoryResponse]]
+        Response[ErrorResponse | SaveCategoryResponse]
     """
 
     kwargs = _get_kwargs(
-        budget_id=budget_id,
+        plan_id=plan_id,
         month=month,
         category_id=category_id,
         body=body,
@@ -178,7 +183,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    budget_id: str,
+    plan_id: str,
     month: datetime.date,
     category_id: str,
     *,
@@ -187,25 +192,25 @@ async def asyncio(
 ) -> ErrorResponse | SaveCategoryResponse | None:
     """Update a category for a specific month
 
-     Update a category for a specific month.  Only `budgeted` amount can be updated.
+     Update a category for a specific month.  Only `budgeted` (assigned) amount can be updated.
 
     Args:
-        budget_id (str):
+        plan_id (str):
         month (datetime.date):
         category_id (str):
         body (PatchMonthCategoryWrapper):
 
     Raises:
         errors.UnexpectedStatusError: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
+        httpx2.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, SaveCategoryResponse]
+        ErrorResponse | SaveCategoryResponse
     """
 
     return (
         await asyncio_detailed(
-            budget_id=budget_id,
+            plan_id=plan_id,
             month=month,
             category_id=category_id,
             client=client,

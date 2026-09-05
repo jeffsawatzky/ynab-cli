@@ -46,7 +46,7 @@ class ApplyRulesParamsDialogForm(DialogForm[use_cases.ApplyRulesParams]):
             transaction_rules_json = json.loads(self._transaction_rules_path.read_text())
             self._params["transaction_rules"] = rules.TransactionRules.from_dict(transaction_rules_json)
             self.query_one(Pretty).update(self._params["transaction_rules"].to_dict())
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self.query_one(Log).write_line(f"Error loading rules: {e}")
             return
 

@@ -19,8 +19,6 @@ class CommandWidget(Widget):
             super().__init__()
             self.worker_state = worker_state
 
-        pass
-
     @override
     def compose(self) -> ComposeResult:
         with Vertical():

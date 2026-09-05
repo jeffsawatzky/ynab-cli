@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Self, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,18 +21,18 @@ class SaveTransactionsResponseData:
     Attributes:
         transaction_ids (list[str]): The transaction ids that were saved
         server_knowledge (int): The knowledge of the server
-        transaction (Union[Unset, TransactionDetail]):
-        transactions (Union[Unset, list['TransactionDetail']]): If multiple transactions were specified, the
-            transactions that were saved
-        duplicate_import_ids (Union[Unset, list[str]]): If multiple transactions were specified, a list of import_ids
-            that were not created because of an existing `import_id` found on the same account
+        transaction (TransactionDetail | Unset):
+        transactions (list[TransactionDetail] | Unset): If multiple transactions were specified, the transactions that
+            were saved
+        duplicate_import_ids (list[str] | Unset): If multiple transactions were specified, a list of import_ids that
+            were not created because of an existing `import_id` found on the same account
     """
 
     transaction_ids: list[str]
     server_knowledge: int
-    transaction: Union[Unset, "TransactionDetail"] = UNSET
-    transactions: Unset | list["TransactionDetail"] = UNSET
-    duplicate_import_ids: Unset | list[str] = UNSET
+    transaction: TransactionDetail | Unset = UNSET
+    transactions: list[TransactionDetail] | Unset = UNSET
+    duplicate_import_ids: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,18 +40,18 @@ class SaveTransactionsResponseData:
 
         server_knowledge = self.server_knowledge
 
-        transaction: Unset | dict[str, Any] = UNSET
+        transaction: dict[str, Any] | Unset = UNSET
         if not isinstance(self.transaction, Unset):
             transaction = self.transaction.to_dict()
 
-        transactions: Unset | list[dict[str, Any]] = UNSET
+        transactions: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.transactions, Unset):
             transactions = []
             for transactions_item_data in self.transactions:
                 transactions_item = transactions_item_data.to_dict()
                 transactions.append(transactions_item)
 
-        duplicate_import_ids: Unset | list[str] = UNSET
+        duplicate_import_ids: list[str] | Unset = UNSET
         if not isinstance(self.duplicate_import_ids, Unset):
             duplicate_import_ids = self.duplicate_import_ids
 
@@ -71,7 +73,7 @@ class SaveTransactionsResponseData:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+    def from_dict(cls, src_dict: Mapping[str, Any]) -> Self:
         from ynab_cli.adapters.ynab.models.transaction_detail import TransactionDetail
 
         d = dict(src_dict)
@@ -80,18 +82,20 @@ class SaveTransactionsResponseData:
         server_knowledge = d.pop("server_knowledge")
 
         _transaction = d.pop("transaction", UNSET)
-        transaction: Unset | TransactionDetail
+        transaction: TransactionDetail | Unset
         if isinstance(_transaction, Unset):
             transaction = UNSET
         else:
             transaction = TransactionDetail.from_dict(_transaction)
 
-        transactions = []
         _transactions = d.pop("transactions", UNSET)
-        for transactions_item_data in _transactions or []:
-            transactions_item = TransactionDetail.from_dict(transactions_item_data)
+        transactions: list[TransactionDetail] | Unset = UNSET
+        if _transactions is not UNSET:
+            transactions = []
+            for transactions_item_data in _transactions:
+                transactions_item = TransactionDetail.from_dict(transactions_item_data)
 
-            transactions.append(transactions_item)
+                transactions.append(transactions_item)
 
         duplicate_import_ids = cast(list[str], d.pop("duplicate_import_ids", UNSET))
 

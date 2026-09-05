@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -15,7 +14,7 @@ from ynab_cli.domain.use_cases import transactions as use_cases
 
 @pytest.fixture
 def transaction_detail() -> models.TransactionDetail:
-    return cast(models.TransactionDetail, ynab.TransactionDetailFactory.build())
+    return ynab.TransactionDetailFactory.build()
 
 
 def test_should_skip_transaction(transaction_detail: models.TransactionDetail) -> None:
@@ -66,7 +65,6 @@ def test_get_save_transaction__match_payee_name(transaction_detail: models.Trans
     assert result.to_dict() == {
         "id": transaction_detail.id,
         "category_id": "00000000-0000-0000-0000-000000000000",
-        "subtransactions": [],
     }
 
 
