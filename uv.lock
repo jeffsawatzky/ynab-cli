@@ -2641,7 +2641,7 @@ wheels = [
 
 [[package]]
 name = "ynab-cli"
-version = "0.8.2"
+version = "0.8.3"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },
