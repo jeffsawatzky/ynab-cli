@@ -11,10 +11,10 @@ from ynab_cli.domain.settings import Settings
 from ynab_cli.domain.use_cases import categories as use_cases
 
 
-def test_should_skip_category_or_group__with_category(empty_uuid: UUID) -> None:
+def test_should_skip_category(empty_uuid: UUID) -> None:
     assert (
-        use_cases._should_skip_category_or_group(
-            category_or_group=models.Category(
+        use_cases._should_skip_category(
+            category=models.Category(
                 id=empty_uuid,
                 category_group_id=empty_uuid,
                 name="Category",
@@ -30,8 +30,8 @@ def test_should_skip_category_or_group__with_category(empty_uuid: UUID) -> None:
     )
 
     assert (
-        use_cases._should_skip_category_or_group(
-            category_or_group=models.Category(
+        use_cases._should_skip_category(
+            category=models.Category(
                 id=empty_uuid,
                 category_group_id=empty_uuid,
                 name="Category",
@@ -47,10 +47,10 @@ def test_should_skip_category_or_group__with_category(empty_uuid: UUID) -> None:
     )
 
 
-def test_should_skip_category_or_group__with_category_group(empty_uuid: UUID) -> None:
+def test_should_skip_category_group__with_category_group(empty_uuid: UUID) -> None:
     assert (
-        use_cases._should_skip_category_or_group(
-            category_or_group=models.CategoryGroupWithCategories(
+        use_cases._should_skip_category_group(
+            category_group=models.CategoryGroupWithCategories(
                 id=empty_uuid,
                 name="Category",
                 hidden=False,
@@ -63,8 +63,8 @@ def test_should_skip_category_or_group__with_category_group(empty_uuid: UUID) ->
     )
 
     assert (
-        use_cases._should_skip_category_or_group(
-            category_or_group=models.CategoryGroupWithCategories(
+        use_cases._should_skip_category_group(
+            category_group=models.CategoryGroupWithCategories(
                 id=empty_uuid,
                 name="Category",
                 hidden=False,

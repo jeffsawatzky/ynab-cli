@@ -10,8 +10,12 @@ from ynab_cli.domain import ports
 from ynab_cli.domain.settings import Settings
 
 
-def _should_skip_category_or_group(category_or_group: models.Category | models.CategoryGroupWithCategories) -> bool:
-    return bool(category_or_group.deleted) or bool(category_or_group.internal) or bool(category_or_group.hidden)
+def _should_skip_category(category: models.Category) -> bool:
+    return bool(category.deleted) or bool(category.internal) or bool(category.hidden)
+
+
+def _should_skip_category_group(category_group: models.CategoryGroupWithCategories) -> bool:
+    return bool(category_group.deleted) or bool(category_group.hidden)
 
 
 class ListUnusedParams(TypedDict):
@@ -41,7 +45,7 @@ class ListUnused:
             for category_group in category_groups:
                 await self._io.progress.update(advance=1)
 
-                if _should_skip_category_or_group(category_or_group=category_group):
+                if _should_skip_category_group(category_group=category_group):
                     continue
 
                 progress_total += len(category_group.categories)
@@ -50,7 +54,7 @@ class ListUnused:
                 for category in category_group.categories:
                     await self._io.progress.update(advance=1)
 
-                    if _should_skip_category_or_group(category_or_group=category):
+                    if _should_skip_category(category=category):
                         continue
 
                     transactions = (
@@ -107,7 +111,7 @@ class ListAll:
             for category_group in category_groups:
                 await self._io.progress.update(advance=1)
 
-                if _should_skip_category_or_group(category_or_group=category_group):
+                if _should_skip_category_group(category_group=category_group):
                     continue
 
                 progress_total += len(category_group.categories)
@@ -116,7 +120,7 @@ class ListAll:
                 for category in category_group.categories:
                     await self._io.progress.update(advance=1)
 
-                    if _should_skip_category_or_group(category_or_group=category):
+                    if _should_skip_category(category=category):
                         continue
 
                     yield category
